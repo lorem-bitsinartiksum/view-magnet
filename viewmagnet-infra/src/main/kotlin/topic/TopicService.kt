@@ -6,6 +6,7 @@ import topic.internal.serde.JsonSerde
 import topic.internal.serde.Serde
 import java.util.concurrent.atomic.AtomicInteger
 
+typealias UnsubscribeToken = () -> Unit
 
 class TopicService<TopicType> private constructor(
     private val ts: TSBackend,
@@ -43,18 +44,3 @@ class TopicService<TopicType> private constructor(
     }
 }
 
-
-data class TopicContext(
-    val country: String = "",
-    val city: String = "",
-    val district: String = "",
-    val invidual: String = ""
-)
-
-data class TopicHeader(
-    val source: TopicContext,
-    val createdAt: Long = System.currentTimeMillis()
-)
-
-data class Topic<T>(val payload: T, val header: TopicHeader)
-typealias UnsubscribeToken = () -> Unit
