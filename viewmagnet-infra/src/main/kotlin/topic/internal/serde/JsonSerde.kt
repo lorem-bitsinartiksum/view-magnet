@@ -2,7 +2,7 @@ package topic.internal.serde
 
 import com.google.gson.Gson
 
-class JsonSerde<T>(private val topicClass: Class<T>) : Serde<T> {
+internal class JsonSerde<T>(private val topicClass: Class<T>) : Serde<T> {
 
     private val gson = Gson()
 
