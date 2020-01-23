@@ -5,7 +5,7 @@ data class TopicContext(
     val country: Country = Country.ALL,
     val city: City = City.ALL,
     val district: District = District.ALL,
-    val individual: String = "",
+    val individual: String = "ALL",
     val mode: Mode = Mode.SIM
 )
 

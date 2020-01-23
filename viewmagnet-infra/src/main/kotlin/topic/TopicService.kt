@@ -1,5 +1,6 @@
 package topic
 
+
 import topic.internal.TSBackend
 import topic.internal.TSNatsBackend
 import topic.internal.serde.JsonSerde
@@ -12,7 +13,7 @@ class TopicService<TopicType> private constructor(
     private val ts: TSBackend,
     private var serde: Serde<Topic<TopicType>>,
     private val topicClass: Class<TopicType>,
-    var activeCtx: TopicContext = TopicContext()
+    val activeCtx: TopicContext
 ) {
 
     private val subscriberCount = AtomicInteger()
@@ -20,13 +21,18 @@ class TopicService<TopicType> private constructor(
 
     fun publish(topic: TopicType, context: TopicContext = activeCtx) {
 
-        ts.publish(topicClass.name, context, serde.serialize(Topic(topic, TopicHeader(context))))
+        val toPublish = Topic(topic, TopicHeader(context))
+        val serialized = serde.serialize(toPublish)
+        ts.publish(topicClass.name, context, serialized)
     }
 
     fun subscribe(consumer: (Topic<TopicType>) -> Unit): UnsubscribeToken {
 
+        subscriberCount.incrementAndGet()
+
         val unsubTok = ts.subscribe(topicClass.name, activeCtx) {
             val topic = serde.deserialize(it)
+            println("RECEIVED $topic")
             consumer(topic)
         }
 
@@ -39,7 +45,13 @@ class TopicService<TopicType> private constructor(
     companion object {
 
         fun <TopicType> createFor(topicClass: Class<TopicType>, activeCtx: TopicContext): TopicService<TopicType> {
-            return TopicService(TSNatsBackend(), JsonSerde(Topic::class.java) as Serde<Topic<TopicType>>, topicClass)
+
+            return TopicService(
+                TSNatsBackend(),
+                JsonSerde(topicClass),
+                topicClass,
+                activeCtx
+            )
         }
     }
 }

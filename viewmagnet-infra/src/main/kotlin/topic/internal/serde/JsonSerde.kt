@@ -1,20 +1,25 @@
 package topic.internal.serde
 
-import com.google.gson.Gson
 
-internal class JsonSerde<T>(private val topicClass: Class<T>) : Serde<T> {
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import topic.Topic
 
-    private val gson = Gson()
+internal class JsonSerde<TopicType>(private val clazz: Class<TopicType>) : Serde<Topic<TopicType>> {
 
-    override fun serialize(instance: T): ByteArray {
+    private val mapper = jacksonObjectMapper()
 
-        return gson.toJson(instance).toByteArray()
+    override fun serialize(instance: Topic<TopicType>): ByteArray {
+
+        return mapper.writeValueAsBytes(instance)
     }
 
-    override fun deserialize(instance: ByteArray): T {
+    override fun deserialize(instance: ByteArray): Topic<TopicType> {
 
-        val jsonTxt = String(instance)
+        val type = mapper.typeFactory.constructParametricType(Topic::class.java, clazz)
 
-        return gson.fromJson(jsonTxt, topicClass)
+        val readValue = mapper.readValue<Topic<TopicType>>(instance, type)
+
+        val payload = readValue.payload
+        return readValue
     }
 }
