@@ -16,7 +16,7 @@ class NormalLoginForm extends React.Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
-            <Card>
+            <Card className="login-card">
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <Form.Item>
                         {getFieldDecorator('email', {
@@ -50,7 +50,7 @@ class NormalLoginForm extends React.Component {
                         {getFieldDecorator('remember', {
                             valuePropName: 'checked',
                             initialValue: true,
-                        })(<Checkbox>Remember me</Checkbox>)}
+                        })(<Checkbox className="login-form-checkbox">Remember me</Checkbox>)}
                         <a className="login-form-forgot" href="">
                             Forgot password
           </a>
