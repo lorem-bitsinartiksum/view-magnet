@@ -1,4 +1,5 @@
 import { Form, Icon, Input, Button, Checkbox, Card } from 'antd';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import axios from 'axios'
 import 'antd/dist/antd.css';
@@ -57,7 +58,8 @@ class NormalLoginForm extends React.Component {
                             initialValue: true,
                         })(<Checkbox className="login-form-checkbox">Remember me</Checkbox>)}
                         <a className="login-form-forgot" href="">Forgot password</a>
-                        <Button type="primary" htmlType="submit" className="login-form-button">Log in</Button>Or <a href="">register now!</a>
+                        <Button type="primary" htmlType="submit" className="login-form-button">Log in</Button>Or <Link to="/register">register now!</Link>
+
                     </Form.Item>
                 </Form>
             </Card>

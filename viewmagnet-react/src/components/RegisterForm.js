@@ -1,5 +1,6 @@
 import { Form, Icon, Input, Button, Card } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios'
 import 'antd/dist/antd.css';
 import './RegisterForm.css';
@@ -77,10 +78,11 @@ class NormalRegisterForm extends React.Component {
                         })(<Input
                             prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                             type="password"
-                            placeholder="Re-type your password" onBlur={this.handleConfirmBlur}/>)}
+                            placeholder="Re-type your password" onBlur={this.handleConfirmBlur} />)}
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" className="register-form-button">Register</Button>Or <a href="">log in now!</a>
+                        <Button type="primary" htmlType="submit" className="register-form-button">Register</Button>Or <Link to="/login">Log in</Link>
+
                     </Form.Item>
                 </Form>
             </Card>
