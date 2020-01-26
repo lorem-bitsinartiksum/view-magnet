@@ -1,7 +1,5 @@
-import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.Javalin
+import config.AppConfig
 
 fun main(args: Array<String>) {
-    val app = Javalin.create().start(7000)
-    app.get("/") { ctx -> ctx.result("Hello World") }
-}
+    AppConfig().setup().start()
+    }
