@@ -26,7 +26,6 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
 
     fun delete(email: String?){
         if (email.isNullOrBlank()) throw BadRequestResponse()
-        val user = userRepository.findByEmail(email)
         userRepository.delete(email)
     }
 
