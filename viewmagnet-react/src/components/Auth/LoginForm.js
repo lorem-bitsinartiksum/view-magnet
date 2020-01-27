@@ -1,25 +1,38 @@
-import { Form, Icon, Input, Button, Checkbox, Card } from 'antd';
-import { Link } from 'react-router-dom';
+import { Form, Icon, Input, Button, Checkbox, Card, message } from 'antd';
+import { Link, Redirect } from 'react-router-dom';
 import React from 'react';
 import axios from 'axios'
 import 'antd/dist/antd.css';
 import './LoginForm.css';
 
 class NormalLoginForm extends React.Component {
+
+    state = {
+        redirect: false
+    }
+
     handleSubmit = e => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                axios.post('https://bububu.free.beeceptor.com', values).then(function (response) {
-                    console.log(response)
-                }).catch(function (error) {
-                    console.log(error);
-                })
+                axios.post('https://bububu.free.beeceptor.com', values)
+                    .then((res) => {
+                        this.setState({ redirect: true });
+                        message.success(res.statusText);
+                        console.log(res);
+                    })
+                    .catch((error) =>
+                        console.log(error)
+                    );
             }
-        });
+        })
     };
 
     render() {
+        const { redirect } = this.state;
+        if (redirect) {
+            return <Redirect to='/home' />;
+        }
         const { getFieldDecorator } = this.props.form;
         return (
             <Card className="login-card">
@@ -68,4 +81,4 @@ class NormalLoginForm extends React.Component {
 }
 
 const LoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm);
-export default LoginForm;
+export default LoginForm

@@ -1,6 +1,6 @@
-import { Form, Icon, Input, Button, Card } from 'antd';
+import { Form, Icon, Input, Button, Card, message } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios'
 import 'antd/dist/antd.css';
 import './RegisterForm.css';
@@ -8,17 +8,20 @@ import './RegisterForm.css';
 class NormalRegisterForm extends React.Component {
     state = {
         confirmDirty: false,
+        redirect: false
     };
 
     handleSubmit = e => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                axios.post('https://bububu.free.beeceptor.com', values).then(function (response) {
-                    console.log(response)
-                }).catch(function (error) {
-                    console.log(error);
-                })
+                axios.post('https://bububu.free.beeceptor.com/api/users', values).then((res) => {
+                    this.setState({ redirect: true });
+                    message.success(res.statusText);
+                    console.log(res);
+                }).catch((error) =>
+                    console.log(error)
+                )
             }
         });
     };
@@ -29,19 +32,36 @@ class NormalRegisterForm extends React.Component {
     };
 
     render() {
+        const { redirect } = this.state;
+        if (redirect) {
+            return <Redirect to='/login' />;
+        }
         const { getFieldDecorator } = this.props.form;
         return (
             <Card className="register-card">
                 <Form onSubmit={this.handleSubmit} className="register-form">
                     <Form.Item>
+                        {getFieldDecorator('username', {
+                            rules: [{
+                                required: true,
+                                message: 'Please enter your company name!',
+                            }],
+                        })(
+                            <Input
+                                prefix={<Icon type="home" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                placeholder="Company Name"
+                            />,
+                        )}
+                    </Form.Item>
+                    <Form.Item>
                         {getFieldDecorator('email', {
                             rules: [{
                                 type: 'email',
-                                message: 'The input is not valid Email!',
+                                message: 'The input is not a valid email!',
                             },
                             {
                                 required: true,
-                                message: 'Please input your Email!',
+                                message: 'Please enter your company email!',
                             }],
                         })(
                             <Input
@@ -53,7 +73,8 @@ class NormalRegisterForm extends React.Component {
                     <Form.Item>
                         {getFieldDecorator('password', {
                             rules: [
-                                { required: true, message: 'Please input your Password!' },
+                                { required: true, message: 'Please enter your password!' },
+                                { min: 6, message: 'Password must be at least 6 characters!' },
                                 { validator: this.validateToNextPassword }
                             ],
                         })(
@@ -81,8 +102,27 @@ class NormalRegisterForm extends React.Component {
                             placeholder="Re-type your password" onBlur={this.handleConfirmBlur} />)}
                     </Form.Item>
                     <Form.Item>
+                        {getFieldDecorator('phone', {
+                            rules: [],
+                        })(
+                            <Input
+                                prefix={<Icon type="phone" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                placeholder="Phone"
+                            />,
+                        )}
+                    </Form.Item>
+                    <Form.Item>
+                        {getFieldDecorator('location', {
+                            rules: [],
+                        })(
+                            <Input
+                                prefix={<Icon type="pushpin" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                placeholder="Address"
+                            />,
+                        )}
+                    </Form.Item>
+                    <Form.Item>
                         <Button type="primary" htmlType="submit" className="register-form-button">Register</Button>Or <Link to="/login">Log in</Link>
-
                     </Form.Item>
                 </Form>
             </Card>
