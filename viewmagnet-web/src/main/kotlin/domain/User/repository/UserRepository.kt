@@ -2,9 +2,7 @@ package domain.User.repository
 
 import com.mongodb.client.model.Filters
 import domain.User.User
-import org.litote.kmongo.KMongo
-import org.litote.kmongo.findOne
-import org.litote.kmongo.getCollection
+import org.litote.kmongo.*
 
 class UserRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
@@ -28,9 +26,19 @@ class UserRepository() {
     }
 
     fun update(email: String, user: User): User?{
-        delete(email)
-        create(user)
-        return user
+        if (user.username != null)
+            col.updateMany(Filters.eq("email", email), SetTo(User::username, user.username))
+        if (user.password != null)
+            col.updateMany(Filters.eq("email", email), SetTo(User::password, user.password))
+        if (user.phone != null)
+            col.updateMany(Filters.eq("email", email), SetTo(User::phone, user.phone))
+        if (user.location != null)
+            col.updateMany(Filters.eq("email", email), SetTo(User::location, user.location))
+        if (user.email != null){
+            col.updateMany(Filters.eq("email", email), SetTo(User::email, user.email))
+            return findByEmail(user.email)
+        }
+        return findByEmail(email)
     }
 
 }

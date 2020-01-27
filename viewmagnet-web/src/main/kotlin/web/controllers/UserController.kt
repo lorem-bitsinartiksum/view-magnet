@@ -51,8 +51,6 @@ class UserController(private val userService: UserService) {
         ctx.validatedBody<UserDTO>()
                 .check({ it.user != null })
                 .check({ it.user?.email?.isEmailValid() ?: true })
-                .check({ it.user?.username?.isNotBlank() ?: true })
-                .check({ it.user?.password?.isNotBlank() ?: true })
                 .getOrThrow()
                 .user?.also { user ->
             userService.update(email, user).apply {
