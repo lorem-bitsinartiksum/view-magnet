@@ -9,6 +9,8 @@ package io.javalin.util
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
+import domain.Ad.Ad
+import domain.Ad.AdDTO
 import domain.User.User
 import domain.User.UserDTO
 import io.javalin.core.util.Header
@@ -68,6 +70,16 @@ class HttpUtil(port: Int) {
         val user = registerUser(userEmail, password, username)
         loginAndSetTokenHeader(userEmail, password)
         return user
+    }
+
+    fun createAd(ad: Ad): HttpResponse<AdDTO> {
+        createUser()
+        return post<AdDTO>("/api/ads", AdDTO(ad))
+    }
+
+    fun createAd(): HttpResponse<AdDTO> {
+        return createAd(Ad(title = "volkswagen",
+            description = "volkswagen. das auto."))
     }
 
 }
