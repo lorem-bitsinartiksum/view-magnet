@@ -15,7 +15,8 @@ class NormalRegisterForm extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                axios.post('https://bububu.free.beeceptor.com/api/users', values).then((res) => {
+                delete values.confirm;
+                axios.post('https://www.jsonstore.io/d39bf48de7b7ef5a2d73ddb0fba06a7523d3b0f1d842c18c5156e4f8d09f7f7d', values).then((res) => {
                     this.setState({ redirect: true });
                     message.success(res.statusText);
                     console.log(res);

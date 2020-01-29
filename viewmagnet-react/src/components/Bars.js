@@ -1,6 +1,6 @@
 import React from 'react';
 import './Bars.css';
-import { Layout, Menu, Icon, Button } from 'antd';
+import { Layout, Menu, Icon, Button, Card } from 'antd';
 import { Link } from 'react-router-dom';
 const { Header, Content, Sider } = Layout;
 
@@ -25,14 +25,20 @@ class Bars extends React.Component {
     ]);
 
     if (localStorage.getItem('login') === 'true') {
-      sidebarItems = (
+      sidebarItems = ([
         <Menu.Item key="3">
+          <Link to="/profile">
+            <Icon type="user" />
+            <span>Profile</span>
+          </Link>
+        </Menu.Item >,
+        <Menu.Item key="4">
           <Link to="/home" onClick={() => localStorage.clear()}>
             <Icon type="logout" />
             <span>Log out</span>
           </Link>
         </Menu.Item >
-      )
+      ]);
     }
 
     return (
@@ -47,7 +53,9 @@ class Bars extends React.Component {
             </Menu>
           </Sider>
           <Content>
-            {this.props.children}
+            <Card style={{ minHeight: '88.8vh'}}>
+              {this.props.children}
+            </Card>
           </Content>
         </Layout>
       </Layout>
