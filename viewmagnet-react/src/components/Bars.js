@@ -1,12 +1,12 @@
 import React from 'react';
 import './Bars.css';
-import { Layout, Menu, Breadcrumb, Icon } from 'antd';
-const { Header, Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
+import { Layout, Menu, Icon, Button } from 'antd';
+import { Link } from 'react-router-dom';
+const { Header, Content, Sider } = Layout;
 
-class SiderDemo extends React.Component {
+class Bars extends React.Component {
   state = {
-    collapsed: false,
+    collapsed: true,
   };
 
   onCollapse = collapsed => {
@@ -14,25 +14,36 @@ class SiderDemo extends React.Component {
     this.setState({ collapsed });
   };
 
-  render(props) {
+  render() {
+    let sidebarItems = ([
+      <Menu.Item key="1">
+        <Link to="/login"><Icon type="login" /><span>Log in</span></Link>
+      </Menu.Item>,
+      <Menu.Item key="2">
+        <Link to="/register"><Icon type="user-add" /><span>Register</span></Link>
+      </Menu.Item>
+    ]);
+
+    if (localStorage.getItem('login') === 'true') {
+      sidebarItems = (
+        <Menu.Item key="3">
+          <Link to="/home" onClick={() => localStorage.clear()}>
+            <Icon type="logout" />
+            <span>Log out</span>
+          </Link>
+        </Menu.Item >
+      )
+    }
+
     return (
-      <Layout style={{ minHeight: '110vh' }}>
-        <Header>header</Header>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Header>
+          <Link to="/"><h1 className="title">ViewMagnet</h1></Link>
+        </Header>
         <Layout>
           <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
             <Menu>
-              <Menu.Item key="1">
-                <Icon type="login" />
-                <span>Log in</span>
-              </Menu.Item>
-              <Menu.Item key="2">
-                <Icon type="user-add" />
-                <span>Register</span>
-              </Menu.Item>
-              <Menu.Item key="3">
-                <Icon type="logout" />
-                <span>Log out</span>
-              </Menu.Item>
+              {sidebarItems}
             </Menu>
           </Sider>
           <Content>
@@ -44,4 +55,4 @@ class SiderDemo extends React.Component {
   }
 }
 
-export default SiderDemo; 
+export default Bars; 

@@ -19,6 +19,7 @@ class NormalLoginForm extends React.Component {
                     .then((res) => {
                         this.setState({ redirect: true });
                         message.success(res.statusText);
+                        localStorage.setItem('login', 'true');
                         console.log(res);
                     })
                     .catch((error) =>

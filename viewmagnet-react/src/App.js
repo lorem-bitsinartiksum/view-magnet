@@ -3,7 +3,7 @@ import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
-import SiderDemo from './components/Bars'
+import Bars from './components/Bars'
 
 function App() {
   let routes = (
@@ -16,7 +16,7 @@ function App() {
 
   return (
     <div className="App">
-      <SiderDemo>{routes}</SiderDemo>
+      <Bars>{routes}</Bars>
     </div>
   );
 }
