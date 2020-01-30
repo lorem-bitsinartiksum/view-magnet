@@ -13,38 +13,32 @@ class Profile extends React.Component {
         password: 'password',
         phone: 'phone',
         location: 'location',
-        modalVisible: false
+        modalVisible: false,
+        newPass: '',
+        newPassConfirm: '',
+        matchingPasswords: false
     };
 
-    onChangeUsername = str => {
-        this.setState({ username: str });
+    onChangeUsername = str => this.setState({ username: str });
+    onChangePhone = str => this.setState({ phone: str });
+    onChangeLocation = str => this.setState({ location: str });
+
+    confirm = e => console.log(e);
+    cancel = e => console.log(e);
+
+    onChangeNewPass = str => this.setState({ newPass: str });
+    onChangeNewPassConfirm = str => {
+        this.setState({ newPassConfirm: str });
+        this.setState({ matchingPasswords: (this.state.newPass === this.state.newPassConfirm) ? true : false })
     };
-
-    onChangePhone = str => {
-        this.setState({ phone: str });
-    };
-
-    onChangeLocation = str => {
-        this.setState({ location: str });
-    };
-
-    confirm = e => {
-        console.log(e);
-        message.success('Click on Yes');
-    }
-
-    cancel = e => {
-        console.log(e);
-        message.error('Click on No');
-    }
 
     render() {
         return ([
-            <Modal visible={this.state.modalVisible} onCancel={() => this.setState({ modalVisible: !this.state.modalVisible })} okText="Change Password" okType="danger">
+            <Modal visible={this.state.modalVisible} onCancel={() => this.setState({ modalVisible: !this.state.modalVisible })} onOk={() => { this.state.matchingPasswords ? message.success("Password is changed!") : message.error("Passwords does not match!") }} okText="Change Password" okType="danger">
                 <Card title="Change Password">
                     <Form>
-                        <Form.Item label="New Password"><Input type="password" /></Form.Item>
-                        <Form.Item label="Confirm New Password"><Input type="password" /></Form.Item>
+                        <Form.Item label="New Password"><Input type="password" onChange={this.onChangeNewPass} /></Form.Item>
+                        <Form.Item label="Confirm New Password"><Input type="password" onChange={this.onChangeNewPassConfirm} /></Form.Item>
                     </Form>
                 </Card>
             </Modal>,
