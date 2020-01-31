@@ -35,7 +35,7 @@ class UserControllerTest {
                 UserDTO()
         )
 
-        assertEquals(response.status, HttpStatus.UNPROCESSABLE_ENTITY_422)
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY_422,response.status)
         assertTrue(response.body.errors["body"]!!.contains("can't be empty or invalid"))
     }
 
@@ -47,8 +47,8 @@ class UserControllerTest {
         val userDTO = UserDTO(User(email = email, password = password))
         val response = http.post<UserDTO>("/api/users/login", userDTO)
 
-        assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user?.email, userDTO.user?.email)
+        assertEquals(HttpStatus.OK_200,response.status)
+        assertEquals(userDTO.user?.email,response.body.user?.email)
         assertNotNull(response.body.user?.token)
     }
 
@@ -58,16 +58,16 @@ class UserControllerTest {
         "username_test"))
         val response = http.post<UserDTO>("/api/users", userDTO)
 
-        assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.user?.username, userDTO.user?.username)
-        assertEquals(response.body.user?.password, userDTO.user?.password)
+        assertEquals(HttpStatus.OK_200,response.status)
+        assertEquals(userDTO.user?.username,response.body.user?.username)
+        assertEquals(userDTO.user?.password,response.body.user?.password)
     }
 
     @Test
     fun `invalid get current user without token`() {
         val response = http.get<ErrorResponse>("/api/user")
 
-        assertEquals(response.status, HttpStatus.FORBIDDEN_403)
+        assertEquals(HttpStatus.FORBIDDEN_403,response.status)
     }
 
     @Test
@@ -78,7 +78,7 @@ class UserControllerTest {
         http.loginAndSetTokenHeader(email, password)
         val response = http.get<UserDTO>("/api/user")
 
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
         assertNotNull(response.body.user?.username)
         assertNotNull(response.body.user?.password)
         assertNotNull(response.body.user?.token)
@@ -94,7 +94,7 @@ class UserControllerTest {
         val userDTO = UserDTO(User(email = "update_user@update_test.com", password = "Test"))
         val response = http.put<UserDTO>("/api/user", userDTO)
 
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
         assertEquals(response.body.user?.email, userDTO.user?.email)
     }
 
@@ -105,6 +105,6 @@ class UserControllerTest {
         http.registerUser(email, password, "username_Test")
         http.loginAndSetTokenHeader(email, password)
         val response = http.delete("/api/user")
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
     }
 }

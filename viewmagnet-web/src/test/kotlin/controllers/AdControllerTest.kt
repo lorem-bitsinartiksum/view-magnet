@@ -62,7 +62,7 @@ class AdControllerTest{
         val slug = response.body.ad?.slug;
         val response2 = http.get<AdDTO>("/api/ads/$slug")
 
-        assertEquals(response2.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response2.status)
         assertFalse(response2.body.ad?.title.isNullOrBlank())
         assertNotNull(response2.body.ad?.description)
 
@@ -83,7 +83,8 @@ class AdControllerTest{
 
         val adDTO = AdDTO(Ad(title = "valid_title", description = "valid_description"))
         val response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
+
 
         http.delete("/api/user")
 
@@ -93,7 +94,7 @@ class AdControllerTest{
         val slug = response.body.ad?.slug;
         val response2 = http.get<ErrorResponse>("/api/ads/$slug")
 
-        assertEquals(response2.status, HttpStatus.UNAUTHORIZED_401)
+        assertEquals(HttpStatus.UNAUTHORIZED_401,response2.status)
     }
 
     @Test
@@ -105,11 +106,12 @@ class AdControllerTest{
 
         val adDTO = AdDTO(Ad(title = "valid_title3", description = "valid_description3"))
         val response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
 
         val slug = response.body.ad?.slug;
         val response2 = http.delete("/api/ads/$slug")
-        assertEquals(response2.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response2.status)
+
 
         http.delete("/api/user")
     }
@@ -127,44 +129,45 @@ class AdControllerTest{
 
         val adDTO = AdDTO(Ad(title = "valid_title4", description = "valid_description4"))
         val response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
+
 
         http.deleteToken()
         http.loginAndSetTokenHeader(email2, password2)
 
         val slug = response.body.ad?.slug;
         val response2 = http.delete("/api/ads/$slug")
-        assertEquals(response2.status, HttpStatus.UNAUTHORIZED_401)
+        assertEquals(HttpStatus.UNAUTHORIZED_401,response2.status)
 
         http.delete("/api/user")
     }
 
     @Test
     fun `get all ads by email`() {
-        val email = "email_valid5@valid_email.com"
+        val email = "email_valid6@valid_email.com"
         val password = "Test"
         http.registerUser(email, password, "username_Test5")
         http.loginAndSetTokenHeader(email, password)
 
-        var adDTO = AdDTO(Ad(title = "valid_title5.1", description = "valid_description5.1"))
+        var adDTO = AdDTO(Ad(title = "valid_title6.1", description = "valid_description6.1"))
         var response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
 
-        adDTO = AdDTO(Ad(title = "valid_title5.2", description = "valid_description5.2"))
+        adDTO = AdDTO(Ad(title = "valid_title6.2", description = "valid_description6.2"))
         response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
 
-        adDTO = AdDTO(Ad(title = "valid_title5.3", description = "valid_description5.3"))
+        adDTO = AdDTO(Ad(title = "valid_title6.3", description = "valid_description6.3"))
         response = http.post<AdDTO>("/api/ads", adDTO)
-        assertEquals(response.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
 
         val response2 = http.get<AdsDTO>("/api/ads?email=$email")
 
-        assertEquals(response2.status, HttpStatus.OK_200)
+        assertEquals(HttpStatus.OK_200,response.status)
         assertNotNull(response2.body.ads)
         assertEquals(response2.body.ads.size, response2.body.adsCount)
         response2.body.ads.forEach {
-            assertEquals(it.user?.email, email)
+            assertEquals(email,it.user?.email)
             assertFalse(it.title.isNullOrBlank())
         }
     }
