@@ -37,7 +37,6 @@ class UserController(private val userService: UserService) {
 
     fun delete(ctx: Context){
         userService.delete(ctx.attribute("email"))
-
     }
 
     fun getCurrent(ctx: Context) {
