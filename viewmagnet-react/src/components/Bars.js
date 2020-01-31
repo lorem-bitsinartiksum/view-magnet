@@ -1,7 +1,9 @@
 import React from 'react';
 import './Bars.css';
-import { Layout, Menu, Icon, Button, Card } from 'antd';
+import { Layout, Menu, Icon, Card } from 'antd';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { logout } from './../store/actions';
 const { Header, Content, Sider } = Layout;
 
 class Bars extends React.Component {
@@ -24,7 +26,7 @@ class Bars extends React.Component {
       </Menu.Item>
     ]);
 
-    if (localStorage.getItem('login') === 'true') {
+    if (this.props.loggedIn) {
       sidebarItems = ([
         <Menu.Item key="3">
           <Link to="/profile">
@@ -33,7 +35,7 @@ class Bars extends React.Component {
           </Link>
         </Menu.Item >,
         <Menu.Item key="4">
-          <Link to="/home" onClick={() => localStorage.clear()}>
+          <Link to="/home" onClick={() => this.props.onLogout()}>
             <Icon type="logout" />
             <span>Log out</span>
           </Link>
@@ -53,7 +55,7 @@ class Bars extends React.Component {
             </Menu>
           </Sider>
           <Content>
-            <Card style={{ minHeight: '88.8vh'}}>
+            <Card style={{ minHeight: '88.6vh' }}>
               {this.props.children}
             </Card>
           </Content>
@@ -63,4 +65,16 @@ class Bars extends React.Component {
   }
 }
 
-export default Bars; 
+const mapStateToProps = state => {
+  return {
+    loggedIn: state.auth.loggedIn,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onLogout: () => dispatch(logout())
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Bars);

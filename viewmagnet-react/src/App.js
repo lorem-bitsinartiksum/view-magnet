@@ -11,7 +11,7 @@ function App() {
     <Switch>
       <Route path="/login" component={LoginForm} />
       <Route path="/register" component={RegisterForm} />
-      <Route path="/profile" component={Profile} />
+      <Route path="/profile"component={Profile} />
       <Redirect to="/" />
     </Switch>
   )

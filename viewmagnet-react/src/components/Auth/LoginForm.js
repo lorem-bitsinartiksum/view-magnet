@@ -1,27 +1,25 @@
-import { Form, Icon, Input, Button, Checkbox, Card, message } from 'antd';
+import { Form, Icon, Input, Button, Card, message } from 'antd';
 import { Link, Redirect } from 'react-router-dom';
 import React from 'react';
+import { connect } from 'react-redux';
 import axios from 'axios'
+import { login } from './../../store/actions';
 import 'antd/dist/antd.css';
 import './LoginForm.css';
 
 class NormalLoginForm extends React.Component {
 
-    state = {
-        redirect: false
-    }
-
     handleSubmit = e => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                delete values.remember;
-                axios.post('https://www.jsonstore.io/d39bf48de7b7ef5a2d73ddb0fba06a7523d3b0f1d842c18c5156e4f8d09f7f7d', values)
+                axios.post('https://bububu.free.beeceptor.com/api/users/login', values, {
+                    'Content-Type': 'application/json'
+                })
                     .then((res) => {
-                        this.setState({ redirect: true });
-                        message.success(res.statusText);
-                        localStorage.setItem('login', 'true');
-                        console.log(res);
+                        this.props.onLogin(JSON.parse(res.config.data).email, 'TOKEN!');
+                        message.success("Logged In!");
+                        // localStorage.setItem('login', 'true');
                     })
                     .catch((error) =>
                         console.log(error)
@@ -31,8 +29,8 @@ class NormalLoginForm extends React.Component {
     };
 
     render() {
-        const { redirect } = this.state;
-        if (redirect) {
+        const { email } = this.props;
+        if (email) {
             return <Redirect to='/home' />;
         }
         const { getFieldDecorator } = this.props.form;
@@ -62,8 +60,7 @@ class NormalLoginForm extends React.Component {
                         })(
                             <Input
                                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                                type="password"
-                                placeholder="Password"
+                                type="password" placeholder="Password"
                             />,
                         )}
                     </Form.Item>
@@ -76,5 +73,11 @@ class NormalLoginForm extends React.Component {
     }
 }
 
+const mapDispatchToProps = dispatch => {
+    return {
+        onLogin: (email, token) => dispatch(login(email, token)),
+    };
+};
+
 const LoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm);
-export default LoginForm
+export default connect(null, mapDispatchToProps)(LoginForm);

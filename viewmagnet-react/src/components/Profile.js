@@ -1,9 +1,9 @@
 import './Profile.css';
 import 'antd/dist/antd.css';
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
-import axios from 'axios'
-import { Form, Icon, Input, Button, Card, message, Modal, Radio, Typography, Popconfirm } from 'antd';
+// import { Link, Redirect } from 'react-router-dom';
+// import axios from 'axios'
+import { Form, Input, Button, Card, message, Modal, Typography, Popconfirm } from 'antd';
 import ButtonGroup from 'antd/lib/button/button-group';
 const { Paragraph } = Typography;
 
