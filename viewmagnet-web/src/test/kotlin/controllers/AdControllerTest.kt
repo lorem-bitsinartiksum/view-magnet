@@ -5,6 +5,7 @@ import io.javalin.util.HttpUtil
 import config.AppConfig
 import domain.Ad.Ad
 import domain.Ad.AdDTO
+import domain.Ad.AdsDTO
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After
 import org.junit.Assert.*
@@ -137,4 +138,35 @@ class AdControllerTest{
 
         http.delete("/api/user")
     }
+
+    @Test
+    fun `get all ads by email`() {
+        val email = "email_valid5@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "username_Test5")
+        http.loginAndSetTokenHeader(email, password)
+
+        var adDTO = AdDTO(Ad(title = "valid_title5.1", description = "valid_description5.1"))
+        var response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(response.status, HttpStatus.OK_200)
+
+        adDTO = AdDTO(Ad(title = "valid_title5.2", description = "valid_description5.2"))
+        response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(response.status, HttpStatus.OK_200)
+
+        adDTO = AdDTO(Ad(title = "valid_title5.3", description = "valid_description5.3"))
+        response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(response.status, HttpStatus.OK_200)
+
+        val response2 = http.get<AdsDTO>("/api/ads?email=$email")
+
+        assertEquals(response2.status, HttpStatus.OK_200)
+        assertNotNull(response2.body.ads)
+        assertEquals(response2.body.ads.size, response2.body.adsCount)
+        response2.body.ads.forEach {
+            assertEquals(it.user?.email, email)
+            assertFalse(it.title.isNullOrBlank())
+        }
+    }
+
 }
