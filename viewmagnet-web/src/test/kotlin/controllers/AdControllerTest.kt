@@ -172,4 +172,48 @@ class AdControllerTest{
         }
     }
 
+    @Test
+    fun `update ad`() {
+        val email = "email_valid7@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "username_Test7")
+        http.loginAndSetTokenHeader(email, password)
+
+        val adDTO = AdDTO(Ad(title = "valid_title7", description = "valid_description7"))
+        val response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(response.status, HttpStatus.OK_200)
+
+        val slug = response.body.ad?.slug;
+        val updatedAdDTO = AdDTO(Ad(title = "updated_valid_title7", description = "updated_valid_description7"))
+        val response2 = http.put<AdDTO>("/api/ads/$slug",updatedAdDTO)
+
+        assertEquals(HttpStatus.OK_200,response2.status)
+        assertEquals("updated_valid_title7",response2.body.ad?.title)
+        assertEquals( "updated_valid_description7",response2.body.ad?.description)
+    }
+
+    @Test
+    fun `invalid update ad unauth user`() {
+        val email = "email_valid8@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "username_Test8")
+        http.loginAndSetTokenHeader(email, password)
+
+        val adDTO = AdDTO(Ad(title = "valid_title8", description = "valid_description8"))
+        val response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(response.status, HttpStatus.OK_200)
+        val slug = response.body.ad?.slug;
+
+        http.deleteToken()
+        val email2 = "email_valid9@valid_email.com"
+        val password2 = "Test"
+        http.registerUser(email2, password2, "username_Test9")
+        http.loginAndSetTokenHeader(email2, password2)
+
+        val updatedAdDTO = AdDTO(Ad(title = "updated_valid_title9", description = "updated_valid_description9"))
+        val response2 = http.put<ErrorResponse>("/api/ads/$slug",updatedAdDTO)
+
+        assertEquals(HttpStatus.UNAUTHORIZED_401,response2.status)
+    }
+
 }
