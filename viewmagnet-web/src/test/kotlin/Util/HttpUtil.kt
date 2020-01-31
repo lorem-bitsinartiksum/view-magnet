@@ -11,6 +11,8 @@ import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import domain.Ad.Ad
 import domain.Ad.AdDTO
+import domain.Admin.Admin
+import domain.Admin.AdminDTO
 import domain.User.User
 import domain.User.UserDTO
 import io.javalin.core.util.Header
@@ -59,6 +61,12 @@ class HttpUtil(port: Int) {
         headers["Authorization"] = "Token ${response.body.user?.token}"
     }
 
+    fun loginAndSetTokenHeaderForAdmin(email: String, password: String) {
+        val adminDTO = AdminDTO(Admin(email = email, password = password))
+        val response = post<AdminDTO>("/api/admins/login", adminDTO)
+        headers["Authorization"] = "Token ${response.body.admin?.token}"
+    }
+
     fun deleteToken(){
         headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
     }
@@ -69,11 +77,24 @@ class HttpUtil(port: Int) {
         return response.body
     }
 
+    fun registerAdmin(email: String, password: String, username: String, phone: String = "777777777"): AdminDTO {
+        val adminDTO = AdminDTO(Admin(email = email, password = password, username = username, phone = phone))
+        val response = post<AdminDTO>("/api/admins", adminDTO)
+        return response.body
+    }
+
     fun createUser(userEmail: String = "user@valid_user_mail.com", username: String = "user_name_test"): UserDTO {
         val password = "password"
         val user = registerUser(userEmail, password, username)
         loginAndSetTokenHeader(userEmail, password)
         return user
+    }
+
+    fun createAdmin(adminEmail: String = "admin@valid_admin_mail.com", username: String = "admin_user_name_test"): AdminDTO {
+        val password = "password"
+        val admin = registerAdmin(adminEmail, password, username)
+        loginAndSetTokenHeader(adminEmail, password)
+        return admin
     }
 
     fun createAd(ad: Ad): HttpResponse<AdDTO> {
