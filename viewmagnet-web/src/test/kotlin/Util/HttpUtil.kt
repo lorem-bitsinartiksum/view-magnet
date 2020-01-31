@@ -18,7 +18,7 @@ import io.javalin.json.JavalinJson
 
 class HttpUtil(port: Int) {
     private val json = "application/json"
-    val headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
+    var headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
 
     init {
         Unirest.setObjectMapper(object : ObjectMapper {
@@ -57,6 +57,10 @@ class HttpUtil(port: Int) {
         val userDTO = UserDTO(User(email = email, password = password))
         val response = post<UserDTO>("/api/users/login", userDTO)
         headers["Authorization"] = "Token ${response.body.user?.token}"
+    }
+
+    fun deleteToken(){
+        headers = mutableMapOf(Header.ACCEPT to json, Header.CONTENT_TYPE to json)
     }
 
     fun registerUser(email: String, password: String, username: String, phone: String = "123456789", location: String = "Ankara"): UserDTO {
