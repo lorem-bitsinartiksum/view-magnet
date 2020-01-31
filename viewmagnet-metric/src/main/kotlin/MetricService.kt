@@ -6,39 +6,41 @@ import java.util.concurrent.TimeUnit
 class MetricService(private val influxDB: InfluxDB,
                         private val dbName: String = "metrics") {
 
-    private val aggregateQuery = """ SELECT count(human_count) as count, sum(human_count) as sum, min(human_count) as min, max(human_count) as max FROM metrics """
+    fun createQueryAdMetricCount(ad_id: String): String {
+        val query = " SELECT count(age) as count FROM metrics WHERE ad_id = '" + ad_id + "'"
+        return query
+    }
 
     init {
-        this.influxDB.query(Query("CREATE DATABASE "+dbName, ""))
+        this.influxDB.query(Query("CREATE DATABASE " + dbName, dbName))
     }
 
-    fun create(statistic: Metric): Int {
+    fun create(metric: Metric): Int {
         influxDB.write(dbName, "", Point.measurement("metrics")
-            .time(statistic.timestamp, TimeUnit.MILLISECONDS)
-            .addField("ad_id", statistic.ad_id)
-            .addField("billboard_id", statistic.billboard_id)
-            .addField("human_count", statistic.human_count)
-            .addField("timestamp", statistic.timestamp)
+            .time(metric.timestamp, TimeUnit.MILLISECONDS)
+            .tag("company_id", metric.company_id.toString())
+            .tag("ad_id", metric.ad_id.toString())
+            .tag("billboard_id", metric.billboard_id.toString())
+            .addField("age", metric.age)
+            .tag("gender", metric.gender.toString())
+            .addField("weather", metric.weather.toString())
             .build())
-        return 200
+        return 201
     }
 
-    fun aggregated(): Total {
+    fun getAdMetricCount(ad_id: String): MetricCount {
         val query = Query(
-            aggregateQuery,
+            createQueryAdMetricCount(ad_id),
             dbName
         )
         val results = influxDB.query(query)
             .results
         if (results.first().series == null) {
-            return Total(0.0, 0.0, 0.0, 0.0)
+            return MetricCount(0)
         }
         return results.first().series.first().values
             .map { mutableList ->
-                Total(mutableList[1].toString().toDouble(),
-                    mutableList[2].toString().toDouble(),
-                    mutableList[3].toString().toDouble(),
-                    mutableList[4].toString().toDouble()
+                MetricCount(mutableList[1].toString().toDouble().toInt()
                 )
             }[0]
     }

@@ -6,9 +6,33 @@ import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import java.util.*
 
-data class Metric(val ad_id: Int = 0, val billboard_id: Int = 0, val human_count: Int = 0, val timestamp: Long = Date().time)
+data class Metric(
+    val company_id: Int = 0,
+    val ad_id: Int = 0,
+    val billboard_id: Int = 0,
+    val age: Int = 0,
+    val gender: Gender = Gender.UNDETECTED,
+    val weather: Weather = Weather.UNKNOWN,
+    val timestamp: Long = Date().time)
 
-data class Total(val count: Double, val sum: Double, val min: Double, val max: Double)
+data class MetricCount(val count: Int = 0)
+
+enum class Gender {
+    MALE,
+    FEMALE,
+    UNDETECTED,
+}
+
+enum class Weather {
+    SUNNY,
+    CLOUDY,
+    WINDY,
+    FOGGY,
+    STORMY,
+    SNOWY,
+    RAINY,
+    UNKNOWN,
+}
 
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
 
@@ -18,8 +42,8 @@ fun main() {
     val controller = Controller(metricService)
 
     app.routes {
-        get("/get", { ctx ->
-            controller.get(ctx)
+        get("/get_ad/:ad_id", { ctx ->
+            controller.getAdMetricCount(ctx)
         })
         post("/post", { ctx ->
             controller.post(ctx)
@@ -31,12 +55,12 @@ fun main() {
 class Controller(private val metricService: MetricService) {
 
     fun post(ctx: Context) {
-        val statistic = ctx.bodyAsClass(Metric::class.java)
-        val result = metricService.create(statistic)
+        val metric = ctx.bodyAsClass(Metric::class.java)
+        val result = metricService.create(metric)
         ctx.status(result)
     }
 
-    fun get(ctx: Context) {
-        ctx.json(metricService.aggregated())
+    fun getAdMetricCount(ctx: Context) {
+        ctx.json(metricService.getAdMetricCount(ctx.pathParam("ad_id")))
     }
 }
