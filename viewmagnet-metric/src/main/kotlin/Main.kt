@@ -1,10 +1,12 @@
+import com.fasterxml.jackson.annotation.JsonValue
+import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
-import io.javalin.Javalin
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import java.util.*
+
 
 data class Metric(
     val company_id: Int = 0,
@@ -17,21 +19,22 @@ data class Metric(
 
 data class MetricCount(val count: Int = 0)
 
-enum class Gender {
-    MALE,
-    FEMALE,
-    UNDETECTED,
+
+enum class Gender(@JsonValue val gender : String) {
+    MALE("male"),
+    FEMALE("female"),
+    UNDETECTED("undetected");
 }
 
-enum class Weather {
-    SUNNY,
-    CLOUDY,
-    WINDY,
-    FOGGY,
-    STORMY,
-    SNOWY,
-    RAINY,
-    UNKNOWN,
+enum class Weather(@JsonValue val weather : String) {
+    SUNNY("sunny"),
+    CLOUDY("cloudy"),
+    WINDY("windy"),
+    FOGGY("foggy"),
+    STORMY("stormy"),
+    SNOWY("snowy"),
+    RAINY("rainy"),
+    UNKNOWN("unknown");
 }
 
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
