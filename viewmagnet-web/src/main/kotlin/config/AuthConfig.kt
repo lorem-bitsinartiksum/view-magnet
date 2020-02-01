@@ -8,7 +8,7 @@ import io.javalin.security.Role
 import utils.JwtProvider
 
 internal enum class Roles : Role {
-    ANYONE, AUTHENTICATED
+    ANYONE, AUTHENTICATED, ADMIN
 }
 
 private const val headerTokenName = "Authorization"

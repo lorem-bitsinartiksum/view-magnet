@@ -39,10 +39,28 @@ class UserController(private val userService: UserService) {
         userService.delete(ctx.attribute("email"))
     }
 
+    fun deleteByEmail(ctx: Context){
+        ctx.validatedPathParam("email")
+            .check({ it.isNotBlank() })
+            .getOrThrow().also { email ->
+                userService.delete(ctx.attribute("email"))
+            }
+    }
+
     fun getCurrent(ctx: Context) {
         userService.getByEmail(ctx.attribute("email")).also { user ->
             ctx.json(UserDTO(user))
         }
+    }
+
+    fun getCurrentByEmail(ctx: Context) {
+        ctx.validatedPathParam("email")
+            .check({ it.isNotBlank() })
+            .getOrThrow().also { email ->
+                userService.getByEmail(ctx.attribute("email")).also { user ->
+                    ctx.json(UserDTO(user))
+                }
+            }
     }
 
     fun update(ctx: Context) {
@@ -52,6 +70,19 @@ class UserController(private val userService: UserService) {
                 .check({ it.user?.email?.isEmailValid() ?: true })
                 .getOrThrow()
                 .user?.also { user ->
+            userService.update(email, user).apply {
+                ctx.json(UserDTO(this))
+            }
+        }
+    }
+
+    fun updateByEmail(ctx: Context){
+        val email = ctx.validatedPathParam("email").getOrThrow()
+        ctx.validatedBody<UserDTO>()
+            .check({ it.user != null })
+            .check({ it.user?.email?.isEmailValid() ?: true })
+            .getOrThrow()
+            .user?.also { user ->
             userService.update(email, user).apply {
                 ctx.json(UserDTO(this))
             }
