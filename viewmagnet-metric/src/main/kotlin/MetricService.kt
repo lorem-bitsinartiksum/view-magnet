@@ -6,13 +6,18 @@ import java.util.concurrent.TimeUnit
 class MetricService(private val influxDB: InfluxDB,
                         private val dbName: String = "viewmagnet_influx") {
 
-    fun createQueryAdMetricCount(ad_id: String): String {
-        val query = " SELECT count(age) as count FROM metrics WHERE ad_id = '" + ad_id + "'"
+    init {
+        this.influxDB.query(Query("CREATE DATABASE " + dbName, dbName))
+    }
+
+    fun createQueryMetricCount(tag: String, tag_value: String): String {
+        val query = " SELECT count(age) as count FROM metrics WHERE "+ tag + " = '" + tag_value + "'"
         return query
     }
 
-    init {
-        this.influxDB.query(Query("CREATE DATABASE " + dbName, dbName))
+    fun createQueryFieldAverageForAd(field: String, ad_id: String): String {
+        val query = " SELECT mean(" + field + ") as average FROM metrics WHERE ad_id = '" + ad_id + "'"
+        return query
     }
 
     fun create(metric: Metric): Int {
@@ -31,9 +36,9 @@ class MetricService(private val influxDB: InfluxDB,
         return 201
     }
 
-    fun getAdMetricCount(ad_id: String): MetricCount {
+    fun getMetricCount(tag: String, ad_id: String): MetricCount {
         val query = Query(
-            createQueryAdMetricCount(ad_id),
+            createQueryMetricCount(tag, ad_id),
             dbName
         )
         val results = influxDB.query(query)
@@ -44,6 +49,23 @@ class MetricService(private val influxDB: InfluxDB,
         return results.first().series.first().values
             .map { mutableList ->
                 MetricCount(mutableList[1].toString().toDouble().toInt()
+                )
+            }[0]
+    }
+
+    fun getFieldAverage(field: String, ad_id: String): FieldAverage {
+        val query = Query(
+            createQueryFieldAverageForAd(field, ad_id),
+            dbName
+        )
+        val results = influxDB.query(query)
+            .results
+        if (results.first().series == null) {
+            return FieldAverage(0.0)
+        }
+        return results.first().series.first().values
+            .map { mutableList ->
+                FieldAverage(mutableList[1].toString().toDouble()
                 )
             }[0]
     }

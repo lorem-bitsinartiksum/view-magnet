@@ -22,6 +22,8 @@ data class Metric(
 
 data class MetricCount(val count: Int = 0)
 
+data class FieldAverage(val average: Double = 0.0)
+
 
 enum class Gender(@JsonValue val gender : String) {
     MALE("male"),
@@ -53,10 +55,25 @@ fun main() {
     val controller = Controller(metricService)
 
     app.routes {
-        get("/get_ad/:ad_id", { ctx ->
-            controller.getAdMetricCount(ctx)
+        get("/company-metric-count/:company_id", { ctx ->
+            controller.getMetricCount(ctx, "company_id")
         })
-        post("/post", { ctx ->
+        get("/ad-metric-count/:ad_id", { ctx ->
+            controller.getMetricCount(ctx, "ad_id")
+        })
+        get("/billboard-metric-count/:billboard_id", { ctx ->
+            controller.getMetricCount(ctx, "billboard_id")
+        })
+        get("/age-average/:ad_id", { ctx ->
+            controller.getFieldAverage(ctx, "age")
+        })
+        get("/temperature-average/:ad_id", { ctx ->
+            controller.getFieldAverage(ctx, "temperature")
+        })
+        get("/sound-level-average/:ad_id", { ctx ->
+            controller.getFieldAverage(ctx, "sound_level")
+        })
+        post("/metric", { ctx ->
             controller.post(ctx)
         })
     }
@@ -71,7 +88,11 @@ class Controller(private val metricService: MetricService) {
         ctx.status(result)
     }
 
-    fun getAdMetricCount(ctx: Context) {
-        ctx.json(metricService.getAdMetricCount(ctx.pathParam("ad_id")))
+    fun getMetricCount(ctx: Context, tag: String) {
+        ctx.json(metricService.getMetricCount(tag, ctx.pathParam(tag)))
+    }
+
+    fun getFieldAverage(ctx: Context, field: String) {
+        ctx.json(metricService.getFieldAverage(field, ctx.pathParam("ad_id")))
     }
 }
