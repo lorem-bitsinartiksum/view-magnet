@@ -15,6 +15,9 @@ data class Metric(
     val age: Int = 0,
     val gender: Gender = Gender.UNDETECTED,
     val weather: Weather = Weather.UNKNOWN,
+    val temperature: Int = 0,
+    val sound_level: Int = 0,
+    val reality: Reality = Reality.REAL,
     val timestamp: Long = Date().time)
 
 data class MetricCount(val count: Int = 0)
@@ -35,6 +38,11 @@ enum class Weather(@JsonValue val weather : String) {
     SNOWY("snowy"),
     RAINY("rainy"),
     UNKNOWN("unknown");
+}
+
+enum class Reality(@JsonValue val reality : String) {
+    REAL("real"),
+    SIM("sim");
 }
 
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }

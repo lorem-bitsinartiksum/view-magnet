@@ -4,7 +4,7 @@ import org.influxdb.dto.Query
 import java.util.concurrent.TimeUnit
 
 class MetricService(private val influxDB: InfluxDB,
-                        private val dbName: String = "metrics") {
+                        private val dbName: String = "viewmagnet_influx") {
 
     fun createQueryAdMetricCount(ad_id: String): String {
         val query = " SELECT count(age) as count FROM metrics WHERE ad_id = '" + ad_id + "'"
@@ -24,6 +24,9 @@ class MetricService(private val influxDB: InfluxDB,
             .addField("age", metric.age)
             .tag("gender", metric.gender.toString())
             .addField("weather", metric.weather.toString())
+            .addField("temperature", metric.temperature)
+            .addField("sound_level", metric.sound_level)
+            .addField("reality", metric.reality.toString())
             .build())
         return 201
     }
