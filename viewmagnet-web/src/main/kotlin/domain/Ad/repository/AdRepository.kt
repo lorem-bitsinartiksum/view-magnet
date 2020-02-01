@@ -1,5 +1,6 @@
 package domain.Ad.repository
 
+import com.github.slugify.Slugify
 import com.mongodb.client.model.Filters
 import domain.Ad.Ad
 import org.litote.kmongo.*
@@ -34,8 +35,11 @@ class AdRepository() {
             col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetWeather, ad.targetWeather))
         if (ad.title != null){
             col.updateMany(Filters.eq("slug", slug), SetTo(Ad::title, ad.title))
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::slug, ad.slug))
-            return ad.slug?.let { findBySlug(it) }
+            val now = Date()
+            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::updatedAt, now))
+            val newSlug = Slugify().slugify(ad.title)
+            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::slug, newSlug))
+            return newSlug?.let { findBySlug(it) }
         }
         val now = Date()
         col.updateMany(Filters.eq("slug", slug), SetTo(Ad::updatedAt, now))
