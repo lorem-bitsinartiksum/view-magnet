@@ -2,6 +2,9 @@ package domain.Ad.service
 
 import com.github.slugify.Slugify
 import domain.Ad.Ad
+import domain.Ad.Age
+import domain.Ad.Gender
+import domain.Ad.Weather
 import domain.Ad.repository.AdRepository
 import domain.Admin.repository.AdminRepository
 import io.javalin.InternalServerErrorResponse
@@ -14,6 +17,10 @@ import io.javalin.UnauthorizedResponse
 class AdService(private val adRepository: AdRepository,
                 private val userRepository: UserRepository,
                 private val adminRepository: AdminRepository) {
+
+    inline fun <reified T : Enum<T>> enumContains(name: String?): Boolean {
+        return enumValues<T>().any { it.name == name}
+    }
 
     fun create(email: String?, ad: Ad): Ad {
         email ?: throw BadRequestResponse("invalid user to create ad") as Throwable
@@ -57,13 +64,12 @@ class AdService(private val adRepository: AdRepository,
             throw UnauthorizedResponse("Unauthorized User")
     }
 
-    fun findBy(title: String?, email: String?):
-            List<Ad> {
-        return when {
-            !title.isNullOrBlank() -> adRepository.findByTitle(title)
-            !email.isNullOrBlank() -> adRepository.findByEmail(email)
-            else -> adRepository.findAll()
-        }
-    }
+    fun findBy(title: String?, email: String?, targetAge: String?, targetGender: String?,targetWeather: String?): List<Ad> {
+        if(!targetAge.isNullOrBlank() && !enumContains<Age>(targetAge)) throw BadRequestResponse("Invalid age")
+        if(!targetGender.isNullOrBlank() && !enumContains<Gender>(targetGender)) throw BadRequestResponse("Invalid gender")
+        if(!targetWeather.isNullOrBlank() && !enumContains<Weather>(targetWeather)) throw BadRequestResponse("Invalid weather")
+        return adRepository.findByFilters(title,email, targetAge, targetGender, targetWeather)
 
-}
+     }
+
+    }

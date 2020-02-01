@@ -63,4 +63,42 @@ class AdRepository() {
         return col.find().toList()
     }
 
+    fun findByAge(targetAge: String): List<Ad> {
+        return col.find("{targetAge:'$targetAge'}").toList()
+    }
+
+    fun findByGender(targetGender: String): List<Ad> {
+        return col.find("{targetGender:'$targetGender'}").toList()
+    }
+
+    fun findByWeather(targetWeather: String): List<Ad> {
+        return col.find("{targetWeather:'$targetWeather'}").toList()
+    }
+
+    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<Ad> {
+
+        var filteredList = col.find().toList()
+        if(!title.isNullOrBlank()){
+            var titleFilter = "{title:'$title'}"
+            filteredList = filteredList.intersect(col.find(titleFilter).toList()).toList()
+        }
+        if(!email.isNullOrBlank()){
+            var emailFilter = "{email:'$email'}"
+            filteredList = filteredList.intersect(col.find(emailFilter).toList()).toList()
+        }
+        if(!targetAge.isNullOrBlank()){
+            var targetAgeFilter = "{targetAge:'$targetAge'}"
+            filteredList = filteredList.intersect(col.find(targetAgeFilter).toList()).toList()
+        }
+        if(!targetGender.isNullOrBlank()){
+            var targetGenderFilter = "{targetGender:'$targetGender'}"
+            filteredList = filteredList.intersect(col.find(targetGenderFilter).toList()).toList()
+        }
+        if(!targetWeather.isNullOrBlank()){
+            var targetWeatherFilter = "{targetWeather:'$targetWeather'}"
+            filteredList = filteredList.intersect(col.find(targetWeatherFilter).toList()).toList()
+        }
+        return filteredList
+    }
+
 }

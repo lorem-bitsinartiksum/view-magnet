@@ -48,7 +48,10 @@ class AdController(private val adService: AdService) {
     fun findBy(ctx: Context) {
         val title = ctx.queryParam("title")
         val email = ctx.queryParam("email")
-        adService.findBy(title, email).also { ads ->
+        val targetAge = ctx.queryParam("targetAge")
+        val targetGender = ctx.queryParam("targetGender")
+        val targetWeather = ctx.queryParam("targetWeather")
+        adService.findBy(title, email, targetAge, targetGender, targetWeather).also { ads ->
             ctx.json(AdsDTO(ads, ads.size))
         }
     }

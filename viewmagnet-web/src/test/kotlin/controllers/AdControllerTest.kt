@@ -220,4 +220,56 @@ class AdControllerTest{
         assertEquals(HttpStatus.UNAUTHORIZED_401,response2.status)
     }
 
+    @Test
+    fun `get all ads by gender and weather`() {
+        val email = "email_valid10@valid_email.com"
+        val password = "Test"
+        http.registerUser(email, password, "username_Test10")
+        http.loginAndSetTokenHeader(email, password)
+
+        val adDTO = AdDTO(Ad(title = "valid_title10", description = "valid_description10", targetGender = listOf(Gender.FEMALE,Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.SNOWY)))
+        val adDTO2 = AdDTO(Ad(title = "valid_title11", description = "valid_description11", targetGender = listOf(Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.STORMY)))
+        val adDTO3 = AdDTO(Ad(title = "valid_title12", description = "valid_description12", targetGender = listOf(Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.SNOWY)))
+
+
+        val response = http.post<AdDTO>("/api/ads", adDTO)
+        assertEquals(HttpStatus.OK_200,response.status)
+        assertEquals(adDTO.ad?.title,response.body.ad?.title)
+        assertEquals(adDTO.ad?.description,response.body.ad?.description)
+        assertEquals(adDTO.ad?.targetGender,response.body.ad?.targetGender)
+        assertEquals(adDTO.ad?.targetAge,response.body.ad?.targetAge)
+        assertEquals(adDTO.ad?.targetWeather,response.body.ad?.targetWeather)
+
+        val response2 = http.post<AdDTO>("/api/ads", adDTO2)
+        assertEquals(HttpStatus.OK_200,response2.status)
+        assertEquals(adDTO2.ad?.title,response2.body.ad?.title)
+        assertEquals(adDTO2.ad?.description,response2.body.ad?.description)
+        assertEquals(adDTO2.ad?.targetGender,response2.body.ad?.targetGender)
+        assertEquals(adDTO2.ad?.targetAge,response2.body.ad?.targetAge)
+        assertEquals(adDTO2.ad?.targetWeather,response2.body.ad?.targetWeather)
+
+        val response3 = http.post<AdDTO>("/api/ads", adDTO3)
+        assertEquals(HttpStatus.OK_200,response3.status)
+        assertEquals(adDTO3.ad?.title,response3.body.ad?.title)
+        assertEquals(adDTO3.ad?.description,response3.body.ad?.description)
+        assertEquals(adDTO3.ad?.targetGender,response3.body.ad?.targetGender)
+        assertEquals(adDTO3.ad?.targetAge,response3.body.ad?.targetAge)
+        assertEquals(adDTO3.ad?.targetWeather,response3.body.ad?.targetWeather)
+
+        val response4 = http.get<AdsDTO>("/api/ads?targetWeather=SNOWY&targetGender=MALE")
+        assertEquals(HttpStatus.OK_200,response4.status)
+        assertEquals(adDTO.ad?.title,response4.body.ads?.first().title)
+        assertEquals(adDTO.ad?.description,response4.body.ads?.first().description)
+        assertEquals(adDTO.ad?.targetGender,response4.body.ads?.first().targetGender)
+        assertEquals(adDTO.ad?.targetAge,response4.body.ads?.first().targetAge)
+        assertEquals(adDTO.ad?.targetWeather,response4.body.ads?.first().targetWeather)
+
+        assertEquals(adDTO3.ad?.title,response4.body.ads?.last().title)
+        assertEquals(adDTO3.ad?.description,response4.body.ads?.last().description)
+        assertEquals(adDTO3.ad?.targetGender,response4.body.ads?.last().targetGender)
+        assertEquals(adDTO3.ad?.targetAge,response4.body.ads?.last().targetAge)
+        assertEquals(adDTO3.ad?.targetWeather,response4.body.ads?.last().targetWeather)
+
+    }
+
 }
