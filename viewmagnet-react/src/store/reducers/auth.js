@@ -2,7 +2,6 @@ import { LOGIN, LOGOUT } from './../actions'
 
 const initialState = {
     token: null,
-    email: null,
     loggedIn: false
 };
 
@@ -12,14 +11,12 @@ const auth = (state = initialState, action) => {
             return {
                 ...state,
                 token: action.token,
-                email: action.email,
                 loggedIn: true
             }
         case LOGOUT:
             return {
                 ...state,
                 token: null,
-                email: null,
                 loggedIn: false
             }
         default:

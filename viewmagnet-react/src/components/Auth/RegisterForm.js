@@ -1,7 +1,9 @@
 import { Form, Icon, Input, Button, Card, message } from 'antd';
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios'
+import { login } from './../../store/actions/'
 import 'antd/dist/antd.css';
 import './RegisterForm.css';
 
@@ -11,12 +13,17 @@ class NormalRegisterForm extends React.Component {
         redirect: false
     };
 
+    componentDidMount() {
+        if (localStorage.getItem('token'))
+            this.props.onLogin(localStorage.getItem('token'))
+    }
+
     handleSubmit = e => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 delete values.confirm;
-                axios.post('http://localhost:7000/api/users', { "user": values }).then((res) => {
+                axios.post('http://localhost:7000/api/users', { user: values }).then((res) => {
                     this.setState({ redirect: true });
                     message.success("Account Created!");
                     // message.success(res.statusText);
@@ -34,9 +41,8 @@ class NormalRegisterForm extends React.Component {
     };
 
     render() {
-        const { redirect } = this.state;
-        if (redirect) {
-            return <Redirect to='/login' />;
+        if (this.props.loggedIn) {
+            return <Redirect to='/profile' />;
         }
         const { getFieldDecorator } = this.props.form;
         return (
@@ -149,5 +155,19 @@ class NormalRegisterForm extends React.Component {
     };
 }
 
+
+const mapStateToProps = state => {
+    return {
+        loggedIn: state.auth.loggedIn,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onLogin: (token) => dispatch(login(token)),
+    };
+};
+
+
 const RegisterForm = Form.create({ name: 'normal_register' })(NormalRegisterForm);
-export default RegisterForm;
+export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);

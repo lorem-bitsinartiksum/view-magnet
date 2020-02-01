@@ -9,6 +9,11 @@ import './LoginForm.css';
 
 class NormalLoginForm extends React.Component {
 
+    componentDidMount() {
+        if (localStorage.getItem('token'))
+            this.props.onLogin(localStorage.getItem('token'))
+    }
+
     handleSubmit = e => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
@@ -16,7 +21,7 @@ class NormalLoginForm extends React.Component {
                 axios.post('http://localhost:7000/api/users/login', { user: values })
                     .then((res) => {
                         if (res.status === 200) {
-                            this.props.onLogin(res.data.user.email, res.data.user.token)
+                            this.props.onLogin(res.data.user.token)
                             localStorage.setItem('token', res.data.user.token)
                             message.success("Logged In!")
                         }
@@ -32,7 +37,7 @@ class NormalLoginForm extends React.Component {
 
     render() {
         if (this.props.loggedIn) {
-            return <Redirect to='/home' />;
+            return <Redirect to='/profile' />;
         }
         const { getFieldDecorator } = this.props.form;
         return (
@@ -81,7 +86,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (email, token) => dispatch(login(email, token)),
+        onLogin: (token) => dispatch(login(token)),
     };
 };
 

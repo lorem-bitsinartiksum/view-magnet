@@ -29,7 +29,7 @@ class Bars extends React.Component {
       //   sidebarItems = ([
       <Menu.Item key="3">
         <Link to="/create-ad">
-          <Icon type="plus" />
+          <Icon type="file-add" />
           <span>Create Advert</span>
         </Link>
       </Menu.Item >,
@@ -40,7 +40,7 @@ class Bars extends React.Component {
         </Link>
       </Menu.Item >,
       <Menu.Item key="5">
-        <Link to="/home" onClick={() => this.props.onLogout()}>
+        <Link to="/home" onClick={() => { this.props.onLogout(); localStorage.clear() }}>
           <Icon type="logout" />
           <span>Log out</span>
         </Link>
