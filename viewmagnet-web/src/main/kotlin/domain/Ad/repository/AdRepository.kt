@@ -14,7 +14,7 @@ class AdRepository() {
 
     fun create(ad: Ad): Ad? {
         val now = Date()
-        col.insertOne(Ad(slug = ad.slug, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAgeRange = ad.targetAgeRange, targetWeather = ad.targetWeather, createdAt = now, updatedAt = now))
+        col.insertOne(Ad(slug = ad.slug, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, createdAt = now, updatedAt = now))
         return findBySlug(ad.slug!!)
     }
 
@@ -29,8 +29,8 @@ class AdRepository() {
             col.updateMany(Filters.eq("slug", slug), SetTo(Ad::content, ad.content))
         if (ad.targetGender != null)
             col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetGender, ad.targetGender))
-        if (ad.targetAgeRange != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetAgeRange, ad.targetAgeRange))
+        if (ad.targetAge != null)
+            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetAge, ad.targetAge))
         if (ad.targetWeather != null)
             col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetWeather, ad.targetWeather))
         if (ad.title != null){

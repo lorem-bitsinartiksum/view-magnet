@@ -3,9 +3,7 @@ package controllers
 import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import config.AppConfig
-import domain.Ad.Ad
-import domain.Ad.AdDTO
-import domain.Ad.AdsDTO
+import domain.Ad.*
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After
 import org.junit.Assert.*
@@ -35,12 +33,15 @@ class AdControllerTest{
         http.registerUser(email, password, "username_Test")
         http.loginAndSetTokenHeader(email, password)
 
-        val adDTO = AdDTO(Ad(title = "valid_title", description = "valid_description"))
+        val adDTO = AdDTO(Ad(title = "valid_title", description = "valid_description", targetGender = listOf(Gender.FEMALE,Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.RAINY)))
         val response = http.post<AdDTO>("/api/ads", adDTO)
 
-        assertEquals(response.status, HttpStatus.OK_200)
-        assertEquals(response.body.ad?.title, adDTO.ad?.title)
-        assertEquals(response.body.ad?.description, adDTO.ad?.description)
+        assertEquals(HttpStatus.OK_200,response.status)
+        assertEquals(adDTO.ad?.title,response.body.ad?.title)
+        assertEquals(adDTO.ad?.description,response.body.ad?.description)
+        assertEquals(adDTO.ad?.targetGender,response.body.ad?.targetGender)
+        assertEquals(adDTO.ad?.targetAge,response.body.ad?.targetAge)
+        assertEquals(adDTO.ad?.targetWeather,response.body.ad?.targetWeather)
 
         http.delete("/api/user")
         val slug = response.body.ad?.slug;
@@ -184,12 +185,15 @@ class AdControllerTest{
         assertEquals(response.status, HttpStatus.OK_200)
 
         val slug = response.body.ad?.slug;
-        val updatedAdDTO = AdDTO(Ad(title = "updated_valid_title7", description = "updated_valid_description7"))
+        val updatedAdDTO = AdDTO(Ad(title = "updated_valid_title7", description = "updated_valid_description7",targetGender = listOf(Gender.FEMALE,Gender.MALE), targetAge = listOf(Age.CHILD,Age.YOUNG,Age.ADULT),targetWeather = listOf(Weather.SUNNY)))
         val response2 = http.put<AdDTO>("/api/ads/$slug",updatedAdDTO)
 
         assertEquals(HttpStatus.OK_200,response2.status)
-        assertEquals("updated_valid_title7",response2.body.ad?.title)
-        assertEquals( "updated_valid_description7",response2.body.ad?.description)
+        assertEquals(updatedAdDTO.ad?.title,response2.body.ad?.title)
+        assertEquals(updatedAdDTO.ad?.description,response2.body.ad?.description)
+        assertEquals(updatedAdDTO.ad?.targetGender,response2.body.ad?.targetGender)
+        assertEquals(updatedAdDTO.ad?.targetAge,response2.body.ad?.targetAge)
+        assertEquals(updatedAdDTO.ad?.targetWeather,response2.body.ad?.targetWeather)
     }
 
     @Test
