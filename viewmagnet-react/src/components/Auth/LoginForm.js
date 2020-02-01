@@ -13,24 +13,25 @@ class NormalLoginForm extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                axios.post('https://bububu.free.beeceptor.com/api/users/login', values, {
-                    'Content-Type': 'application/json'
-                })
+                axios.post('http://localhost:7000/api/users/login', { user: values })
                     .then((res) => {
-                        this.props.onLogin(JSON.parse(res.config.data).email, 'TOKEN!');
-                        message.success("Logged In!");
-                        // localStorage.setItem('login', 'true');
+                        if (res.status === 200) {
+                            this.props.onLogin(res.data.user.email, res.data.user.token)
+                            localStorage.setItem('token', res.data.user.token)
+                            message.success("Logged In!")
+                        }
+                        else console.log(res)
                     })
-                    .catch((error) =>
-                        console.log(error)
-                    );
+                    .catch((error) => {
+                        message.error(error.response.statusText)
+                        this.props.form.resetFields()
+                    });
             }
         })
     };
 
     render() {
-        const { email } = this.props;
-        if (email) {
+        if (this.props.loggedIn) {
             return <Redirect to='/home' />;
         }
         const { getFieldDecorator } = this.props.form;
@@ -72,6 +73,11 @@ class NormalLoginForm extends React.Component {
         );
     }
 }
+const mapStateToProps = state => {
+    return {
+        loggedIn: state.auth.loggedIn,
+    };
+};
 
 const mapDispatchToProps = dispatch => {
     return {
@@ -80,4 +86,4 @@ const mapDispatchToProps = dispatch => {
 };
 
 const LoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm);
-export default connect(null, mapDispatchToProps)(LoginForm);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

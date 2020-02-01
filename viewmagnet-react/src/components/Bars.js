@@ -23,25 +23,30 @@ class Bars extends React.Component {
       </Menu.Item>,
       <Menu.Item key="2">
         <Link to="/register"><Icon type="user-add" /><span>Register</span></Link>
-      </Menu.Item>
+      </Menu.Item>,
+      // ]);
+      // if (this.props.loggedIn) {
+      //   sidebarItems = ([
+      <Menu.Item key="3">
+        <Link to="/create-ad">
+          <Icon type="plus" />
+          <span>Create Advert</span>
+        </Link>
+      </Menu.Item >,
+      <Menu.Item key="4">
+        <Link to="/profile">
+          <Icon type="user" />
+          <span>Profile</span>
+        </Link>
+      </Menu.Item >,
+      <Menu.Item key="5">
+        <Link to="/home" onClick={() => this.props.onLogout()}>
+          <Icon type="logout" />
+          <span>Log out</span>
+        </Link>
+      </Menu.Item >
     ]);
-
-    if (this.props.loggedIn) {
-      sidebarItems = ([
-        <Menu.Item key="3">
-          <Link to="/profile">
-            <Icon type="user" />
-            <span>Profile</span>
-          </Link>
-        </Menu.Item >,
-        <Menu.Item key="4">
-          <Link to="/home" onClick={() => this.props.onLogout()}>
-            <Icon type="logout" />
-            <span>Log out</span>
-          </Link>
-        </Menu.Item >
-      ]);
-    }
+    // }
 
     return (
       <Layout style={{ minHeight: '100vh' }}>

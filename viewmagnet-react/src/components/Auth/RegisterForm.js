@@ -16,7 +16,7 @@ class NormalRegisterForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 delete values.confirm;
-                axios.post('https://www.jsonstore.io/d39bf48de7b7ef5a2d73ddb0fba06a7523d3b0f1d842c18c5156e4f8d09f7f7d', values).then((res) => {
+                axios.post('http://localhost:7000/api/users', { "user": values }).then((res) => {
                     this.setState({ redirect: true });
                     message.success("Account Created!");
                     // message.success(res.statusText);
