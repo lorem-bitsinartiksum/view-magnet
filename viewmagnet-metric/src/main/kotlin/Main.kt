@@ -20,6 +20,15 @@ data class Metric(
     val reality: Reality = Reality.REAL,
     val timestamp: Long = Date().time)
 
+data class BillboardStatus(
+    val billboard_id: Int = 0,
+    val health: Health = Health.UP,
+    val ad_id: Int = 0,
+    val weather: Weather = Weather.UNKNOWN,
+    val temperature: Int = 0,
+    val sound_level: Int = 0,
+    val timestamp: Long = Date().time)
+
 data class MetricCount(val count: Int = 0)
 
 data class FieldAverage(val average: Double = 0.0)
@@ -45,6 +54,11 @@ enum class Weather(@JsonValue val weather : String) {
 enum class Reality(@JsonValue val reality : String) {
     REAL("real"),
     SIM("sim");
+}
+
+enum class Health(@JsonValue val health : String) {
+    UP("up"),
+    DOWN("down");
 }
 
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
@@ -74,7 +88,10 @@ fun main() {
             controller.getFieldAverage(ctx, "sound_level")
         })
         post("/metric", { ctx ->
-            controller.post(ctx)
+            controller.postMetric(ctx)
+        })
+        post("/billboard-status", { ctx ->
+            controller.postBillboardStatus(ctx)
         })
     }
 
@@ -82,9 +99,9 @@ fun main() {
 
 class Controller(private val metricService: MetricService) {
 
-    fun post(ctx: Context) {
+    fun postMetric(ctx: Context) {
         val metric = ctx.bodyAsClass(Metric::class.java)
-        val result = metricService.create(metric)
+        val result = metricService.createMetric(metric)
         ctx.status(result)
     }
 
@@ -94,5 +111,11 @@ class Controller(private val metricService: MetricService) {
 
     fun getFieldAverage(ctx: Context, field: String) {
         ctx.json(metricService.getFieldAverage(field, ctx.pathParam("ad_id")))
+    }
+
+    fun postBillboardStatus(ctx: Context) {
+        val billboardStatus = ctx.bodyAsClass(BillboardStatus::class.java)
+        val result = metricService.createBillboardStatus(billboardStatus)
+        ctx.status(result)
     }
 }
