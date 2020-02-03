@@ -33,7 +33,7 @@ class AdControllerTest{
         http.registerUser(email, password, "username_Test")
         http.loginAndSetTokenHeader(email, password)
 
-        val adDTO = AdDTO(Ad(title = "valid_title", description = "valid_description", targetGender = listOf(Gender.FEMALE,Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.RAINY)))
+        val adDTO = AdDTO(Ad(title = "valid_title", description = "valid_description", targetGender = listOf(Gender.FEMALE,Gender.MALE), targetAge = listOf(Age.BABY,Age.CHILD,Age.YOUNG,Age.ADULT,Age.ELDERLY),targetWeather = listOf(Weather.RAINY), targetLowTemp = 10))
         val response = http.post<AdDTO>("/api/ads", adDTO)
 
         assertEquals(HttpStatus.OK_200,response.status)
@@ -42,6 +42,8 @@ class AdControllerTest{
         assertEquals(adDTO.ad?.targetGender,response.body.ad?.targetGender)
         assertEquals(adDTO.ad?.targetAge,response.body.ad?.targetAge)
         assertEquals(adDTO.ad?.targetWeather,response.body.ad?.targetWeather)
+        assertEquals(adDTO.ad?.targetLowTemp,response.body.ad?.targetLowTemp)
+
 
         http.delete("/api/user")
         val slug = response.body.ad?.slug;
