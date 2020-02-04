@@ -12,7 +12,6 @@ class Bars extends React.Component {
   };
 
   onCollapse = collapsed => {
-    console.log(collapsed);
     this.setState({ collapsed });
   };
 
@@ -34,12 +33,18 @@ class Bars extends React.Component {
         </Link>
       </Menu.Item >,
       <Menu.Item key="4">
+        <Link to="/ad">
+          <Icon type="file-image" />
+          <span>Advert</span>
+        </Link>
+      </Menu.Item >,
+      <Menu.Item key="5">
         <Link to="/profile">
           <Icon type="user" />
           <span>Profile</span>
         </Link>
       </Menu.Item >,
-      <Menu.Item key="5">
+      <Menu.Item key="6">
         <Link to="/home" onClick={() => { this.props.onLogout(); localStorage.clear() }}>
           <Icon type="logout" />
           <span>Log out</span>

@@ -6,6 +6,7 @@ import './App.css';
 import Bars from './components/Bars'
 import Profile from './components/Profile'
 import CreateAdvert from './components/Advert/CreateAdvert'
+import Advert from './components/Advert/Advert';
 
 function App() {
   let routes = (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/register" component={RegisterForm} />
       <Route path="/profile" component={Profile} />
       <Route path="/create-ad" component={CreateAdvert} />
+      <Route path="/ad" component={Advert} />
       <Redirect to="/" />
     </Switch>
   )

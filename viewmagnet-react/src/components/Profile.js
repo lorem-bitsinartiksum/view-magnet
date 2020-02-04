@@ -1,6 +1,6 @@
 import './Profile.css';
 import 'antd/dist/antd.css';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios'
 import { connect } from 'react-redux';
@@ -20,10 +20,9 @@ class Profile extends React.Component {
     };
 
     componentDidMount() {
-        console.log(this.props)
         axios.get('http://localhost:7000/api/user', { headers: { 'Authorization': this.props.token } })
             .then((res) => {
-                console.log(res); this.setState({
+                this.setState({
                     username: res.data.user.username,
                     email: res.data.user.email,
                     phone: res.data.user.phone,
@@ -47,9 +46,8 @@ class Profile extends React.Component {
         if (!this.props.loggedIn) {
             return <Redirect to='/login' />;
         }
-        return ([
+        return (<Fragment>
             <Modal visible={this.state.modalVisible} destroyOnClose={true} closable={false} onCancel={() => this.setState({ modalVisible: !this.state.modalVisible })} onOk={() => {
-
                 this.state.matchingPasswords
                     ? (axios.put(
                         'http://localhost:7000/api/user',
@@ -67,7 +65,7 @@ class Profile extends React.Component {
                         <Form.Item label="Confirm New Password"><Input type="password" onChange={this.onChangeNewPassConfirm} /></Form.Item>
                     </Form>
                 </Card>
-            </Modal>,
+            </Modal>
             <div className="profile-card">
                 <Card title="Update Profile">
                     <Paragraph editable={{ onChange: this.onChangeUsername }}>{this.state.username}</Paragraph>
@@ -101,7 +99,7 @@ class Profile extends React.Component {
                     </ButtonGroup>
                 </Card>
             </div >
-        ]);
+        </Fragment>);
     }
 }
 
