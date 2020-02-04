@@ -20,7 +20,7 @@ class MetricService(private val influxDB: InfluxDB,
         return query
     }
 
-    fun createMetric(metric: Metric): Int {
+    fun createMetric(metric: Metric) {
         influxDB.write(dbName, "", Point.measurement("metrics")
             .time(metric.timestamp, TimeUnit.MILLISECONDS)
             .tag("company_id", metric.company_id.toString())
@@ -33,7 +33,6 @@ class MetricService(private val influxDB: InfluxDB,
             .addField("sound_level", metric.sound_level)
             .addField("reality", metric.reality.toString())
             .build())
-        return 201
     }
 
     fun getMetricCount(tag: String, ad_id: String): MetricCount {
@@ -70,7 +69,7 @@ class MetricService(private val influxDB: InfluxDB,
             }[0]
     }
 
-    fun createBillboardStatus(billboardStatus: BillboardStatus): Int {
+    fun createBillboardStatus(billboardStatus: BillboardStatus) {
         influxDB.write(dbName, "", Point.measurement("billboard_status")
             .time(billboardStatus.timestamp, TimeUnit.MILLISECONDS)
             .tag("billboard_id", billboardStatus.billboard_id.toString())
@@ -80,7 +79,6 @@ class MetricService(private val influxDB: InfluxDB,
             .addField("temperature", billboardStatus.temperature)
             .addField("sound_level", billboardStatus.sound_level)
             .build())
-        return 201
     }
 
 }

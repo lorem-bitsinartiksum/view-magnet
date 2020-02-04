@@ -1,10 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonValue
-import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.post
-import io.javalin.http.Context
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
+import topic.TopicContext
+import topic.TopicService
 import java.util.*
 
 
@@ -34,88 +31,53 @@ data class MetricCount(val count: Int = 0)
 data class FieldAverage(val average: Double = 0.0)
 
 
-enum class Gender(@JsonValue val gender : String) {
-    MALE("male"),
-    FEMALE("female"),
-    UNDETECTED("undetected");
+enum class Gender {
+    MALE,
+    FEMALE,
+    UNDETECTED;
 }
 
-enum class Weather(@JsonValue val weather : String) {
-    SUNNY("sunny"),
-    CLOUDY("cloudy"),
-    WINDY("windy"),
-    FOGGY("foggy"),
-    STORMY("stormy"),
-    SNOWY("snowy"),
-    RAINY("rainy"),
-    UNKNOWN("unknown");
+enum class Weather {
+    SUNNY,
+    CLOUDY,
+    WINDY,
+    FOGGY,
+    STORMY,
+    SNOWY,
+    RAINY,
+    UNKNOWN;
 }
 
-enum class Reality(@JsonValue val reality : String) {
-    REAL("real"),
-    SIM("sim");
+enum class Reality {
+    REAL,
+    SIM;
 }
 
-enum class Health(@JsonValue val health : String) {
-    UP("up"),
-    DOWN("down");
+enum class Health {
+    UP,
+    DOWN;
 }
 
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
 
 fun main() {
-    val app = Javalin.create().start(7000)
     val metricService = MetricService(influxDB)
-    val controller = Controller(metricService)
-
-    app.routes {
-        get("/company-metric-count/:company_id", { ctx ->
-            controller.getMetricCount(ctx, "company_id")
-        })
-        get("/ad-metric-count/:ad_id", { ctx ->
-            controller.getMetricCount(ctx, "ad_id")
-        })
-        get("/billboard-metric-count/:billboard_id", { ctx ->
-            controller.getMetricCount(ctx, "billboard_id")
-        })
-        get("/age-average/:ad_id", { ctx ->
-            controller.getFieldAverage(ctx, "age")
-        })
-        get("/temperature-average/:ad_id", { ctx ->
-            controller.getFieldAverage(ctx, "temperature")
-        })
-        get("/sound-level-average/:ad_id", { ctx ->
-            controller.getFieldAverage(ctx, "sound_level")
-        })
-        post("/metric", { ctx ->
-            controller.postMetric(ctx)
-        })
-        post("/billboard-status", { ctx ->
-            controller.postBillboardStatus(ctx)
-        })
-    }
-
+    subscribeMetric(metricService)
+    subscribeBillboardStatus(metricService)
 }
 
-class Controller(private val metricService: MetricService) {
-
-    fun postMetric(ctx: Context) {
-        val metric = ctx.bodyAsClass(Metric::class.java)
-        val result = metricService.createMetric(metric)
-        ctx.status(result)
+fun subscribeMetric(metricService: MetricService) {
+    val topicService = TopicService.createFor(Metric::class.java, TopicContext())
+    topicService.subscribe {
+        println("RECEIVED METRIC FROM BILLBOARD${it.payload.billboard_id}")
+        metricService.createMetric(it.payload)
     }
+}
 
-    fun getMetricCount(ctx: Context, tag: String) {
-        ctx.json(metricService.getMetricCount(tag, ctx.pathParam(tag)))
-    }
-
-    fun getFieldAverage(ctx: Context, field: String) {
-        ctx.json(metricService.getFieldAverage(field, ctx.pathParam("ad_id")))
-    }
-
-    fun postBillboardStatus(ctx: Context) {
-        val billboardStatus = ctx.bodyAsClass(BillboardStatus::class.java)
-        val result = metricService.createBillboardStatus(billboardStatus)
-        ctx.status(result)
+fun subscribeBillboardStatus(metricService: MetricService) {
+    val topicService = TopicService.createFor(BillboardStatus::class.java, TopicContext())
+    topicService.subscribe {
+        println("RECEIVED METRIC FROM BILLBOARD${it.payload.billboard_id}")
+        metricService.createBillboardStatus(it.payload)
     }
 }
