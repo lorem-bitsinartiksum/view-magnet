@@ -9,6 +9,7 @@ const { Meta } = Card;
 class Advert extends React.Component {
 
     state = {
+        slug: "",
         title: "",
         description: "",
         targetAge: "",
@@ -21,6 +22,7 @@ class Advert extends React.Component {
         axios.get('http://localhost:7000/api/ads?email=info@thenorthface.com', { headers: { 'Authorization': localStorage.getItem('token') } })
             .then((res) => {
                 console.log(res.data.ads[0]); this.setState({
+                    slug: res.data.ads[0].slug,
                     title: res.data.ads[0].title,
                     description: res.data.ads[0].description,
                     targetAge: res.data.ads[0].targetAge,
@@ -44,7 +46,12 @@ class Advert extends React.Component {
                     }
                     actions={[
                         <Icon type="edit" key="edit" />,
-                        <Icon type="delete" key="delete" />,
+                        <Icon
+                            type="delete"
+                            key="delete"
+                            onClick={() => axios.delete(
+                                'http://localhost:7000/api/ads/' + this.state.slug,
+                                { headers: { 'Authorization': localStorage.getItem('token') } }).then((res) => console.log(res)).catch((err) => console.log(err))} />,
                     ]}
                 >
                     <Meta
