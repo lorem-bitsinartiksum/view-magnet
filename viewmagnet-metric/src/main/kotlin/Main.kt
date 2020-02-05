@@ -1,3 +1,4 @@
+import metric.MetricService
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import topic.TopicContext
@@ -6,24 +7,24 @@ import java.util.*
 
 
 data class Metric(
-    val company_id: Int = 0,
-    val ad_id: Int = 0,
-    val billboard_id: Int = 0,
-    val age: Int = 0,
+    val timestamp: Long = Date().time,
+    val ad_id: Long = 0,
+    val age: Long = 0,
+    val billboard_id: Long = 0,
+    val company_id: Long = 0,
     val gender: Gender = Gender.UNDETECTED,
-    val weather: Weather = Weather.UNKNOWN,
-    val temperature: Int = 0,
-    val sound_level: Int = 0,
     val reality: Reality = Reality.REAL,
-    val timestamp: Long = Date().time)
+    val sound_level: Long = 0,
+    val temperature: Long = 0,
+    val weather: Weather = Weather.UNKNOWN)
 
 data class BillboardStatus(
-    val billboard_id: Int = 0,
+    val billboard_id: Long = 0,
     val health: Health = Health.UP,
-    val ad_id: Int = 0,
+    val ad_id: Long = 0,
     val weather: Weather = Weather.UNKNOWN,
-    val temperature: Int = 0,
-    val sound_level: Int = 0,
+    val temperature: Long = 0,
+    val sound_level: Long = 0,
     val timestamp: Long = Date().time)
 
 data class MetricCount(val count: Int = 0)
@@ -64,6 +65,7 @@ fun main() {
     val metricService = MetricService(influxDB)
     subscribeMetric(metricService)
     subscribeBillboardStatus(metricService)
+    influxDB.close()
 }
 
 fun subscribeMetric(metricService: MetricService) {
