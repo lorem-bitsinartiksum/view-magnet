@@ -15,16 +15,18 @@ class Advert extends React.Component {
         targetAge: "",
         targetGender: "",
         targetWeather: "",
-        // content: "",
+        content: "",
     }
 
     componentDidMount() {
         axios.get('http://localhost:7000/api/ads?email=info@thenorthface.com', { headers: { 'Authorization': localStorage.getItem('token') } })
             .then((res) => {
-                console.log(res.data.ads[0]); this.setState({
+                console.log(res.data.ads[0]);
+                this.setState({
                     slug: res.data.ads[0].slug,
                     title: res.data.ads[0].title,
                     description: res.data.ads[0].description,
+                    content: res.data.ads[0].content,
                     targetAge: res.data.ads[0].targetAge,
                     targetGender: res.data.ads[0].targetGender,
                     targetWeather: res.data.ads[0].targetWeather,
@@ -41,7 +43,7 @@ class Advert extends React.Component {
                     title={this.state.title}
                     cover={
                         <img
-                        // src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                            src={this.state.content}
                         />
                     }
                     actions={[

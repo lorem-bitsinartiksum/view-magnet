@@ -13,7 +13,7 @@ class CreateAdvert extends React.Component {
         targetAge: "",
         targetGender: "",
         targetWeather: "",
-        // content: "",
+        content: "",
     }
     onChangeTitle = str => this.setState({ title: str.target.value });
     onChangeDesc = str => this.setState({ description: str.target.value });
@@ -60,7 +60,7 @@ class CreateAdvert extends React.Component {
                         <Upload listType="picture" beforeUpload={(f) => {
                             let reader = new FileReader();
                             reader.readAsDataURL(f);
-                            //reader.onloadend = () => { this.setState({ content: reader }); return false; };
+                            reader.onloadend = () => { console.log(reader.result); this.setState({ content: reader.result }); return false; };
                         }}>
                             <Button>
                                 <Icon type="upload" />Click to upload
@@ -71,7 +71,7 @@ class CreateAdvert extends React.Component {
                         <TextArea rows={2} allowClear onChange={this.onChangeDesc} />
                     </Form.Item>
                     <Form.Item>
-                        <Button onClick={() => { console.log(this.props); axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': this.props.token } }).then((res) => console.log(res)) }}>Create Advert</Button>
+                        <Button onClick={() => { axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': localStorage.getItem('token') } }).then((res) => console.log(res)) }}>Create Advert</Button>
                     </Form.Item>
                 </Form>
             </Card >

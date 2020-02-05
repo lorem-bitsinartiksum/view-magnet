@@ -26,8 +26,7 @@ class NormalRegisterForm extends React.Component {
                 axios.post('http://localhost:7000/api/users', { user: values }).then((res) => {
                     this.setState({ redirect: true });
                     message.success("Account Created!");
-                    // message.success(res.statusText);
-                    console.log(res);
+                    this.props.onLogin(res.data.token)
                 }).catch((error) =>
                     console.log(error)
                 )

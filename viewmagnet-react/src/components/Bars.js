@@ -45,7 +45,7 @@ class Bars extends React.Component {
         </Link>
       </Menu.Item >,
       <Menu.Item key="6">
-        <Link to="/home" onClick={() => { this.props.onLogout(); localStorage.clear() }}>
+        <Link to="/home" onClick={() => { this.props.onLogout();}}>
           <Icon type="logout" />
           <span>Log out</span>
         </Link>

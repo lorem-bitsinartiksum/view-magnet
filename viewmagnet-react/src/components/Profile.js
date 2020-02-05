@@ -4,6 +4,7 @@ import React, { Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios'
 import { connect } from 'react-redux';
+import { logout } from '../store/actions'
 import { Form, Input, Button, Card, message, Modal, Typography, Popconfirm } from 'antd';
 import ButtonGroup from 'antd/lib/button/button-group';
 const { Paragraph } = Typography;
@@ -36,7 +37,7 @@ class Profile extends React.Component {
     onChangePhone = str => this.setState({ phone: str });
     onChangeLocation = str => this.setState({ location: str });
 
-    confirm = e => axios.delete('http://localhost:7000/api/user', { headers: { 'Authorization': this.props.token } }).then((res) => message.success(res.data.statusText));
+    confirm = e => axios.delete('http://localhost:7000/api/user', { headers: { 'Authorization': this.props.token } }).then((res) => { message.success(res.data.statusText); this.props.onProfileDelete() });
     cancel = e => console.log(e);
 
     onChangeNewPass = str => this.setState({ newPass: str.target.value });
@@ -112,7 +113,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        // onProfileUpdate: () => dispatch(logout())
+        onProfileDelete: () => dispatch(logout())
     };
 };
 
