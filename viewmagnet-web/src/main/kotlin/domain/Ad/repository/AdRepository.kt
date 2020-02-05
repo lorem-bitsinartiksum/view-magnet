@@ -83,7 +83,7 @@ class AdRepository() {
             filteredList = filteredList.intersect(col.find(titleFilter).toList()).toList()
         }
         if(!email.isNullOrBlank()){
-            var emailFilter = "{email:'$email'}"
+            var emailFilter = "{'user.email':'$email'}"
             filteredList = filteredList.intersect(col.find(emailFilter).toList()).toList()
         }
         if(!targetAge.isNullOrBlank()){
