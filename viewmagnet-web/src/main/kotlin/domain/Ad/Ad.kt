@@ -19,17 +19,17 @@ data class AdDTO(val ad: Ad?)
 
 data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
 
-data class Ad (val slug: String? = null,
-               val user: User? = null,
-               val title: String,
-               val description: String,
-               val content: Base64? = null,
-               val targetGender: List<Gender>?= null,
-               val targetAge: List<Age>?= null,
-               val targetWeather: List<Weather>?= null,
-               val targetLowTemp : Int? = null,
-               val targetHighTemp : Int? = null,
-               val targetLowSoundLevel : Int? = null,
-               val targetHighSoundLevel : Int? = null,
-               val createdAt: Date? = null,
-               val updatedAt: Date? = null)
+data class Ad(val slug: String? = null,
+              val user: User? = null,
+              val title: String,
+              val description: String,
+              val content: String? = null,
+              val targetGender: List<Gender>?= null,
+              val targetAge: List<Age>?= null,
+              val targetWeather: List<Weather>?= null,
+              val targetLowTemp: Int? = null,
+              val targetHighTemp: Int? = null,
+              val targetLowSoundLevel: Int? = null,
+              val targetHighSoundLevel: Int? = null,
+              val createdAt: Date? = null,
+              val updatedAt: Date? = null)

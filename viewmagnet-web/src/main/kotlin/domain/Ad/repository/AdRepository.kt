@@ -14,7 +14,7 @@ class AdRepository() {
 
     fun create(ad: Ad): Ad? {
         val now = Date()
-        col.insertOne(Ad(slug = ad.slug, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel,targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now))
+        col.insertOne(Ad(slug = ad.slug, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now))
         return findBySlug(ad.slug!!)
     }
 
