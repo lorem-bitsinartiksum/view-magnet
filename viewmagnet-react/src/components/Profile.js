@@ -14,6 +14,7 @@ class Profile extends React.Component {
         username: '',
         email: '',
         phone: '',
+        password: '',
         location: '',
         modalVisible: false,
         newPass: '',
@@ -27,6 +28,7 @@ class Profile extends React.Component {
                     username: res.data.user.username,
                     email: res.data.user.email,
                     phone: res.data.user.phone,
+                    password: res.data.user.password,
                     location: res.data.user.location
                 })
             })
@@ -56,7 +58,7 @@ class Profile extends React.Component {
                         { headers: { 'Authorization': localStorage.getItem('token') } })
                         .then(() => {
                             message.success('Password is updated!');
-                            this.setState({ modalVisible: !this.state.modalVisible, newPass: '' });
+                            this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: ''  });
                         }))
                     : message.error("Passwords do not match!")
             }} okText="Change Password" okType="danger">
@@ -78,6 +80,7 @@ class Profile extends React.Component {
                                 username: this.state.username,
                                 email: this.state.email,
                                 phone: this.state.phone,
+                                password: this.state.password,
                                 location: this.state.location
                             }
                         }, { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success('User info is updated!'))
