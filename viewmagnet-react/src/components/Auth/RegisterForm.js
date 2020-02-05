@@ -26,7 +26,7 @@ class NormalRegisterForm extends React.Component {
                 axios.post('http://localhost:7000/api/users', { user: values }).then((res) => {
                     this.setState({ redirect: true });
                     message.success("Account Created!");
-                    this.props.onLogin(res.data.token)
+                    this.props.onLogin(res.data.user.token)
                 }).catch((error) =>
                     console.log(error)
                 )
@@ -41,7 +41,7 @@ class NormalRegisterForm extends React.Component {
 
     render() {
         if (this.props.loggedIn) {
-            return <Redirect to='/profile' />;
+            return <Redirect to='/login' />;
         }
         const { getFieldDecorator } = this.props.form;
         return (

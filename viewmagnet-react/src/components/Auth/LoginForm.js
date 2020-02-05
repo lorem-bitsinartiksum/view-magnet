@@ -20,12 +20,8 @@ class NormalLoginForm extends React.Component {
             if (!err) {
                 axios.post('http://localhost:7000/api/users/login', { user: values })
                     .then((res) => {
-                        if (res.status === 200) {
-                            this.props.onLogin(res.data.user.token)
-                            localStorage.setItem('token', res.data.user.token)
-                            message.success("Logged In!")
-                        }
-                        else console.log(res)
+                        message.success("Logged In!")
+                        this.props.onLogin(res.data.user.token)
                     })
                     .catch((error) => {
                         message.error(error.response.statusText)
