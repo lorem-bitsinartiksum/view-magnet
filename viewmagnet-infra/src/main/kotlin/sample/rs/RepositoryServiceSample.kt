@@ -7,7 +7,7 @@ import java.util.function.Predicate
 
 data class Foob(override val id: String, val things: Set<Int>, val otherThings: IntRange) : Persistable
 
-val rs = RepositoryService.createFor(Foob::class)
+val rs = RepositoryService.createFor(Foob::class.java)
 val f = Foob(UUID.randomUUID().toString(), setOf(2, 4, 5, 6, 7), 1..5)
 fun main() {
 

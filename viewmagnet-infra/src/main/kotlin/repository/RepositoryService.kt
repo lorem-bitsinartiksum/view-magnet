@@ -3,7 +3,6 @@ package repository
 import repository.mongo.MongoRepositoryService
 import topic.Mode
 import java.util.function.Predicate
-import kotlin.reflect.KClass
 
 
 interface Persistable {
@@ -22,14 +21,14 @@ interface RepositoryService<T : Persistable> {
 
     fun clear()
 
-    fun save(obj: T): T?
+    fun save(obj: T)
 
     fun save(obj: Iterable<T>)
 
     fun filter(predicate: Predicate<T>): Iterator<T>
 
     companion object {
-        fun <T : Persistable> createFor(clazz: KClass<T>): RepositoryService<T> {
+        fun <T : Persistable> createFor(clazz: Class<T>): RepositoryService<T> {
             return MongoRepositoryService(Mode.SIM, clazz)
         }
     }

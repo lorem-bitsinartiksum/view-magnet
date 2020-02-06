@@ -32,7 +32,6 @@ class TopicService<TopicType> private constructor(
 
         val unsubTok = ts.subscribe(topicClass.name, activeCtx) {
             val topic = serde.deserialize(it)
-            println("RECEIVED $topic")
             consumer(topic)
         }
 
