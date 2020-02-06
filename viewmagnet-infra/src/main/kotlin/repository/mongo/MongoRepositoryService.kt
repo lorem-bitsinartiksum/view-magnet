@@ -41,6 +41,17 @@ internal class MongoRepositoryService<T : Persistable>(override val activeMode: 
         return if (doc != null) convertToObj(doc) else null
     }
 
+    override fun find(predicate: Predicate<T>): T? {
+        val cursor = coll.find().cursor()
+
+        while (cursor.hasNext()) {
+            val obj = convertToObj(cursor.next())
+            if (predicate.test(obj))
+                return obj
+        }
+        return null
+    }
+
     override fun deleteById(id: String): T? {
         val query = BasicDBObject("_id", id)
         val doc = coll.findOneAndDelete(query)

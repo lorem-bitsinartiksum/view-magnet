@@ -8,7 +8,7 @@ import java.util.function.Predicate
 interface Persistable {
     val id: String
 }
-
+// TODO add a filter interface for querying db instead of preds.
 interface RepositoryService<T : Persistable> {
 
     val activeMode: Mode
@@ -18,6 +18,8 @@ interface RepositoryService<T : Persistable> {
     fun findById(id: String): T?
 
     fun deleteById(id: String): T?
+
+    fun find(predicate: Predicate<T>): T?
 
     fun clear()
 
