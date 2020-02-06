@@ -2,8 +2,8 @@ package repository
 
 import repository.mongo.MongoRepositoryService
 import topic.Mode
-import java.util.function.Predicate
 
+typealias Predicate<T> = (T) -> Boolean
 
 interface Persistable {
     val id: String

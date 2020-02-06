@@ -5,9 +5,10 @@ import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import org.bson.Document
 import repository.Persistable
+import repository.Predicate
 import repository.RepositoryService
 import topic.Mode
-import java.util.function.Predicate
+
 
 
 internal class MongoRepositoryService<T : Persistable>(override val activeMode: Mode, private val clazz: Class<T>) :
@@ -46,7 +47,7 @@ internal class MongoRepositoryService<T : Persistable>(override val activeMode: 
 
         while (cursor.hasNext()) {
             val obj = convertToObj(cursor.next())
-            if (predicate.test(obj))
+            if (predicate(obj))
                 return obj
         }
         return null
@@ -82,7 +83,7 @@ internal class MongoRepositoryService<T : Persistable>(override val activeMode: 
                 while (cursor.hasNext()) {
                     val doc = cursor.next()
                     val obj = convertToObj(doc)
-                    if (predicate.test(obj)) {
+                    if (predicate(obj)) {
                         return obj
                     }
                 }
