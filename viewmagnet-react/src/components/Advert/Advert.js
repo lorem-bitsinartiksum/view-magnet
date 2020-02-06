@@ -1,72 +1,35 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import { connect } from 'react-redux'
 import './Advert.css'
 import axios from 'axios'
-import { connect } from 'react-redux'
-import { Card, Icon } from 'antd';
+import { Card, Icon, message, Col } from 'antd';
 const { Meta } = Card;
 
-
 class Advert extends React.Component {
-
-    state = {
-        slug: "",
-        title: "",
-        description: "",
-        targetAge: "",
-        targetGender: "",
-        targetWeather: "",
-        content: "",
-    }
-
-    componentDidMount() {
-        axios.get('http://localhost:7000/api/ads?email=info@thenorthface.com', { headers: { 'Authorization': localStorage.getItem('token') } })
-            .then((res) => {
-                console.log(res.data.ads[0]);
-                this.setState({
-                    slug: res.data.ads[0].slug,
-                    title: res.data.ads[0].title,
-                    description: res.data.ads[0].description,
-                    content: res.data.ads[0].content,
-                    targetAge: res.data.ads[0].targetAge,
-                    targetGender: res.data.ads[0].targetGender,
-                    targetWeather: res.data.ads[0].targetWeather,
-                });
-            })
-            .catch((err) => console.log(err))
-    }
-
     render() {
         return (
-            <Fragment>
+            <Col span={8}>
                 <Card
                     className="advert-card"
-                    title={this.state.title}
-                    cover={
-                        <img
-                            src={this.state.content}
-                        />
-                    }
+                    cover={<img src={this.props.content} />}
                     actions={[
                         <Icon type="edit" key="edit" />,
                         <Icon
                             type="delete"
                             key="delete"
                             onClick={() => axios.delete(
-                                'http://localhost:7000/api/ads/' + this.state.slug,
-                                { headers: { 'Authorization': localStorage.getItem('token') } }).then((res) => console.log(res)).catch((err) => console.log(err))} />,
-                    ]}
-                >
-                    <Meta
-                        title={this.state.description}
-                    />
+                                'http://localhost:7000/api/ads/' + this.props.slug,
+                                { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success("Advert deleted successfully!")).catch((err) => console.log(err))} />,
+                    ]} >
+                    <Meta title={this.props.title} description={this.props.description} />
                     <br />
-                    targetAge: {this.state.targetAge}
+                    targetAge: {this.props.targetAge}
                     <br />
-                    targetGender: {this.state.targetGender}
+                    targetGender: {this.props.targetGender}
                     <br />
-                    targetWeather: {this.state.targetWeather}
+                    targetWeather: {this.props.targetWeather}
                 </Card>
-            </Fragment>
+            </Col>
         )
     }
 }

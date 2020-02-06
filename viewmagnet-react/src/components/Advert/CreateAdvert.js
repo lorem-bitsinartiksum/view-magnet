@@ -2,18 +2,18 @@ import './CreateAdvert.css'
 import React from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux';
-import { Form, Input, Card, Radio, Select, Upload, Button, Icon } from 'antd'
+import { Form, Input, Card, Radio, Select, Upload, Button, Icon, message } from 'antd'
 const { Option } = Select;
 const { TextArea } = Input;
 
 class CreateAdvert extends React.Component {
     state = {
-        title: "",
-        description: "",
-        targetAge: "",
-        targetGender: "",
-        targetWeather: "",
-        content: "",
+        title: '',
+        description: '',
+        targetAge: '',
+        targetGender: '',
+        targetWeather: '',
+        content: '',
     }
     onChangeTitle = str => this.setState({ title: str.target.value });
     onChangeDesc = str => this.setState({ description: str.target.value });
@@ -26,10 +26,10 @@ class CreateAdvert extends React.Component {
             <Card className="advert-card">
                 <Form>
                     <Form.Item label="Advert Title">
-                        <Input onChange={this.onChangeTitle} />
+                        <Input onChange={this.onChangeTitle} value={this.state.title} />
                     </Form.Item>
                     <Form.Item label="Target Age Range">
-                        <Radio.Group onChange={this.onChangeAgeRange} >
+                        <Radio.Group onChange={this.onChangeAgeRange} value={this.state.targetAge}>
                             <Radio.Button value="0">Baby</Radio.Button>
                             <Radio.Button value="1">Child</Radio.Button>
                             <Radio.Button value="2">Young</Radio.Button>
@@ -38,14 +38,14 @@ class CreateAdvert extends React.Component {
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label="Target Gender">
-                        <Radio.Group onChange={this.onChangeGender}>
+                        <Radio.Group onChange={this.onChangeGender} value={this.state.targetGender}>
                             <Radio.Button value="0">Male</Radio.Button>
                             <Radio.Button value="1">Female</Radio.Button>
                             <Radio.Button value="2">Undetected</Radio.Button>
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label="Target Weather" >
-                        <Select placeholder="Please select target weather" onChange={this.onChangeWeather}>
+                        <Select placeholder="Please select target weather" onChange={this.onChangeWeather} value={this.state.targetWeather}>
                             <Option value="0">Sunny</Option>
                             <Option value="1">Cloudy</Option>
                             <Option value="2">Windy</Option>
@@ -57,10 +57,10 @@ class CreateAdvert extends React.Component {
                         </Select>
                     </Form.Item>
                     <Form.Item label="Upload Advert Poster">
-                        <Upload listType="picture" beforeUpload={(f) => {
+                        <Upload listType="picture" beforeUpload={(f) => { // TODO USE YOUR OWN FILELIST
                             let reader = new FileReader();
                             reader.readAsDataURL(f);
-                            reader.onloadend = () => { console.log(reader.result); this.setState({ content: reader.result }); return false; };
+                            reader.onloadend = () => { this.setState({ content: reader.result }); return false; };
                         }}>
                             <Button>
                                 <Icon type="upload" />Click to upload
@@ -68,10 +68,18 @@ class CreateAdvert extends React.Component {
                         </Upload>
                     </Form.Item>
                     <Form.Item label="Description">
-                        <TextArea rows={2} allowClear onChange={this.onChangeDesc} />
+                        <TextArea rows={2} allowClear onChange={this.onChangeDesc} value={this.state.description} />
                     </Form.Item>
                     <Form.Item>
-                        <Button onClick={() => { axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': localStorage.getItem('token') } }).then((res) => console.log(res)) }}>Create Advert</Button>
+                        <Button onClick={() => {
+                            this.setState({
+                                title: '',
+                                description: '',
+                                targetAge: '',
+                                targetGender: '',
+                                targetWeather: '',
+                            }); axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success("Advert created succesfully!"))
+                        }}>Create Advert</Button>
                     </Form.Item>
                 </Form>
             </Card >

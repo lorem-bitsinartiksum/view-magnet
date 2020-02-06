@@ -33,9 +33,9 @@ class Bars extends React.Component {
         </Link>
       </Menu.Item >,
       <Menu.Item key="4">
-        <Link to="/ad">
+        <Link to="/adverts">
           <Icon type="file-image" />
-          <span>Advert</span>
+          <span>Adverts</span>
         </Link>
       </Menu.Item >,
       <Menu.Item key="5">
