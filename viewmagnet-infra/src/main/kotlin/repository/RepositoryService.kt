@@ -1,13 +1,12 @@
 package repository
 
+import model.Persistable
 import repository.mongo.MongoRepositoryService
 import topic.Mode
 
 typealias Predicate<T> = (T) -> Boolean
 
-interface Persistable {
-    val id: String
-}
+
 // TODO add a filter interface for querying db instead of preds.
 interface RepositoryService<T : Persistable> {
 
