@@ -28,6 +28,7 @@ fun subscribeAdChanged(metricService: MetricService) {
     topicService.subscribe {
         println("Received AdChanged from Billboard(${it.header.source})")
         metricService.createPersonMetrics(it.payload.detections, it.header.source, it.header.createdAt, it.payload.id)
+        metricService.createAdDuration(it.payload.durationMs, it.header.source, it.header.createdAt, it.payload.id)
     }
 }
 

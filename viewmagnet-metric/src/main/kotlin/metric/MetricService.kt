@@ -20,6 +20,8 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
 
     private val adPoolMeasurement: String = "ad_pool"
 
+    private val adDurationMeasurement: String = "ad_duration"
+
     init {
         this.influxDB.query(Query("CREATE DATABASE " + dbName, dbName))
     }
@@ -182,6 +184,34 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
                 }
                 AdPoolChanged(poolSet
                 )
+            }[0]
+    }
+
+    fun createAdDuration(durationMs: Long, billboardId: String, timestamp: Long, adId: String) {
+        influxDB.write(
+            dbName, "", Point.measurement(adDurationMeasurement)
+                .time(timestamp, TimeUnit.MILLISECONDS)
+                .tag("billboard_id", billboardId)
+                .tag("ad_id", adId)
+                .addField("duration_ms", durationMs)
+                .build()
+        )
+
+    }
+
+    fun getLastAdDurationRecord(): Long? {
+        val query = Query(
+            createQueryLastRecord(adDurationMeasurement),
+            dbName
+        )
+        val results = influxDB.query(query)
+            .results
+        if (results.first().series == null) {
+            return null
+        }
+        return results.first().series.first().values
+            .map { mutableList ->
+                mutableList[3].toString().toDouble().toLong()
             }[0]
     }
 
