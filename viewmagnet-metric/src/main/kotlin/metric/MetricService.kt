@@ -1,12 +1,8 @@
 package metric
 
-import BillboardStatus
 import FieldAverage
-import Gender
-import Metric
 import MetricCount
-import Reality
-import Weather
+import model.*
 import org.influxdb.InfluxDB
 import org.influxdb.dto.Point
 import org.influxdb.dto.Query
@@ -16,9 +12,9 @@ import java.util.concurrent.TimeUnit
 
 
 class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
-                        private val dbName: String = "viewmagnet_influx") {
+                                               private val dbName: String = "viewmagnet_influx") {
 
-    private val metricsMeasurement: String = "metrics"
+    private val personMeasurement: String = "person"
 
     private val billboardStatusMeasurement: String = "billboard_status"
 
@@ -41,19 +37,17 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
         return query
     }
 
-    fun createMetric(metric: Metric) {
-        influxDB.write(dbName, "", Point.measurement(metricsMeasurement)
-            .time(metric.timestamp, TimeUnit.MILLISECONDS)
-            .tag("company_id", metric.company_id.toString())
-            .tag("ad_id", metric.ad_id.toString())
-            .tag("billboard_id", metric.billboard_id.toString())
-            .addField("age", metric.age.toString())
-            .tag("gender", metric.gender.toString())
-            .addField("weather", metric.weather.toString())
-            .addField("temperature", metric.temperature.toString())
-            .addField("sound_level", metric.sound_level.toString())
-            .addField("reality", metric.reality.toString())
-            .build())
+    fun createPersonMetrics(personList: List<Person>, billboardId: String, timestamp: Long, adId: String) {
+        personList.forEach {
+            influxDB.write(dbName, "", Point.measurement(personMeasurement)
+                .time(timestamp, TimeUnit.MILLISECONDS)
+                .tag("ad_id", adId)
+                .tag("billboard_id", billboardId)
+                .addField("person_age", it.age.toString())
+                .tag("person_gender", it.gender.toString())
+                .build())
+        }
+
     }
 
     fun getMetricCount(tag: String, ad_id: String): MetricCount {
@@ -90,41 +84,32 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
             }[0]
     }
 
-    fun createBillboardStatus(billboardStatus: BillboardStatus) {
+    fun createBillboardStatus(billboardStatus: BillboardStatus, billboardId: String, timestamp: Long) {
         influxDB.write(dbName, "", Point.measurement(billboardStatusMeasurement)
-            .time(billboardStatus.timestamp, TimeUnit.MILLISECONDS)
-            .tag("billboard_id", billboardStatus.billboard_id.toString())
+            .time(timestamp, TimeUnit.MILLISECONDS)
+            .tag("billboard_id", billboardId)
             .tag("health", billboardStatus.health.toString())
-            .tag("ad_id", billboardStatus.ad_id.toString())
-            .addField("weather", billboardStatus.weather.toString())
-            .addField("temperature", billboardStatus.temperature)
-            .addField("sound_level", billboardStatus.sound_level)
+            .tag("ad_id", billboardStatus.adId)
+            .addField("weather", billboardStatus.env.weather.toString())
+            .addField("temp_C", billboardStatus.env.tempC)
+            .addField("sound_dB", billboardStatus.env.soundDb)
             .build())
     }
 
-    fun getLastMetricRecord(): Metric {
+    fun getLastPersonRecord(): Person? {
         val query = Query(
-            createQueryLastRecord(metricsMeasurement),
+            createQueryLastRecord(personMeasurement),
             dbName
         )
         val results = influxDB.query(query)
             .results
         if (results.first().series == null) {
-            return Metric()
+            return null
         }
         return results.first().series.first().values
             .map { mutableList ->
-                Metric(convertDateToLong(mutableList[0].toString()),
-                    mutableList[1].toString().toLong(),
-                    mutableList[2].toString().toLong(),
-                    mutableList[3].toString().toLong(),
-                    mutableList[4].toString().toLong(),
-                    Gender.valueOf(mutableList[5].toString()),
-                    Reality.valueOf(mutableList[6].toString()),
-                    mutableList[7].toString().toLong(),
-                    mutableList[8].toString().toLong(),
-                    Weather.valueOf(mutableList[9].toString())
-                )
+                Person(Gender.valueOf(mutableList[4].toString()),
+                    Age.valueOf(mutableList[3].toString()))
             }[0]
     }
 

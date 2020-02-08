@@ -2,7 +2,6 @@ package model
 
 
 data class BillboardStatus(
-    val id: String,
     val health: Health,
     val adId: String,
     val env: BillboardEnvironment

@@ -1,11 +1,11 @@
 package metric
 
 
-import Metric
 import influxDB
+import model.*
 import org.junit.*
+import subscribeAdChanged
 import subscribeBillboardStatus
-import subscribeMetric
 import topic.TopicContext
 import topic.TopicService
 import java.util.*
@@ -16,7 +16,7 @@ internal class MetricServiceTest {
 
     @Before
     fun start() {
-        subscribeMetric(metricService)
+        subscribeAdChanged(metricService)
         subscribeBillboardStatus(metricService)
     }
 
@@ -26,14 +26,15 @@ internal class MetricServiceTest {
     }
 
     @Test
-    fun `pubslished Metric should be created on influxdb`() {
-        val topicService = TopicService.createFor(Metric::class.java, TopicContext())
-        val metric = Metric(Date().time, 2, 35, 30, 2, Gender.FEMALE, Reality.SIM, 10, 10, Weather.SUNNY)
-        println("Published $metric")
-        topicService.publish(metric)
+    fun `published AdChanged should created Person metrics on influxdb`() {
+        val topicService = TopicService.createFor(AdChanged::class.java, "metric-service-test", TopicContext())
+        val person = Person(Gender.MAN, Age.ADULT)
+        val adChanged = AdChanged("1",10000, listOf(person))
+        println("Published $adChanged")
+        topicService.publish(adChanged)
         Thread.sleep(1000)
-        val metricLastRecord = metricService.getLastMetricRecord()
-        Assert.assertEquals(metric, metricLastRecord)
+        val metricLastRecord = metricService.getLastPersonRecord()
+        Assert.assertEquals(person, metricLastRecord)
     }
 
 }
