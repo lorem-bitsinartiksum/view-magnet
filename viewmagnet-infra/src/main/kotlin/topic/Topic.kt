@@ -22,7 +22,7 @@ enum class District {
 }
 
 data class TopicHeader(
-    val source: TopicContext,
+    val source: String,
     val createdAt: Long = System.currentTimeMillis()
 )
 

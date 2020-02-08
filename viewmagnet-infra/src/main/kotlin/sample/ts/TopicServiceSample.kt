@@ -14,14 +14,14 @@ fun main() {
 }
 
 fun subscribe() {
-    val ts = TopicService.createFor(Person::class.java, TopicContext())
+    val ts = TopicService.createFor(Person::class.java, "sample-source")
     ts.subscribe {
         println("RECEIVED ${it.payload.name}")
     }
 }
 
 fun startPublisher() {
-    val ts = TopicService.createFor(Person::class.java, TopicContext())
+    val ts = TopicService.createFor(Person::class.java, "sample-source")
     val count = AtomicInteger()
     Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({
         val p = Person("PERSON$count", count.get())

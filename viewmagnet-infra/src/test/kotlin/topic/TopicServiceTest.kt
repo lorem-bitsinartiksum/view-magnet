@@ -20,7 +20,7 @@ internal class TopicServiceTest {
     @Timeout(3, unit = TimeUnit.SECONDS)
     fun `should receive`() {
 
-        val ts = TopicService.createFor(TestData::class.java, TopicContext())
+        val ts = TopicService.createFor(TestData::class.java, "test-source")
 
         var ref: TestData? = null
         ts.subscribe {
@@ -28,7 +28,7 @@ internal class TopicServiceTest {
             ref = it.payload
 
         }
-        ts.publish(TestData(2), TopicContext())
+        ts.publish(TestData(2), "test-source")
         Thread.sleep(1000)
         Assertions.assertEquals(TestData(2), ref)
     }
@@ -36,13 +36,13 @@ internal class TopicServiceTest {
     @Test
     fun `should'nt receive topic in another context`() {
 
-        val tsTR = TopicService.createFor(TestData::class.java, TopicContext(Country.TR))
-        val tsUK = TopicService.createFor(TestData::class.java, TopicContext(Country.UK))
+        val tsTR = TopicService.createFor(TestData::class.java, "test-source-TR")
+        val tsUK = TopicService.createFor(TestData::class.java, "test-source-UK")
         var ref: TestData? = null
         tsUK.subscribe {
             fail("Shoudlnt have receive")
         }
-        tsTR.publish(TestData(2), TopicContext())
+        tsTR.publish(TestData(2), "test-source")
         Thread.sleep(1000)
 
     }
