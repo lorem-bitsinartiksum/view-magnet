@@ -60,4 +60,3 @@ class TopicService<TopicType> private constructor(
         }
     }
 }
-
