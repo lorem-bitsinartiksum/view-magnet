@@ -5,7 +5,7 @@ import topic.UnsubscribeToken
 
 internal interface TSBackend {
 
-    fun publish(name: String, source: String, payload: ByteArray)
+    fun publish(name: String, context: TopicContext, payload: ByteArray)
 
-    fun subscribe(name: String, source: String, consumer: (ByteArray) -> Unit): UnsubscribeToken
+    fun subscribe(name: String, context: TopicContext, consumer: (ByteArray) -> Unit): UnsubscribeToken
 }
