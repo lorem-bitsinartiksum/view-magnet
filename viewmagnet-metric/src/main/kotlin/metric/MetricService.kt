@@ -119,5 +119,26 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
         return df.parse(date).time
     }
 
+    fun getLastBillboardStatusRecord(): BillboardStatus? {
+        val query = Query(
+            createQueryLastRecord(billboardStatusMeasurement),
+            dbName
+        )
+        val results = influxDB.query(query)
+            .results
+        if (results.first().series == null) {
+            return null
+        }
+        return results.first().series.first().values
+            .map { mutableList ->
+                BillboardStatus(Health.valueOf(mutableList[3].toString()),
+                    mutableList[1].toString(),
+                    BillboardEnvironment(Weather.valueOf(mutableList[6].toString()),
+                        mutableList[5].toString().toDouble().toInt(),
+                        mutableList[4].toString().toDouble().toInt())
+                )
+            }[0]
+    }
+
 
 }
