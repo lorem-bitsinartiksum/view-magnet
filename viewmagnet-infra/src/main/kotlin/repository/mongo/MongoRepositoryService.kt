@@ -3,8 +3,8 @@ package repository.mongo
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
-import org.bson.Document
 import model.Persistable
+import org.bson.Document
 import repository.Predicate
 import repository.RepositoryService
 import topic.Mode
