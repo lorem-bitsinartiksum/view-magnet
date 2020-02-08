@@ -13,6 +13,7 @@ class TopicService<TopicType> private constructor(
     private val ts: TSBackend,
     private var serde: Serde<Topic<TopicType>>,
     private val topicClass: Class<TopicType>,
+    private val serviceName: String,
     val activeCtx: TopicContext
 ) {
 
@@ -21,7 +22,7 @@ class TopicService<TopicType> private constructor(
 
     fun publish(topic: TopicType, context: TopicContext = activeCtx) {
 
-        val toPublish = Topic(topic, TopicHeader(context))
+        val toPublish = Topic(topic, TopicHeader(serviceName))
         val serialized = serde.serialize(toPublish)
         ts.publish(topicClass.name, context, serialized)
     }
@@ -43,12 +44,17 @@ class TopicService<TopicType> private constructor(
 
     companion object {
 
-        fun <TopicType> createFor(topicClass: Class<TopicType>, activeCtx: TopicContext): TopicService<TopicType> {
+        fun <TopicType> createFor(
+            topicClass: Class<TopicType>,
+            serviceName: String,
+            activeCtx: TopicContext
+        ): TopicService<TopicType> {
 
             return TopicService(
                 TSNatsBackend(),
                 JsonSerde(topicClass),
                 topicClass,
+                serviceName,
                 activeCtx
             )
         }

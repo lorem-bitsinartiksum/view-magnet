@@ -1,6 +1,7 @@
 package sample.rs
 
-import repository.Persistable
+
+import model.Persistable
 import repository.RepositoryService
 import java.util.*
 
