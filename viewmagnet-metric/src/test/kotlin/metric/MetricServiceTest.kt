@@ -5,6 +5,7 @@ import influxDB
 import model.*
 import org.junit.*
 import subscribeAdChanged
+import subscribeAdPoolChanged
 import subscribeBillboardStatus
 import topic.TopicContext
 import topic.TopicService
@@ -18,6 +19,7 @@ internal class MetricServiceTest {
     fun start() {
         subscribeAdChanged(metricService)
         subscribeBillboardStatus(metricService)
+        subscribeAdPoolChanged(metricService)
     }
 
     @After
@@ -47,6 +49,17 @@ internal class MetricServiceTest {
         Thread.sleep(1000)
         val billboardStatusLastRecord = metricService.getLastBillboardStatusRecord()
         Assert.assertEquals(billboardStatus, billboardStatusLastRecord)
+    }
+
+    @Test
+    fun `published AdPoolChanged should create AdPool metrics on influxdb`() {
+        val topicService = TopicService.createFor(AdPoolChanged::class.java, "metric-service-test", TopicContext())
+        val adPoolChanged = AdPoolChanged(setOf("1", "2", "5", "6", "7", "100"))
+        println("Published $adPoolChanged")
+        topicService.publish(adPoolChanged)
+        Thread.sleep(1000)
+        val adPoolLastRecord = metricService.getLastAdPoolRecord()
+        Assert.assertEquals(adPoolChanged, adPoolLastRecord)
     }
 
 }
