@@ -6,7 +6,7 @@ import model.Health
 import model.Weather
 import kotlin.concurrent.timer
 
-class StatusProvider {
+object StatusProvider {
 
     private val mapBillboardStatus = mutableMapOf<String, BillboardStatus>()
 

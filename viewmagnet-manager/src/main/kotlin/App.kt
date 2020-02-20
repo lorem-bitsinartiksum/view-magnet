@@ -3,20 +3,17 @@ import status.StatusProvider
 import status.StatusListener
 
 fun main() {
-    val statusProvider = StatusProvider()
-    val statusListener = StatusListener()
-
     val app = Javalin.create {
         it.addStaticFiles("/public")
     }.start(7000)
 
-    statusProvider.statusTimer()
+    StatusProvider.statusTimer()
 
-    statusListener.subscribeBillboardStatus()
+    StatusListener.subscribeBillboardStatus()
 
     app.get("/billboard/:billboard_id") { ctx ->
         val billboardId = ctx.pathParam("billboard_id")
-        val status = statusProvider.getStatus(billboardId)
+        val status = StatusProvider.getStatus(billboardId)
         ctx.html("Billboard " + billboardId + " is " + status.health.toString())
     }
 }
