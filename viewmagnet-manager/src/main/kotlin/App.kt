@@ -10,6 +10,8 @@ fun main() {
         it.addStaticFiles("/public")
     }.start(7000)
 
+    statusProvider.statusTimer()
+
     statusListener.subscribeBillboardStatus()
 
     app.get("/billboard/:billboard_id") { ctx ->
