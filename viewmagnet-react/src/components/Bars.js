@@ -23,9 +23,9 @@ class Bars extends React.Component {
       <Menu.Item key="2">
         <Link to="/register"><Icon type="user-add" /><span>Register</span></Link>
       </Menu.Item>,
-      // ]);
-      // if (this.props.loggedIn) {
-      //   sidebarItems = ([
+      ]);
+      if (this.props.loggedIn) {
+        sidebarItems = ([
       <Menu.Item key="3">
         <Link to="/create-ad">
           <Icon type="file-add" />
@@ -51,7 +51,7 @@ class Bars extends React.Component {
         </Link>
       </Menu.Item >
     ]);
-    // }
+    }
 
     return (
       <Layout style={{ minHeight: '100vh' }}>

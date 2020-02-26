@@ -16,7 +16,7 @@ function App() {
       <Route path="/profile" component={Profile} />
       <Route path="/create-ad" component={CreateAdvert} />
       <Route path="/adverts" component={Adverts} />
-      <Redirect to="/" />
+      <Redirect to="/login" />
     </Switch>
   )
 

@@ -2,9 +2,23 @@ import './CreateAdvert.css'
 import React from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux';
-import { Form, Input, Card, Radio, Select, Upload, Button, Icon, message } from 'antd'
+import { Form, Input, Card, Checkbox, Select, Upload, Button, Icon, message } from 'antd'
 const { Option } = Select;
 const { TextArea } = Input;
+
+const ageOptions = [
+    { label: 'Baby', value: '0' },
+    { label: 'Child', value: '1' },
+    { label: 'Young', value: '2' },
+    { label: 'Adult', value: '3' },
+    { label: 'Elderly', value: '4' },
+  ];
+
+const genderOptions = [
+    { label: 'Male', value: '0' },
+    { label: 'Female', value: '1' },
+    { label: 'Undetected', value: '2' }
+  ];
 
 class CreateAdvert extends React.Component {
     state = {
@@ -15,11 +29,12 @@ class CreateAdvert extends React.Component {
         targetWeather: '',
         content: '',
     }
+
     onChangeTitle = str => this.setState({ title: str.target.value });
     onChangeDesc = str => this.setState({ description: str.target.value });
-    onChangeAgeRange = str => this.setState({ targetAge: [str.target.value] });
-    onChangeGender = str => this.setState({ targetGender: [str.target.value] });
-    onChangeWeather = str => this.setState({ targetWeather: [str] });
+    onChangeAgeRange = rangeSet => this.setState({ targetAge: rangeSet });
+    onChangeGender = genderSet => this.setState({ targetGender: genderSet });
+    onChangeWeather = weatherSet => this.setState({ targetWeather: weatherSet });
 
     render() {
         return (
@@ -29,23 +44,13 @@ class CreateAdvert extends React.Component {
                         <Input onChange={this.onChangeTitle} value={this.state.title} />
                     </Form.Item>
                     <Form.Item label="Target Age Range">
-                        <Radio.Group onChange={this.onChangeAgeRange} value={this.state.targetAge}>
-                            <Radio.Button value="0">Baby</Radio.Button>
-                            <Radio.Button value="1">Child</Radio.Button>
-                            <Radio.Button value="2">Young</Radio.Button>
-                            <Radio.Button value="3">Adult</Radio.Button>
-                            <Radio.Button value="4">Elderly</Radio.Button>
-                        </Radio.Group>
+                        <Checkbox.Group options={ageOptions} onChange={this.onChangeAgeRange} />
                     </Form.Item>
                     <Form.Item label="Target Gender">
-                        <Radio.Group onChange={this.onChangeGender} value={this.state.targetGender}>
-                            <Radio.Button value="0">Male</Radio.Button>
-                            <Radio.Button value="1">Female</Radio.Button>
-                            <Radio.Button value="2">Undetected</Radio.Button>
-                        </Radio.Group>
+                        <Checkbox.Group options={genderOptions} onChange={this.onChangeGender} />
                     </Form.Item>
                     <Form.Item label="Target Weather" >
-                        <Select placeholder="Please select target weather" onChange={this.onChangeWeather} value={this.state.targetWeather}>
+                        <Select placeholder="Please select target weather" mode="multiple" onChange={this.onChangeWeather}>
                             <Option value="0">Sunny</Option>
                             <Option value="1">Cloudy</Option>
                             <Option value="2">Windy</Option>
