@@ -28,6 +28,10 @@ class Advert extends React.Component {
                     targetGender: {this.props.targetGender}
                     <br />
                     targetWeather: {this.props.targetWeather}
+                    <br />
+                    targetTempRange: [{this.props.targetLowTemp} - {this.props.targetHighTemp}]
+                    <br />
+                    targetSoundLevelRange: [{this.props.targetLowSoundLevel} - {this.props.targetHighSoundLevel}]
                 </Card>
             </Col>
         )

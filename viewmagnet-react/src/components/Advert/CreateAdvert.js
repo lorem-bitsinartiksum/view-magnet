@@ -2,6 +2,8 @@ import React from 'react'
 import axios from 'axios'
 import './CreateAdvert.css';
 import { connect } from 'react-redux';
+import { login } from './../../store/actions';
+import { Redirect } from 'react-router-dom';
 import { Form, Input, Card, Checkbox, Select, Upload, Button, Icon, message } from 'antd'
 const { Option } = Select;
 const { TextArea } = Input;
@@ -43,6 +45,10 @@ class CreateAdvert extends React.Component {
     weatherFilterOption = (input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
     render() {
+        if (!this.props.loggedIn) {
+            if (localStorage.getItem('token')) this.props.onLogin(localStorage.getItem('token'))
+            else return <Redirect to='/login' />;
+        }
         return (
             <Card className="advert-card">
                 <Form>
@@ -120,12 +126,14 @@ class CreateAdvert extends React.Component {
 const mapStateToProps = state => {
     return {
         token: state.auth.token,
+        loggedIn: state.auth.loggedIn,
+        token: state.auth.token,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        // onProfileUpdate: () => dispatch(logout())
+        onLogin: (token) => dispatch(login(token)),
     };
 };
 
