@@ -31,9 +31,9 @@ class Adverts extends React.Component {
                     slug={ad.slug}
                     title={ad.title}
                     description={ad.description}
-                    targetAge={ad.targetAge.toString()}
-                    targetGender={ad.targetGender.toString()}
-                    targetWeather={ad.targetWeather.toString()}
+                    targetAge={ad.targetAge}
+                    targetGender={ad.targetGender}
+                    targetWeather={ad.targetWeather}
                     targetLowTemp={ad.targetLowTemp}
                     targetHighTemp={ad.targetHighTemp}
                     targetLowSoundLevel={ad.targetLowSoundLevel}

@@ -1,6 +1,6 @@
+import './CreateAdvert.css';
 import React from 'react'
 import axios from 'axios'
-import './CreateAdvert.css';
 import { connect } from 'react-redux';
 import { login } from './../../store/actions';
 import { Redirect } from 'react-router-dom';
@@ -50,7 +50,7 @@ class CreateAdvert extends React.Component {
             else return <Redirect to='/login' />;
         }
         return (
-            <Card className="advert-card">
+            <Card className="advert-card2">
                 <Form>
                     <Form.Item label="Advert Title">
                         <Input value={this.state.title} onChange={this.onChangeTitle} />

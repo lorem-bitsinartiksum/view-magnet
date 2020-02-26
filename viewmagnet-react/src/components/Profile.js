@@ -58,7 +58,7 @@ class Profile extends React.Component {
                         { headers: { 'Authorization': localStorage.getItem('token') } })
                         .then(() => {
                             message.success('Password is updated!');
-                            this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: ''  });
+                            this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: '' });
                         }))
                     : message.error("Passwords do not match!")
             }} okText="Change Password" okType="danger">
@@ -84,8 +84,7 @@ class Profile extends React.Component {
                                 location: this.state.location
                             }
                         }, { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success('User info is updated!'))
-                    }}
-                    >Save Changes</Button>
+                    }}>Save Changes</Button>
                 </Card>
                 <Card>
                     <ButtonGroup>
@@ -96,8 +95,7 @@ class Profile extends React.Component {
                             onCancel={this.cancel}
                             okText="Delete"
                             cancelText="Cancel"
-                            okType="danger"
-                        >
+                            okType="danger">
                             <Button type="danger" icon="warning">Delete Account</Button>
                         </Popconfirm>
                     </ButtonGroup>
