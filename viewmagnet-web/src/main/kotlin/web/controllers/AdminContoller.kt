@@ -62,4 +62,12 @@ class AdminController(private val adminService: AdminService) {
             ctx.json(BillboardStatusDTO(billboardStatus))
         }
     }
+
+    fun issueShowAdCommand(ctx: Context) {
+        adminService.issueShowAdCommand(ctx.pathParam("ad_id"))
+    }
+
+    fun issueShutDownCommand(ctx: Context) {
+        adminService.issueShutDownCommand(ctx.pathParam("billboard_id"))
+    }
 }
