@@ -52,6 +52,11 @@ class Router(private val userController: UserController,
                 get(adminController::getCurrent, roles(Roles.ADMIN))
                 put(adminController::update, roles(Roles.ADMIN))
                 delete(adminController::delete, roles(Roles.ADMIN))
+                path("manager") {
+                    path(":billboard_id") {
+                        get(adminController::getBillboardStatus, roles(Roles.ADMIN))
+                    }
+                }
             }
         }
     }

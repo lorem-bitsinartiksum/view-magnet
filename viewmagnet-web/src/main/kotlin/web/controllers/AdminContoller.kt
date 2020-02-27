@@ -3,6 +3,9 @@ package web.controllers
 import domain.Admin.AdminDTO
 import domain.Admin.service.AdminService
 import io.javalin.Context
+import model.BillboardStatus
+
+data class BillboardStatusDTO(val billboardStatus: BillboardStatus)
 
 class AdminController(private val adminService: AdminService) {
     fun login(ctx: Context) {
@@ -52,4 +55,11 @@ class AdminController(private val adminService: AdminService) {
     }
 
     fun String.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(MAIL_REGEX).matches(this)
+
+    fun getBillboardStatus(ctx: Context) {
+        val billboardId = ctx.pathParam("billboard_id")
+        adminService.getBillboardStatus(billboardId).also { billboardStatus ->
+            ctx.json(BillboardStatusDTO(billboardStatus))
+        }
+    }
 }

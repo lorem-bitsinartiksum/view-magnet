@@ -7,7 +7,9 @@ import io.javalin.BadRequestResponse
 import io.javalin.HttpResponseException
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
+import model.BillboardStatus
 import org.eclipse.jetty.http.HttpStatus
+import status.StatusProvider
 import utils.Cipher
 import utils.JwtProvider
 import java.util.*
@@ -52,5 +54,9 @@ class AdminService(private val jwtProvider: JwtProvider, private val adminReposi
 
     private fun generateJwtToken(admin: Admin): String? {
         return jwtProvider.createJWT(admin, Roles.ADMIN)
+    }
+
+    fun getBillboardStatus(billboardId: String): BillboardStatus {
+        return StatusProvider.getStatus(billboardId)
     }
 }
