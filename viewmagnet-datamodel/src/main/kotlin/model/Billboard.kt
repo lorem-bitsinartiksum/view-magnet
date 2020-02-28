@@ -21,12 +21,20 @@ enum class Health {
 }
 
 enum class Weather {
-    SUNNY,
-    CLOUDY,
-    WINDY,
-    FOGGY,
-    STORMY,
-    SNOWY,
-    RAINY,
-    UNKNOWN;
+    UNKNOWN,
+    THUNDERSTORM,
+    DRIZZLE,
+    RAIN,
+    SNOW,
+    MIST,
+    SMOKE,
+    HAZE,
+    DUST,
+    FOG,
+    SAND,
+    ASH,
+    SQUALL,
+    TORNADO,
+    CLEAR,
+    CLOUDS;
 }
