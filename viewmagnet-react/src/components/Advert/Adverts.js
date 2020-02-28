@@ -3,18 +3,18 @@ import './Advert'
 import './Adverts.css'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom';
-import { login } from './../../store/actions';
 import axios from 'axios'
 import Advert from './Advert'
 import { Row } from 'antd'
 
 class Adverts extends React.Component {
+
     state = {
         ads: null
     }
 
     componentDidMount() {
-        axios.get('http://localhost:7000/api/ads?email='+this.props.email, { headers: { 'Authorization': this.props.token } })
+        axios.get('http://localhost:7000/api/ads?email=' + this.props.email, { headers: { 'Authorization': this.props.token } })
             .then((res) => this.setState({ ads: res.data.ads }))
             .catch((err) => console.log(err))
     }
@@ -38,7 +38,8 @@ class Adverts extends React.Component {
                     targetHighTemp={ad.targetHighTemp}
                     targetLowSoundLevel={ad.targetLowSoundLevel}
                     targetHighSoundLevel={ad.targetHighSoundLevel}
-                    content={ad.content} />
+                    content={ad.content}
+                />
             ))
         return (
             <Fragment>

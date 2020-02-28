@@ -1,36 +1,13 @@
 import './CreateAdvert.css';
+import { ageOptions, genderOptions, weatherOptions } from './advertOptions'
 import React from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux';
-import { login } from './../../store/actions';
 import { Redirect } from 'react-router-dom';
 import { Form, Input, Card, Checkbox, Select, Upload, Button, Icon, message } from 'antd'
 const { Option } = Select;
 const { TextArea } = Input;
 const InputGroup = Input.Group;
-
-const ageOptions = [
-    { label: 'BABY', value: '0' },
-    { label: 'CHILD', value: '1' },
-    { label: 'YOUNG', value: '2' },
-    { label: 'ADULT', value: '3' },
-    { label: 'ELDERLY', value: '4' },
-];
-const genderOptions = [
-    { label: 'MALE', value: '0' },
-    { label: 'FEMALE', value: '1' },
-    { label: 'UNDETECTED', value: '2' }
-];
-const weatherOptions = [
-    { label: 'SUNNY', value: '0' },
-    { label: 'CLOUDY', value: '1' },
-    { label: 'WINDY', value: '2' },
-    { label: 'FOGGY', value: '3' },
-    { label: 'STORMY', value: '4' },
-    { label: 'SNOWY', value: '5' },
-    { label: 'RAINY', value: '6' },
-    { label: 'UNKNOWN', value: '7' }
-];
 
 class CreateAdvert extends React.Component {
     state = {
@@ -131,7 +108,6 @@ class CreateAdvert extends React.Component {
 const mapStateToProps = state => {
     return {
         token: state.auth.token,
-        email: state.auth.email,
         loggedIn: state.auth.loggedIn,
     };
 };
