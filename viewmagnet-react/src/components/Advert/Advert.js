@@ -12,15 +12,14 @@ const { Meta } = Card;
 class Advert extends React.Component {
     constructor(props) {
         super(props);
-    }
-
-    state = {
-        ...this.props,
-        token: this.props.token,
-        modalVisible: false,
-        targetAge: this.props.targetAge.map(obj => ageOptions.find(o => o.label === obj).value),
-        targetGender: this.props.targetGender.map(obj => genderOptions.find(o => o.label === obj).value),
-        targetWeather: this.props.targetWeather.map(obj => weatherOptions.find(o => o.label === obj).value),
+        this.state = {
+            ...this.props,
+            token: this.props.token,
+            modalVisible: false,
+            targetAge: this.props.targetAge.map(obj => ageOptions.find(o => o.label === obj).value),
+            targetGender: this.props.targetGender.map(obj => genderOptions.find(o => o.label === obj).value),
+            targetWeather: this.props.targetWeather.map(obj => weatherOptions.find(o => o.label === obj).value),
+        }
     }
 
     onClickUpdate = () => axios.put(
@@ -76,14 +75,14 @@ class Advert extends React.Component {
                         <TextArea rows={2} allowClear onChange={this.onChangeDesc} value={this.state.description} />
                     </Form.Item>
                     <Form.Item label="Target Temp Range">
-                        <InputGroup compact onChange={f => console.log(f)}>
+                        <InputGroup compact>
                             <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowTemp} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowTemp: val.target.value })} />
                             <Input style={{ width: 30, borderLeft: 0, pointerEvents: 'none', backgroundColor: '#fff', }} placeholder="-" disabled />
                             <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighTemp} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighTemp: val.target.value })} />
                         </InputGroup>
                     </Form.Item>
                     <Form.Item label="Target Sound Level Range">
-                        <InputGroup compact onChange={f => console.log(f)}>
+                        <InputGroup compact>
                             <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowSoundLevel} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowSoundLevel: val.target.value })} />
                             <Input style={{ width: 30, borderLeft: 0, pointerEvents: 'none', backgroundColor: '#fff', }} placeholder="-" disabled />
                             <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighSoundLevel} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighSoundLevel: val.target.value })} />
