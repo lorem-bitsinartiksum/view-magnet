@@ -1,5 +1,7 @@
 package model
 
+import java.util.*
+
 typealias AdId = String
 
 data class AdPoolChanged(val newPool: Set<AdId>)
@@ -10,6 +12,7 @@ data class AdChanged(
     val detections: List<Person>
 )
 
+data class Ad(val id: String, val post: Base64)
 
 data class Person(val gender: Gender, val age: Age)
 
