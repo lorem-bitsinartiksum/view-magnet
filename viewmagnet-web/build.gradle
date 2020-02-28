@@ -45,6 +45,7 @@ dependencies {
     compile 'org.litote.kmongo:kmongo:3.12.0'
     compile "com.github.slugify:slugify:$slugify_version"
     compile 'lorem-bitsinartiksum:viewmagnet-infra:1.0-SNAPSHOT'
+    compile 'lorem-bitsinartiksum:viewmagnet-manager:1.0-SNAPSHOT'
 
     testCompile "junit:junit:$junit_version"
     testCompile "com.mashape.unirest:unirest-java:$unirest_version"
