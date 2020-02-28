@@ -21,20 +21,20 @@ enum class Health {
 }
 
 enum class Weather {
-    Thunderstorm,
-    Drizzle,
-    Rain,
-    Snow,
-    Mist,
-    Smoke,
-    Haze,
-    Dust;
-    Fog;
-    Sand;
-    Ash;
-    Squall;
-    Tornado;
-    Clear;
-    Clouds;
-    Unknown;
+    UNKNOWN,
+    THUNDERSTORM,
+    DRIZZLE,
+    RAIN,
+    SNOW,
+    MIST,
+    SMOKE,
+    HAZE,
+    DUST,
+    FOG,
+    SAND,
+    ASH,
+    SQUALL,
+    TORNADO,
+    CLEAR,
+    CLOUDS;
 }
