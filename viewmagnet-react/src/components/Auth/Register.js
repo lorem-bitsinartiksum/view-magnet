@@ -3,9 +3,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios'
-import { login } from './../../store/actions/'
+import { login } from '../../store/actions'
 import 'antd/dist/antd.css';
-import './RegisterForm.css';
+import './Register.css';
 
 class NormalRegisterForm extends React.Component {
     state = {
@@ -15,7 +15,7 @@ class NormalRegisterForm extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem('token'))
-            this.props.onLogin(localStorage.getItem('token'))
+            this.props.onLogin(localStorage.getItem('token'), localStorage.getItem('email'))
     }
 
     handleSubmit = e => {
@@ -26,7 +26,7 @@ class NormalRegisterForm extends React.Component {
                 axios.post('http://localhost:7000/api/users', { user: values }).then((res) => {
                     this.setState({ redirect: true });
                     message.success("Account Created!");
-                    this.props.onLogin(res.data.user.token)
+                    this.props.onLogin(res.data.user.token, res.data.user.email)
                 }).catch((error) =>
                     console.log(error)
                 )
@@ -163,10 +163,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token) => dispatch(login(token)),
+        onLogin: (token, email) => dispatch(login(token, email)),
     };
 };
 
 
-const RegisterForm = Form.create({ name: 'normal_register' })(NormalRegisterForm);
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
+const Register = Form.create({ name: 'normal_register' })(NormalRegisterForm);
+export default connect(mapStateToProps, mapDispatchToProps)(Register);

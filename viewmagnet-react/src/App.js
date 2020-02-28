@@ -1,6 +1,6 @@
 import React from 'react';
-import LoginForm from './components/Auth/LoginForm';
-import RegisterForm from './components/Auth/RegisterForm';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Bars from './components/Bars'
@@ -11,8 +11,8 @@ import Adverts from './components/Advert/Adverts';
 function App() {
   let routes = (
     <Switch>
-      <Route path="/login" component={LoginForm} />
-      <Route path="/register" component={RegisterForm} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/profile" component={Profile} />
       <Route path="/create-ad" component={CreateAdvert} />
       <Route path="/adverts" component={Adverts} />

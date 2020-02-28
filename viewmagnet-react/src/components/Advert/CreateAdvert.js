@@ -10,17 +10,26 @@ const { TextArea } = Input;
 const InputGroup = Input.Group;
 
 const ageOptions = [
-    { label: 'Baby', value: '0' },
-    { label: 'Child', value: '1' },
-    { label: 'Young', value: '2' },
-    { label: 'Adult', value: '3' },
-    { label: 'Elderly', value: '4' },
+    { label: 'BABY', value: '0' },
+    { label: 'CHILD', value: '1' },
+    { label: 'YOUNG', value: '2' },
+    { label: 'ADULT', value: '3' },
+    { label: 'ELDERLY', value: '4' },
 ];
-
 const genderOptions = [
-    { label: 'Male', value: '0' },
-    { label: 'Female', value: '1' },
-    { label: 'Undetected', value: '2' }
+    { label: 'MALE', value: '0' },
+    { label: 'FEMALE', value: '1' },
+    { label: 'UNDETECTED', value: '2' }
+];
+const weatherOptions = [
+    { label: 'SUNNY', value: '0' },
+    { label: 'CLOUDY', value: '1' },
+    { label: 'WINDY', value: '2' },
+    { label: 'FOGGY', value: '3' },
+    { label: 'STORMY', value: '4' },
+    { label: 'SNOWY', value: '5' },
+    { label: 'RAINY', value: '6' },
+    { label: 'UNKNOWN', value: '7' }
 ];
 
 class CreateAdvert extends React.Component {
@@ -46,9 +55,12 @@ class CreateAdvert extends React.Component {
 
     render() {
         if (!this.props.loggedIn) {
-            if (localStorage.getItem('token')) this.props.onLogin(localStorage.getItem('token'))
-            else return <Redirect to='/login' />;
+            return <Redirect to='/login' />;
         }
+
+        const weatherOptionsSelect = [];
+        weatherOptions.map(o => weatherOptionsSelect.push(<Option key={o.value} value={o.value}>{o.label}</Option>));
+
         return (
             <Card className="advert-card2">
                 <Form>
@@ -64,14 +76,7 @@ class CreateAdvert extends React.Component {
                     <Form.Item label="Target Weather" >
                         <Select value={this.state.targetWeather}
                             filterOption={this.weatherFilterOption} placeholder="Please select target weather" mode="multiple" onChange={this.onChangeWeather}>
-                            <Option value="0">Sunny</Option>
-                            <Option value="1">Cloudy</Option>
-                            <Option value="2">Windy</Option>
-                            <Option value="3">Foggy</Option>
-                            <Option value="4">Stormy</Option>
-                            <Option value="5">Snowy</Option>
-                            <Option value="6">Rainy</Option>
-                            <Option value="7">Unknown</Option>
+                            {weatherOptionsSelect}
                         </Select>
                     </Form.Item>
                     <Form.Item label="Upload Advert Poster">
@@ -114,7 +119,7 @@ class CreateAdvert extends React.Component {
                                 targetHighTemp: '',
                                 targetLowSoundLevel: '',
                                 targetHighSoundLevel: '',
-                            }); axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success("Advert created succesfully!")).catch(() => message.warning("Something went wrong!"))
+                            }); axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': this.props.token } }).then(() => message.success("Advert created succesfully!")).catch(() => message.warning("Something went wrong!"))
                         }}>Create Advert</Button>
                     </Form.Item>
                 </Form>
@@ -126,14 +131,14 @@ class CreateAdvert extends React.Component {
 const mapStateToProps = state => {
     return {
         token: state.auth.token,
+        email: state.auth.email,
         loggedIn: state.auth.loggedIn,
-        token: state.auth.token,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token) => dispatch(login(token)),
+        // onLogin: (token) => dispatch(login(token)),
     };
 };
 

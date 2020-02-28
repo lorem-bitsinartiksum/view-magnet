@@ -10,93 +10,112 @@ const { Option } = Select;
 const { Meta } = Card;
 
 const ageOptions = [
-    { label: 'Baby', value: '0' },
-    { label: 'Child', value: '1' },
-    { label: 'Young', value: '2' },
-    { label: 'Adult', value: '3' },
-    { label: 'Elderly', value: '4' },
-];
-const ageMapping = [
     { label: 'BABY', value: '0' },
     { label: 'CHILD', value: '1' },
     { label: 'YOUNG', value: '2' },
     { label: 'ADULT', value: '3' },
     { label: 'ELDERLY', value: '4' },
-]
-const genderOptions = [
-    { label: 'Male', value: '0' },
-    { label: 'Female', value: '1' },
-    { label: 'Undetected', value: '2' }
 ];
-const genderMapping = [
+const genderOptions = [
     { label: 'MALE', value: '0' },
     { label: 'FEMALE', value: '1' },
     { label: 'UNDETECTED', value: '2' }
+];
+const weatherOptions = [
+    { label: 'SUNNY', value: '0' },
+    { label: 'CLOUDY', value: '1' },
+    { label: 'WINDY', value: '2' },
+    { label: 'FOGGY', value: '3' },
+    { label: 'STORMY', value: '4' },
+    { label: 'SNOWY', value: '5' },
+    { label: 'RAINY', value: '6' },
+    { label: 'UNKNOWN', value: '7' }
 ];
 
 class Advert extends React.Component {
     state = {
         modalVisible: false,
+        title: '',
+        slug: '',
+        description: '',
+        targetAge: [],
+        targetGender: [],
+        targetWeather: [],
+        content: '',
+        targetLowTemp: '',
+        targetHighTemp: '',
+        targetLowSoundLevel: '',
+        targetHighSoundLevel: '',
     }
-    onAgeMapping = (arr) => { return (arr.map(obj => ageMapping.find(o => o.label === obj).value)) }
-    onGenderMapping = (arr) => { return (arr.map(obj => genderMapping.find(o => o.label === obj).value)) }
+
+    componentDidMount() {
+        this.setState({
+            title: this.props.title,
+            description: this.props.description,
+            targetAge: this.props.targetAge.map(obj => ageOptions.find(o => o.label === obj).value),
+            targetGender: this.props.targetGender.map(obj => genderOptions.find(o => o.label === obj).value),
+            targetWeather: this.props.targetWeather.map(obj => weatherOptions.find(o => o.label === obj).value),
+            content: this.props.content,
+            targetLowTemp: this.props.targetLowTemp,
+            targetHighTemp: this.props.targetHighTemp,
+            targetLowSoundLevel: this.props.targetLowSoundLevel,
+            targetHighSoundLevel: this.props.targetHighSoundLevel,
+        });
+    }
+
     onClickEdit = () => this.setState({ modalVisible: true })
     onClickDelete = () => axios.delete(
         'http://localhost:7000/api/ads/' + this.props.slug,
-        { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success("Advert deleted successfully!")).catch((err) => console.log(err))
+        { headers: { 'Authorization': this.props.token } }).then(() => message.success("Advert deleted successfully!")).catch((err) => console.log(err))
+    onChangeTitle = str => this.setState({ title: str.target.value });
+    onChangeDesc = str => this.setState({ description: str.target.value });
+    onChangeAgeRange = rangeSet => this.setState({ targetAge: rangeSet });
+    onChangeGender = genderSet => this.setState({ targetGender: genderSet });
+    onChangeWeather = weatherSet => this.setState({ targetWeather: weatherSet });
+    weatherFilterOption = (input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
     render() {
+        const weatherOptionsSelect = [];
+        weatherOptions.map(o => weatherOptionsSelect.push(<Option key={o.value} value={o.value}>{o.label}</Option>));
+
         return (<Fragment>
             <Modal visible={this.state.modalVisible} destroyOnClose={true} closable={false} onCancel={() => this.setState({ modalVisible: !this.state.modalVisible })} onOk={() => {
-                this.state.matchingPasswords
-                    ? (axios.update(
-                        'http://localhost:7000/api/user',
-                        { user: { password: this.state.newPass, email: this.state.email } },
-                        { headers: { 'Authorization': localStorage.getItem('token') } })
-                        .then(() => {
-                            message.success('Password is updated!');
-                            this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: '' });
-                        }))
-                    : message.error("Passwords do not match!")
-            }} okText="Change Password" okType="danger">
+                (axios.update('http://localhost:7000/api/user', { user: { password: this.state.newPass, email: this.state.email } }, { headers: { 'Authorization': this.props.token } })
+                    .then(() => {
+                        message.success('Password is updated!');
+                        this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: '' });
+                    }))
+            }} okText="Update Advert" okType="primary">
                 <Form>
                     <Form.Item label="Advert Title">
-                        <Input value={this.props.title} onChange={this.onChangeTitle} />
+                        <Input value={this.state.title} onChange={this.onChangeTitle} />
                     </Form.Item>
                     <Form.Item label="Target Age Range">
-                        <Checkbox.Group value={this.onAgeMapping(this.props.targetAge)} options={ageOptions} onChange={this.onChangeAgeRange} />
+                        <Checkbox.Group value={this.state.targetAge} options={ageOptions} onChange={this.onChangeAgeRange} />
                     </Form.Item>
                     <Form.Item label="Target Gender">
-                        <Checkbox.Group value={this.onGenderMapping(this.props.targetGender)} options={genderOptions} onChange={this.onChangeGender} />
+                        <Checkbox.Group value={this.state.targetGender} options={genderOptions} onChange={this.onChangeGender} />
                     </Form.Item>
                     <Form.Item label="Target Weather" >
-                        <Select value={this.props.targetWeather}
-                            filterOption={this.weatherFilterOption} placeholder="Please select target weather" mode="multiple" onChange={this.onChangeWeather}>
-                            <Option value="0">Sunny</Option>
-                            <Option value="1">Cloudy</Option>
-                            <Option value="2">Windy</Option>
-                            <Option value="3">Foggy</Option>
-                            <Option value="4">Stormy</Option>
-                            <Option value="5">Snowy</Option>
-                            <Option value="6">Rainy</Option>
-                            <Option value="7">Unknown</Option>
+                        <Select defaultValue={this.state.targetWeather} filterOption={this.weatherFilterOption} placeholder="Please select target weather" mode="multiple" onChange={this.onChangeWeather}>
+                            {weatherOptionsSelect}
                         </Select>
                     </Form.Item>
                     <Form.Item label="Description">
-                        <TextArea rows={2} allowClear onChange={this.onChangeDesc} value={this.props.description} />
+                        <TextArea rows={2} allowClear onChange={this.onChangeDesc} value={this.state.description} />
                     </Form.Item>
                     <Form.Item label="Target Temp Range">
                         <InputGroup compact onChange={f => console.log(f)}>
-                            <Input style={{ width: 100, textAlign: 'center' }} value={this.props.targetLowTemp} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowTemp: val.target.value })} />
+                            <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowTemp} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowTemp: val.target.value })} />
                             <Input style={{ width: 30, borderLeft: 0, pointerEvents: 'none', backgroundColor: '#fff', }} placeholder="-" disabled />
-                            <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.props.targetHighTemp} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighTemp: val.target.value })} />
+                            <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighTemp} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighTemp: val.target.value })} />
                         </InputGroup>
                     </Form.Item>
                     <Form.Item label="Target Sound Level Range">
                         <InputGroup compact onChange={f => console.log(f)}>
-                            <Input style={{ width: 100, textAlign: 'center' }} value={this.props.targetLowSoundLevel} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowSoundLevel: val.target.value })} />
+                            <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowSoundLevel} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowSoundLevel: val.target.value })} />
                             <Input style={{ width: 30, borderLeft: 0, pointerEvents: 'none', backgroundColor: '#fff', }} placeholder="-" disabled />
-                            <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.props.targetHighSoundLevel} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighSoundLevel: val.target.value })} />
+                            <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighSoundLevel} type="number" placeholder="Maximum" onChange={val => this.setState({ targetHighSoundLevel: val.target.value })} />
                         </InputGroup>
                     </Form.Item>
                 </Form>

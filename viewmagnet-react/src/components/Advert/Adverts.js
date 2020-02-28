@@ -14,20 +14,20 @@ class Adverts extends React.Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:7000/api/ads?email=info@mi.com', { headers: { 'Authorization': localStorage.getItem('token') } })
+        axios.get('http://localhost:7000/api/ads?email='+this.props.email, { headers: { 'Authorization': this.props.token } })
             .then((res) => this.setState({ ads: res.data.ads }))
             .catch((err) => console.log(err))
     }
 
     render() {
         if (!this.props.loggedIn) {
-            if (localStorage.getItem('token')) this.props.onLogin(localStorage.getItem('token'))
-            else return <Redirect to='/login' />;
+            return <Redirect to='/login' />;
         }
         let ads = null
         if (this.state.ads)
             ads = this.state.ads.map(ad => (
                 <Advert
+                    key={ad.slug}
                     slug={ad.slug}
                     title={ad.title}
                     description={ad.description}
@@ -52,14 +52,15 @@ class Adverts extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        loggedIn: state.auth.loggedIn,
         token: state.auth.token,
+        email: state.auth.email,
+        loggedIn: state.auth.loggedIn,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token) => dispatch(login(token)),
+        // onLogin: (token) => dispatch(login(token)),
     };
 };
 

@@ -22,7 +22,7 @@ class Profile extends React.Component {
     };
 
     componentDidMount() {
-        axios.get('http://localhost:7000/api/user', { headers: { 'Authorization': localStorage.getItem('token') } })
+        axios.get('http://localhost:7000/api/user', { headers: { 'Authorization': this.props.token } })
             .then((res) => {
                 this.setState({
                     username: res.data.user.username,
@@ -39,7 +39,7 @@ class Profile extends React.Component {
     onChangePhone = str => this.setState({ phone: str });
     onChangeLocation = str => this.setState({ location: str });
 
-    confirm = e => axios.delete('http://localhost:7000/api/user', { headers: { 'Authorization': localStorage.getItem('token') } }).then((res) => { message.success("Account deleted successfully!"); this.props.onProfileDelete() });
+    confirm = e => axios.delete('http://localhost:7000/api/user', { headers: { 'Authorization': this.props.token } }).then((res) => { message.success("Account deleted successfully!"); this.props.onProfileDelete() });
     cancel = e => console.log(e);
 
     onChangeNewPass = str => this.setState({ newPass: str.target.value });
@@ -55,7 +55,7 @@ class Profile extends React.Component {
                     ? (axios.put(
                         'http://localhost:7000/api/user',
                         { user: { password: this.state.newPass, email: this.state.email } },
-                        { headers: { 'Authorization': localStorage.getItem('token') } })
+                        { headers: { 'Authorization': this.props.token } })
                         .then(() => {
                             message.success('Password is updated!');
                             this.setState({ modalVisible: !this.state.modalVisible, password: this.state.newPass, newPass: '' });
@@ -83,7 +83,7 @@ class Profile extends React.Component {
                                 password: this.state.password,
                                 location: this.state.location
                             }
-                        }, { headers: { 'Authorization': localStorage.getItem('token') } }).then(() => message.success('User info is updated!'))
+                        }, { headers: { 'Authorization': this.props.token } }).then(() => message.success('User info is updated!'))
                     }}>Save Changes</Button>
                 </Card>
                 <Card>

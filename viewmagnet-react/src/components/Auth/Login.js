@@ -3,15 +3,15 @@ import { Link, Redirect } from 'react-router-dom';
 import React from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios'
-import { login } from './../../store/actions';
+import { login } from '../../store/actions';
 import 'antd/dist/antd.css';
-import './LoginForm.css';
+import './Login.css';
 
 class NormalLoginForm extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem('token'))
-            this.props.onLogin(localStorage.getItem('token'))
+            this.props.onLogin(localStorage.getItem('token'), localStorage.getItem('email'), )
     }
 
     handleSubmit = e => {
@@ -21,7 +21,8 @@ class NormalLoginForm extends React.Component {
                 axios.post('http://localhost:7000/api/users/login', { user: values })
                     .then((res) => {
                         message.success("Logged In!")
-                        this.props.onLogin(res.data.user.token)
+                        console.log(res.data.user)
+                        this.props.onLogin(res.data.user.token, res.data.user.email)
                     })
                     .catch((error) => {
                         message.error(error.response.statusText)
@@ -82,9 +83,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token) => dispatch(login(token)),
+        onLogin: (token, email) => dispatch(login(token, email)),
     };
 };
 
-const LoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm);
-export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);
+const Login = Form.create({ name: 'normal_login' })(NormalLoginForm);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
