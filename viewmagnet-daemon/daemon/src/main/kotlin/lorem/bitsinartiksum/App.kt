@@ -4,27 +4,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import lorem.bitsinartiksum.config.Config
-import lorem.bitsinartiksum.reporter.StatusReporter
+import lorem.bitsinartiksum.ad.AdManager
 import model.BillboardEnvironment
-import model.BillboardStatus
 import model.Weather
-import topic.TopicContext
-import topic.TopicService
 import java.util.*
 
 
 fun main() = runBlocking<Unit> {
 
-    val sp = StatusReporter(Config())
+    //    val sp = StatusReporter(Config())
+    AdManager()
 
-    val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
-    ts.subscribe {
-        println("RECEIVED $it")
-    }
-    val env = envUpdate()
-    val ad = adUpdate()
-    sp.start(env, ad)
+//    val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
+//    ts.subscribe {
+//        println("RECEIVED $it")
+//    }
+//    val env = envUpdate()
+//    val ad = adUpdate()
+//    sp.start(env, ad)
 }
 
 fun CoroutineScope.envUpdate() = produce {
