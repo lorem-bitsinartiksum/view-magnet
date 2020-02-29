@@ -16,7 +16,7 @@ class AdminAuth extends React.Component {
     }
 
     onLogin = () => {
-        axios.post('http://localhost:7000/api/users/login', { admin: this.state.authLogin })
+        axios.post('http://localhost:7000/api/admins/login', { admin: this.state.authLogin })
             .then((res) => {
                 message.success("Logged In as Admin!")
                 this.props.onLogin(res.data.admin.token, res.data.admin.email)
