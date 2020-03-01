@@ -5,12 +5,12 @@ typealias AdId = String
 data class AdPoolChanged(val newPool: Set<AdId>)
 
 data class AdChanged(
-    val id: String,
+    val ad: Ad,
     val durationMs: Long,
     val detections: List<Person>
 )
 
-data class Ad(val id: String, val post: ByteArray)
+data class Ad(override val id: String, val content: String) : Persistable
 
 data class Person(val gender: Gender, val age: Age)
 

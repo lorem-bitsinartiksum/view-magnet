@@ -5,14 +5,21 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
+import lorem.bitsinartiksum.ad.AdManager
+import lorem.bitsinartiksum.config.Config
+import lorem.bitsinartiksum.reporter.StatusReporter
 import model.BillboardEnvironment
+import model.BillboardStatus
 import model.Weather
+import topic.TopicContext
+import topic.TopicService
 import java.util.*
 
 
 fun main() = runBlocking<Unit> {
 
-    //    val sp = StatusReporter(Config())
+    val cfg = Config()
+
     val display = AdDisplay(
         AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
         200,
@@ -20,17 +27,22 @@ fun main() = runBlocking<Unit> {
     )
     display.show()
 
-    delay(1000)
-    display.changeAd(AdDisplay.loadImg("https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80")!!)
-//    AdManager()
+    val adManager = AdManager({ display.changeAd(AdDisplay.loadImg(it.content)!!) }, cfg)
 
-//    val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
-//    ts.subscribe {
-//        println("RECEIVED $it")
-//    }
-//    val env = envUpdate()
-//    val ad = adUpdate()
-//    sp.start(env, ad)
+    val statusReporter = StatusReporter(cfg)
+
+    val env = envUpdate()
+    val ad = adUpdate()
+
+    adManager.start()
+    statusReporter.start(env, ad)
+
+    val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
+    ts.subscribe {
+        println("RECEIVED $it")
+    }
+
+
 }
 
 fun CoroutineScope.envUpdate() = produce {
