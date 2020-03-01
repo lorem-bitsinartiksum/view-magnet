@@ -9,12 +9,16 @@ import { Row } from 'antd'
 
 class Adverts extends React.Component {
 
-    state = {
-        ads: null
+    constructor(props) {
+        super(props)
+        this.state = {
+            ads: null,
+        }
     }
 
     componentDidMount() {
-        axios.get('http://localhost:7000/api/ads?email=' + this.props.email, { headers: { 'Authorization': this.props.token } })
+        let url = this.props.isAdmin ? 'http://localhost:7000/api/ads' : 'http://localhost:7000/api/ads?email=' + this.props.email;
+        axios.get(url, { headers: { 'Authorization': this.props.token } })
             .then((res) => this.setState({ ads: res.data.ads }))
             .catch((err) => console.log(err))
     }
@@ -55,6 +59,7 @@ const mapStateToProps = state => {
     return {
         token: state.auth.token,
         email: state.auth.email,
+        isAdmin: state.auth.isAdmin,
         loggedIn: state.auth.loggedIn,
     };
 };

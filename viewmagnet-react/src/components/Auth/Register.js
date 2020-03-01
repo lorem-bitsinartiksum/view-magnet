@@ -163,7 +163,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token, email) => dispatch(login(token, email)),
+        onLogin: (token, email) => dispatch(login(token, email, false)),
     };
 };
 

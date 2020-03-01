@@ -10,8 +10,11 @@ import './Login.css';
 class NormalLoginForm extends React.Component {
 
     componentDidMount() {
-        if (localStorage.getItem('token'))
-            this.props.onLogin(localStorage.getItem('token'), localStorage.getItem('email'), )
+        if (localStorage.getItem('isAdmin'))
+            if (localStorage.getItem('isAdmin') === 'true')
+                return <Redirect to='/adminAuth' />;
+            else
+                this.props.onLogin(localStorage.getItem('token'), localStorage.getItem('email'))
     }
 
     handleSubmit = e => {
@@ -35,7 +38,8 @@ class NormalLoginForm extends React.Component {
     render() {
         if (this.props.loggedIn) {
             return <Redirect to='/profile' />;
-        }
+        } else if (localStorage.getItem('isAdmin') && localStorage.getItem('isAdmin') === 'true')
+            return <Redirect to='/admin' />;
         const { getFieldDecorator } = this.props.form;
         return (
             <Card className="login-card">
@@ -78,12 +82,13 @@ class NormalLoginForm extends React.Component {
 const mapStateToProps = state => {
     return {
         loggedIn: state.auth.loggedIn,
+        isAdmin: state.auth.isAdmin
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token, email) => dispatch(login(token, email)),
+        onLogin: (token, email) => dispatch(login(token, email, false)),
     };
 };
 

@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Form, Input, Card, Button, message } from 'antd';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from '../../store/actions'
 import axios from 'axios'
@@ -13,6 +14,11 @@ class AdminAuth extends React.Component {
             authLogin: null,
             authRegister: null,
         };
+    }
+
+    componentDidMount() {
+        if (localStorage.getItem('token'))
+            this.props.onLogin(localStorage.getItem('token'), localStorage.getItem('email'), )
     }
 
     onLogin = () => {
@@ -48,7 +54,7 @@ class AdminAuth extends React.Component {
         tab1:
             <Form layout="inline">
                 <Form.Item key="logEma" label="Email"> <Input onChange={(o) => this.setState({ authLogin: { ...this.state.authLogin, email: o.target.value } })} /> </Form.Item>
-                <Form.Item key="logPas" label="Password"> <Input.Password onChange={(o) => this.setState({ authLogin: { ...this.state.authLogin, password: o.target.value } })} /> </Form.Item>
+                <Form.Item key="logPas" label="Password"> <Input.Password onChange={(o) => this.setState({ authLogin: { ...this.state.authLogin, password: o.target.value } })} onPressEnter={this.onLogin} /> </Form.Item>
                 <Button type="primary" onClick={this.onLogin}>Login</Button>
             </Form>,
         tab2:
@@ -61,6 +67,9 @@ class AdminAuth extends React.Component {
             </Form>,
     };
     render() {
+        if (this.props.loggedIn) {
+            return <Redirect to='/adverts' />;
+        }
         return (
             <Fragment>
                 <Card
@@ -78,13 +87,13 @@ class AdminAuth extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        // loggedIn: state.auth.loggedIn,
+        loggedIn: state.auth.loggedIn,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogin: (token, email) => dispatch(login(token, email)),
+        onLogin: (token, email) => dispatch(login(token, email, true)),
     };
 };
 
