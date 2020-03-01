@@ -11,27 +11,38 @@ import java.util.concurrent.Executors
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
-    val adList = listOf(
-        "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
-        "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
+    private var adList = listOf(
+        Ad(
+            "t1",
+            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
+        ),
+        Ad(
+            "t2",
+            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
+        ),
+        Ad(
+            "t2",
+            "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+        )
     )
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
 
-    private var currentAd: Ad = Ad("default", adList.first())
-        set(value) {
+    var currentAd: Ad = adList.first()
+        private set(value) {
             val durationMs = System.currentTimeMillis() - rollStartTime
             adChangedTs.publish(AdChanged(field, durationMs, listOf()))
             field = value
             updateDisplay(value)
         }
 
-    private var pool = setOf<String>()
+    var pool = setOf<Ad>()
+        private set
 
 
-    fun refreshPool(newPool: Set<String>) {
+    fun refreshPool(newPool: Set<Ad>) {
         pool = newPool
+        adList = newPool.toList()
         println("REFRESHING POOL $newPool")
     }
 
@@ -51,9 +62,9 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         val thread = Thread({
             var i = 0
             while (true) {
-                currentAd = Ad("ad$i", adList[i % adList.size])
+                currentAd = adList[i % adList.size]
                 i++
-                Thread.sleep(2000)
+                Thread.sleep(1000)
             }
         }, "ad-scheduler")
         thread.start()

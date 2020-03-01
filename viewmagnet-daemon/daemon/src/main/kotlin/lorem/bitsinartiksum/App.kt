@@ -1,21 +1,28 @@
 package lorem.bitsinartiksum
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
 import lorem.bitsinartiksum.config.Config
+import lorem.bitsinartiksum.listener.CommandListener
 import lorem.bitsinartiksum.reporter.StatusReporter
-import model.BillboardEnvironment
-import model.BillboardStatus
-import model.Weather
+import model.*
 import topic.TopicContext
 import topic.TopicService
 import java.util.*
 
+class Other() {
+    init {
+        println("ASDDAS")
+        val otherTs = TopicService.createFor(AdPoolChanged::class.java, "test-pub2", TopicContext())
 
+        otherTs.subscribe { println("RECEIVED $it") }
+    }
+}
 fun main() = runBlocking<Unit> {
 
     val cfg = Config()
@@ -35,12 +42,26 @@ fun main() = runBlocking<Unit> {
     val ad = adUpdate()
 
     adManager.start()
-    statusReporter.start(env, ad)
+
+    CommandListener(cfg, adManager).start()
+    async {
+        statusReporter.start(env, ad)
+    }
+
 
     val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
+
     ts.subscribe {
-        println("RECEIVED $it")
+        println("RECEIVED STATUS $it")
     }
+
+    val tss = TopicService.createFor(AdPoolChanged::class.java, "test-pub", TopicContext())
+    val testAd = Ad(
+        "TESTAD",
+        "https://images.unsplash.com/photo-1583073600538-f219abfb20bc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+    )
+    Other()
+    tss.publish(AdPoolChanged(setOf(testAd)))
 
 
 }

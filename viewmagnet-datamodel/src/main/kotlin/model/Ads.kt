@@ -1,8 +1,7 @@
 package model
 
-typealias AdId = String
 
-data class AdPoolChanged(val newPool: Set<AdId>)
+data class AdPoolChanged(val newPool: Set<Ad>)
 
 data class AdChanged(
     val ad: Ad,

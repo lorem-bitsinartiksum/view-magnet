@@ -23,9 +23,8 @@ internal class TSNatsBackend : TSBackend {
         val subject =
             "$name.${context.mode}.${context.country}.${context.city}.${context.district}.${context.individual}"
 
-        logger.atInfo().log("Published topic to $subject")
-
         nc.publish(subject, payload)
+        logger.atInfo().log("Published topic to $subject")
     }
 
     override fun subscribe(name: String, context: TopicContext, consumer: (ByteArray) -> Unit): UnsubscribeToken {

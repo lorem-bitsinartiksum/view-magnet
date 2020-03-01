@@ -25,6 +25,7 @@ class TopicService<TopicType> private constructor(
         val toPublish = Topic(topic, TopicHeader(serviceName))
         val serialized = serde.serialize(toPublish)
         ts.publish(topicClass.name, context, serialized)
+        println("PUBLISHING $topic")
     }
 
     fun subscribe(consumer: (Topic<TopicType>) -> Unit): UnsubscribeToken {
