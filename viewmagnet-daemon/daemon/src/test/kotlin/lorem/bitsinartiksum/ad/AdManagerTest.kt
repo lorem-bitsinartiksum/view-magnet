@@ -24,6 +24,7 @@ internal class AdManagerTest {
         val cmdListener = CommandListener(Config(), adManager)
         cmdListener.start()
         adManager.start()
+
         ts.subscribe { println("RECEIVED $it") }
         val newPool = setOf(testAd)
         ts.publish(AdPoolChanged(newPool))
