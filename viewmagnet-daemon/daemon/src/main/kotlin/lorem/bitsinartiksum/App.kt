@@ -46,7 +46,7 @@ fun main() = runBlocking<Unit> {
 //    }
 //
 //
-//    val ts = TopicService.createFor(BillboardStatus::class.java, "env-listener", TopicContext())
+//    val ts = TopicService.createFor(BillboardStatus::class.java, "env-lorem.bitsinartiksum.listener", TopicContext())
 //
 //    ts.subscribe {
 //        println("RECEIVED STATUS $it")
