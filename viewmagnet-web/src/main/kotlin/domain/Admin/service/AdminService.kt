@@ -3,14 +3,17 @@ package domain.Admin.service
 import config.Roles
 import domain.Admin.Admin
 import domain.Admin.repository.AdminRepository
-import io.javalin.*
-import model.BillboardStatus
+import io.javalin.BadRequestResponse
+import io.javalin.HttpResponseException
+import io.javalin.NotFoundResponse
+import io.javalin.UnauthorizedResponse
+import lorem.bitsinartiksum.manager.CommandIssuer
+import model.Ad
 import org.eclipse.jetty.http.HttpStatus
-import status.StatusProvider
 import utils.Cipher
 import utils.JwtProvider
 import java.util.*
-import command.CommandIssuer
+
 
 class AdminService(private val jwtProvider: JwtProvider, private val adminRepository: AdminRepository) {
     private val base64Encoder = Base64.getEncoder()
@@ -54,13 +57,9 @@ class AdminService(private val jwtProvider: JwtProvider, private val adminReposi
         return jwtProvider.createJWT(admin, Roles.ADMIN)
     }
 
-    fun getBillboardStatus(billboardId: String): BillboardStatus {
-        return StatusProvider.getStatus(billboardId)
-    }
-
-    fun issueShowAdCommand(adId: String) {
+    fun issueShowAdCommand(ad: Ad) {
         val commandIssuer = CommandIssuer()
-        commandIssuer.showAd(adId)
+        commandIssuer.showAd(ad)
     }
 
     fun issueShutDownCommand(billboardId: String) {
