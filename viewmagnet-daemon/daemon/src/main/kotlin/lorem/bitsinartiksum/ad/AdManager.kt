@@ -1,15 +1,16 @@
 package lorem.bitsinartiksum.ad
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import lorem.bitsinartiksum.config.Config
-import model.Ad
-import model.AdChanged
-import model.AdPoolChanged
+import model.*
+import topic.Country
 import topic.TopicContext
 import topic.TopicService
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
@@ -72,39 +73,58 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         thread.start()
     }
 
+    private inline fun <reified T> parse(field: String, output: String): T? {
+        return if (output.startsWith(field)) {
+            val found = output.subSequence(output.indexOf(" ") + 1, output.length).toString()
+            when (T::class) {
+                Long::class -> found.toLong() as T
+                Float::class -> found.toFloat() as T
+                Int::class -> found.toInt() as T
+                String::class -> found.toString() as T
+                else -> null
+            }
+        } else null
+    }
+
+    val jackson = jacksonObjectMapper()
+    data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
     private fun startWatching() {
+        var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
+        var envRef: BillboardEnvironment
+
         runPythonScript("weather-info\\weather.py") {
-            if(it.startsWith("weather:")){
-                println("weather: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("temp:")){
-                println("temp: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("wind_spd:")){
-                println("wind_spd: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("sunrise:")){
-                println("sunrise: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("sunset:")){
-                println("sunset: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("timezone:")){
-                println("timezone: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
-            }
-            else if(it.startsWith("country:")){
-                println("country: " + it.subSequence(it.indexOf(" ") + 1, it    .length) )
+            val json = jackson.readTree(it)
+            if(!json.isEmpty){
+                val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
+                val temp = (json.path("main").get("temp").asText("0")).toFloat()
+                val wind = (json.path("wind").get("speed").asText("0")).toFloat()
+                val sunrise = (json.path("sys").get("sunrise").asText("0")).toLong()
+                val sunset = (json.path("sys").get("sunset").asText("0")).toLong()
+                val timezone = (json.get("timezone").asText("0")).toInt()
+                val country = (json.path("sys").get("country").asText("UNKNOWN")).toString()
+
+                weatherInfo = weatherInfo(weather = weather, tempC = temp, windSpeed = wind, sunrise = sunrise, sunset = sunset, timezone = timezone, country = country)
+                print(weatherInfo)
             }
         }
+
         runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
             println("READ Desibel: $it")
+            val sound = it.toFloat()
+
+            if(sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)){
+                envRef = BillboardEnvironment(weather = weatherInfo.weather, tempC = weatherInfo.tempC, windSpeed = weatherInfo.windSpeed, sunrise = weatherInfo.sunrise, sunset = weatherInfo.sunset, timezone = weatherInfo.timezone, country = weatherInfo.country, soundDb = sound)
+                println(envRef.toString())
+            }
         }
+
         runPythonScriptWithBatch("age-gender-pred") {
-            if(it.startsWith("[")){
+            if (it.startsWith("[")) {
                 println("READ : $it")
             }
         }
+
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
@@ -125,9 +145,10 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     }
 
     private fun runPythonScriptWithBatch(name: String, handler: (String) -> Unit) {
-        val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon",name)
+        val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
         Executors.newSingleThreadExecutor().execute {
-            val process = ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
+            val process =
+                ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             process.outputStream.close();
 

@@ -9,8 +9,13 @@ data class BillboardStatus(
 
 data class BillboardEnvironment(
     val weather: Weather,
-    val tempC: Int,
-    val soundDb: Int
+    val tempC: Float,
+    val windSpeed: Float,
+    val sunrise: Long,
+    val sunset: Long,
+    val timezone: Int,
+    val country: String,
+    val soundDb: Float
 )
 
 data class ModeChanged(val newMode: Mode)
