@@ -1,5 +1,3 @@
 package model
 
-data class ShowAd(val id: AdId)
-
-data class ShutDown(val billboardId: String)
+data class ShowAd(val ad: Ad)
