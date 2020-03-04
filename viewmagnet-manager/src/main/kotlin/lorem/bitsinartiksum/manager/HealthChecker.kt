@@ -8,17 +8,25 @@ import topic.TopicService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+typealias StatusHandler = (BillboardStatus) -> Unit
 
 class HealthChecker {
 
     private val lastReceived = mutableMapOf<String, Pair<Long, BillboardStatus>>()
     private val ts = TopicService.createFor(BillboardStatus::class.java, "ad-manager", TopicContext())
+    private val subbers = mutableListOf<StatusHandler>()
 
     init {
-        ts.subscribe {
-            lastReceived[it.header.source] = System.currentTimeMillis() to it.payload
+        ts.subscribe { topic ->
+            val status = topic.payload
+            lastReceived[topic.header.source] = System.currentTimeMillis() to status
+            subbers.forEach { it(status) }
         }
         startChecker()
+    }
+
+    fun subscribe(handler: StatusHandler) {
+        subbers.add(handler)
     }
 
     private fun startChecker() {
@@ -29,7 +37,11 @@ class HealthChecker {
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({
             lastReceived
                 .filter { isBillboardDown(it.value.first) }
-                .forEach { ts.publish(it.value.second.copy(Health.DOWN)) }
+                .forEach {
+                    val newStatus = it.value.second.copy(Health.DOWN)
+                    ts.publish(newStatus)
+                    subbers.forEach { handler -> handler(newStatus) }
+                }
         }, 0, 5, TimeUnit.SECONDS)
     }
 }
