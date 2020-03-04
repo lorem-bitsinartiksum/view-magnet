@@ -27,11 +27,11 @@ class Bars extends React.Component {
     if (this.props.loggedIn) {
       sidebarItems = ([
         this.props.isAdmin ? null :
-        <Menu.Item key="3">
-          <Link to="/create-ad">
-            <Icon type="file-add" /> <span>Create Advert</span>
-          </Link>
-        </Menu.Item >,
+          <Menu.Item key="3">
+            <Link to="/create-ad">
+              <Icon type="file-add" /> <span>Create Advert</span>
+            </Link>
+          </Menu.Item >,
         <Menu.Item key="4">
           <Link to="/adverts">
             <Icon type="file-image" /> <span>Adverts</span>

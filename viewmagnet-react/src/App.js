@@ -4,6 +4,7 @@ import Register from './components/Auth/Register';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Bars from './components/Bars'
+import Map from './components/Map/Map'
 import Profile from './components/Profile'
 import CreateAdvert from './components/Advert/CreateAdvert'
 import Adverts from './components/Advert/Adverts';
@@ -16,6 +17,7 @@ function App() {
       <Route path="/register" component={Register} />
       <Route path="/admin" component={AdminAuth} />
       <Route path="/profile" component={Profile} />
+      <Route path="/map" component={Map} />
       <Route path="/create-ad" component={CreateAdvert} />
       <Route path="/adverts" component={Adverts} />
       <Redirect to="/" />
