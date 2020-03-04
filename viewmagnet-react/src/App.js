@@ -1,8 +1,8 @@
+import './App.css';
 import React from 'react';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import './App.css';
 import Bars from './components/Bars'
 import Map from './components/Map/Map'
 import Profile from './components/Profile'
