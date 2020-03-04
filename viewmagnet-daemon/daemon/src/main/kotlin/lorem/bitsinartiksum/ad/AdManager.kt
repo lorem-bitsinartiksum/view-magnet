@@ -100,7 +100,11 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
             println("READ Desibel: $it")
         }
-
+        runPythonScriptWithBatch("age-gender-pred") {
+            if(it.startsWith("[")){
+                println("READ : $it")
+            }
+        }
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
@@ -118,5 +122,19 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             }
             process.waitFor();
         }
+    }
+
+    private fun runPythonScriptWithBatch(name: String, handler: (String) -> Unit) {
+        val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon",name)
+        val process = ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        process.outputStream.close();
+
+        var line = reader.readLine()
+        while (line != null) {
+            handler(line)
+            line = reader.readLine()
+        }
+        process.waitFor();
     }
 }

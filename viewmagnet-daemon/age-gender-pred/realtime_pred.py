@@ -104,13 +104,17 @@ class FaceCV(object):
                 predicted_genders = results[0]
                 ages = np.arange(0, 101).reshape(101, 1)
                 predicted_ages = results[1].dot(ages).flatten()
+            allLabels=[]
             # draw results
             for i, face in enumerate(faces):
                 label = "{}, {}".format(int(predicted_ages[i]),
                                         "F" if predicted_genders[i][0] > 0.5 else "M")
-                self.draw_label(frame, (face[0], face[1]), label)
+                #self.draw_label(frame, (face[0], face[1]), label)
+                allLabels.append(label)
 
-            cv2.imshow('Keras Faces', frame)
+            if len(allLabels) > 0:
+                print(allLabels, flush=True)
+            #cv2.imshow('Keras Faces', frame)
             if cv2.waitKey(5) == 27:  # ESC key press
                 break
         # When everything is done, release the capture
@@ -131,6 +135,7 @@ def get_args():
     return args
 
 def main():
+    print("asdasd")
     args = get_args()
     depth = args.depth
     width = args.width
