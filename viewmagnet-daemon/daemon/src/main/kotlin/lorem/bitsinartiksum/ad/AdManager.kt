@@ -126,15 +126,17 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
     private fun runPythonScriptWithBatch(name: String, handler: (String) -> Unit) {
         val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon",name)
-        val process = ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
-        val reader = BufferedReader(InputStreamReader(process.inputStream))
-        process.outputStream.close();
+        Executors.newSingleThreadExecutor().execute {
+            val process = ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            process.outputStream.close();
 
-        var line = reader.readLine()
-        while (line != null) {
-            handler(line)
-            line = reader.readLine()
+            var line = reader.readLine()
+            while (line != null) {
+                handler(line)
+                line = reader.readLine()
+            }
+            process.waitFor();
         }
-        process.waitFor();
     }
 }
