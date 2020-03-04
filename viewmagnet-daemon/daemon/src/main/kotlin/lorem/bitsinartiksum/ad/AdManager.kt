@@ -6,6 +6,8 @@ import model.AdChanged
 import model.AdPoolChanged
 import topic.TopicContext
 import topic.TopicService
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.Executors
 
@@ -72,31 +74,49 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
 
     private fun startWatching() {
-        runPythonScript("test.py") {
-            println("READ: $it")
+        runPythonScript("weather-info\\weather.py") {
+            if(it.startsWith("weather:")){
+                println("weather: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("temp:")){
+                println("temp: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("wind_spd:")){
+                println("wind_spd: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("sunrise:")){
+                println("sunrise: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("sunset:")){
+                println("sunset: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("timezone:")){
+                println("timezone: " + it.subSequence(it.indexOf(" ") + 1, it.length) )
+            }
+            else if(it.startsWith("country:")){
+                println("country: " + it.subSequence(it.indexOf(" ") + 1, it    .length) )
+            }
         }
+        runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
+            println("READ Desibel: $it")
+        }
+
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
-
         val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
 
-        val builder = ProcessBuilder("python3", scriptPath.toString()).redirectErrorStream(true)
-        val proc = builder.start()
-        // We wont be sending anything.
-        proc.outputStream.close()
-
         Executors.newSingleThreadExecutor().execute {
+            val command = "python $scriptPath";
+            val process = Runtime.getRuntime().exec(command)
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
 
-            val out = proc.inputStream
-            val reader = out.bufferedReader()
-            while (proc.isAlive) {
-                if (out.available() > 0)
-                    handler(reader.readLine())
-                else {
-                    Thread.sleep(10)
-                }
+            var line = reader.readLine()
+            while (line != null) {
+                handler(line)
+                line = reader.readLine()
             }
+            process.waitFor();
         }
     }
 }

@@ -61,7 +61,7 @@ def listen(old=0, error_count=0, min_decibel=100, max_decibel=0):
             new_decibel = 20*numpy.log10(spl.rms_flat(y))
             if is_meaningful(old, new_decibel):
                 old = new_decibel
-                print('A-weighted: {:+.2f} dB'.format(new_decibel))
+                print('A-weighted: {:+.2f} dB'.format(new_decibel),flush=True)
 
     stream.stop_stream()
     stream.close()
