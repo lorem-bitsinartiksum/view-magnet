@@ -1,0 +1,22 @@
+.register-form {
+    max-width: 300px;
+    margin: auto;   
+}
+
+.register-form-forgot {
+    float: right;
+}
+
+.register-form-checkbox {
+    float: left;
+}
+
+.register-form-button {
+    width: 100%;
+}
+
+.register-card {
+    margin: auto;
+    width: 600px;
+    padding: 20px;    
+}

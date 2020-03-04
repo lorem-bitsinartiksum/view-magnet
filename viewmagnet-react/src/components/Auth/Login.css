@@ -1,0 +1,22 @@
+.login-form {
+    max-width: 300px;
+    margin: auto;   
+}
+
+.login-form-forgot {
+    float: right;
+}
+
+.login-form-checkbox {
+    float: left;
+}
+
+.login-form-button {
+    width: 100%;
+}
+
+.login-card {
+    margin: auto;
+    width: 600px;
+    padding: 20px;    
+}
