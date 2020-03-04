@@ -1,5 +1,6 @@
 package topic
 
+import model.Mode
 
 data class TopicContext(
     val country: Country = Country.ALL,
@@ -27,7 +28,3 @@ data class TopicHeader(
 )
 
 data class Topic<T>(val payload: T, val header: TopicHeader)
-
-enum class Mode {
-    SIM, REAL
-}
