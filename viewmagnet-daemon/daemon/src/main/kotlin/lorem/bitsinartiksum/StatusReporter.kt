@@ -1,8 +1,7 @@
-package lorem.bitsinartiksum.reporter
+package lorem.bitsinartiksum
 
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.selects.select
-import lorem.bitsinartiksum.config.Config
 import model.BillboardEnvironment
 import model.BillboardStatus
 import model.Health

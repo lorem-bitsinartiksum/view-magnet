@@ -1,9 +1,10 @@
 package lorem.bitsinartiksum.ad
 
-import lorem.bitsinartiksum.config.Config
+import lorem.bitsinartiksum.Config
 import model.Ad
 import model.AdChanged
 import model.AdPoolChanged
+import model.Similarity
 import topic.TopicContext
 import topic.TopicService
 import java.nio.file.Path
@@ -36,13 +37,13 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             updateDisplay(value)
         }
 
-    var pool = setOf<Ad>()
+    var pool = setOf<Pair<Ad, Similarity>>()
         private set
 
 
-    fun refreshPool(newPool: Set<Ad>) {
+    fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
         pool = newPool
-        adList = newPool.toList()
+        adList = newPool.toList().map { it.first }
         println("REFRESHING POOL $newPool")
     }
 

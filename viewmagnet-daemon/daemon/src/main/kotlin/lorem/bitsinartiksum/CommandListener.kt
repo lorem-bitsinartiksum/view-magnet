@@ -1,7 +1,6 @@
-package lorem.bitsinartiksum.listener
+package lorem.bitsinartiksum
 
 import lorem.bitsinartiksum.ad.AdManager
-import lorem.bitsinartiksum.config.Config
 import model.AdPoolChanged
 import model.ShowAd
 import topic.TopicContext
