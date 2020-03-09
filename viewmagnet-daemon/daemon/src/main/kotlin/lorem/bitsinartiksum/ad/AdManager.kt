@@ -123,6 +123,9 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             if (it.startsWith("[")) {
                 println("READ : $it")
             }
+            else if(it.startsWith("object - ")){
+                println("READ : $it")
+            }
         }
 
     }
