@@ -8,6 +8,14 @@ import numpy as np
 import argparse
 from wide_resnet import WideResNet
 from keras.utils.data_utils import get_file
+from imutils.video import VideoStream
+from imutils.video import FPS
+import numpy as np
+import argparse
+import imutils
+import time
+import cv2
+import pyttsx3
 
 class FaceCV(object):
     """
@@ -76,6 +84,26 @@ class FaceCV(object):
     def detect_face(self):
         face_cascade = cv2.CascadeClassifier(self.CASE_PATH)
 
+        # initialize the list of class labels MobileNet SSD was trained to
+        # detect, then generate a set of bounding box colors for each class
+        CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+            "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+            "sofa", "train", "tvmonitor"]
+        COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+
+        # load our serialized model from disk
+        print("[INFO] loading model...")
+        net = cv2.dnn.readNetFromCaffe("MobileNetSSD_deploy.prototxt.txt", "MobileNetSSD_deploy.caffemodel")
+
+        # initialize the video stream, allow the cammera sensor to warmup,
+        # and initialize the FPS counter
+        print("[INFO] starting video stream...")
+        vs = VideoStream(src=0).start()
+        time.sleep(2.0)
+        import pyttsx3;
+        engine = pyttsx3.init()
+
         # 0 means the default video capture device in OS
         video_capture = cv2.VideoCapture(0)
         # infinite loop, break by key ESC
@@ -115,8 +143,42 @@ class FaceCV(object):
             if len(allLabels) > 0:
                 print(allLabels, flush=True)
             #cv2.imshow('Keras Faces', frame)
-            if cv2.waitKey(5) == 27:  # ESC key press
-                break
+            
+            frame = imutils.resize(frame, width=400)
+
+            # grab the frame dimensions and convert it to a blob
+            (h, w) = frame.shape[:2]
+            blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
+                0.007843, (300, 300), 127.5)
+
+            # pass the blob through the network and obtain the detections and
+            # predictions
+            net.setInput(blob)
+            detections = net.forward()
+
+            # loop over the detections
+            for i in np.arange(0, detections.shape[2]):
+                # extract the confidence (i.e., probability) associated with
+                # the prediction
+                confidence = detections[0, 0, i, 2]
+
+                # filter out weak detections by ensuring the `confidence` is
+                # greater than the minimum confidence
+                if confidence > 0.2:
+                    # extract the index of the class label from the
+                    # `detections`, then compute the (x, y)-coordinates of
+                    # the bounding box for the object
+                    idx = int(detections[0, 0, i, 1])
+                    box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                    (startX, startY, endX, endY) = box.astype("int")
+
+                    # draw the prediction on the frame
+                    label = "object - {}: {:.2f}%".format(CLASSES[idx],
+                        confidence * 100)
+                    print(label, flush = True)
+
+
+
         # When everything is done, release the capture
         video_capture.release()
         cv2.destroyAllWindows()
