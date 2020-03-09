@@ -120,10 +120,10 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         }
 
         runPythonScriptWithBatch("age-gender-pred") {
-            if (it.startsWith("[")) {
+            if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
             }
-            else if(it.startsWith("object - ")){
+            else if(it.startsWith("object : ")){
                 println("READ : $it")
             }
         }

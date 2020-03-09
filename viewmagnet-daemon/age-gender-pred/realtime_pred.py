@@ -104,6 +104,8 @@ class FaceCV(object):
         import pyttsx3;
         engine = pyttsx3.init()
 
+        oldObjectDict = {}
+
         # 0 means the default video capture device in OS
         video_capture = cv2.VideoCapture(0)
         # infinite loop, break by key ESC
@@ -141,7 +143,7 @@ class FaceCV(object):
                 allLabels.append(label)
 
             if len(allLabels) > 0:
-                print(allLabels, flush=True)
+                print("age-gender : " + str(allLabels), flush=True)
             #cv2.imshow('Keras Faces', frame)
             
             frame = imutils.resize(frame, width=400)
@@ -156,6 +158,8 @@ class FaceCV(object):
             net.setInput(blob)
             detections = net.forward()
 
+            objectDict = {}
+
             # loop over the detections
             for i in np.arange(0, detections.shape[2]):
                 # extract the confidence (i.e., probability) associated with
@@ -164,7 +168,7 @@ class FaceCV(object):
 
                 # filter out weak detections by ensuring the `confidence` is
                 # greater than the minimum confidence
-                if confidence > 0.2:
+                if confidence > 0.8:
                     # extract the index of the class label from the
                     # `detections`, then compute the (x, y)-coordinates of
                     # the bounding box for the object
@@ -172,13 +176,22 @@ class FaceCV(object):
                     box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
                     (startX, startY, endX, endY) = box.astype("int")
 
+                    objectDict[CLASSES[idx]] = confidence * 100
                     # draw the prediction on the frame
-                    label = "object - {}: {:.2f}%".format(CLASSES[idx],
-                        confidence * 100)
-                    print(label, flush = True)
+                    #label = "object - {}: {:.2f}%".format(CLASSES[idx], confidence * 100)
 
+            for clazz in objectDict:
+                if clazz in oldObjectDict:
+                    if abs(oldObjectDict[clazz] - objectDict[clazz]) > 10:
+                        print("object : " + str(clazz) + ": " + str(oldObjectDict[clazz]), flush= True)
+                        oldObjectDict[clazz] = objectDict[clazz]
+                else:
+                    print("object : " + str(clazz) + ": " + str(objectDict[clazz]), flush= True)
+                    oldObjectDict[clazz] = objectDict[clazz]
 
-
+            for clazz in list(oldObjectDict):
+                if not clazz in objectDict:
+                    del(oldObjectDict[clazz])
         # When everything is done, release the capture
         video_capture.release()
         cv2.destroyAllWindows()
