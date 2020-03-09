@@ -1,5 +1,10 @@
 package lorem.bitsinartiksum.ad
 
+import lorem.bitsinartiksum.Config
+import model.Ad
+import model.AdChanged
+import model.AdPoolChanged
+import model.Similarity
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import lorem.bitsinartiksum.config.Config
 import model.*
@@ -9,70 +14,93 @@ import topic.TopicService
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
+import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
 data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
+import kotlin.concurrent.timer
+
+typealias AdPool = Set<Pair<Ad, Similarity>>
+
+data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
-    private var adList = listOf(
-        Ad(
-            "t1",
-            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-        ),
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
-        ),
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
-        )
-    )
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
 
-    var currentAd: Ad = adList.first()
-        private set(value) {
-            val durationMs = System.currentTimeMillis() - rollStartTime
-            adChangedTs.publish(AdChanged(field, durationMs, listOf()))
-            field = value
-            updateDisplay(value)
-        }
-
-    var pool = setOf<Ad>()
+    var pool: AdPool = setOf(
+        Ad(
+            "t1",
+            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
+        ) to 0.5f,
+        Ad(
+            "t2",
+            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
+        ) to 0.2f,
+        Ad(
+            "t2",
+            "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+        ) to 0.64f
+    )
         private set
 
+    var currentAd: Ad = pool.first().first
+        private set(newAd) {
+            val durationMs = System.currentTimeMillis() - rollStartTime
+            adChangedTs.publish(AdChanged(field, durationMs, listOf()))
+            field = newAd
+            updateDisplay(newAd)
+        }
 
-    fun refreshPool(newPool: Set<Ad>) {
-        pool = newPool
-        adList = newPool.toList()
-        println("REFRESHING POOL $newPool")
+    private var schedule: MutableList<AdTrack> = mutableListOf(AdTrack(currentAd, 1.0f, Duration.ZERO))
+    private var nextAdIdx = 0
+
+    fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
+        synchronized(schedule) {
+            pool = newPool
+            nextAdIdx = 0
+            val totalSim = pool.fold(0f) { total, (_, sim) -> total + sim }
+            schedule = pool.map { (ad, sim) ->
+                AdTrack(ad, sim, Duration.ofMillis((cfg.period.toMillis() * sim / totalSim).toLong()))
+            }.toMutableList()
+            println("REFRESHING POOL $newPool")
+        }
     }
 
     inline fun <reified T> handleCommand(cmd: T) {
         when (T::class.java) {
-            AdPoolChanged::class.java -> refreshPool((cmd as AdPoolChanged).newPool)
+            AdPoolChanged::class.java -> {
+                refreshPool((cmd as AdPoolChanged).newPool)
+            }
         }
     }
 
     fun start() {
         startWatching()
-        startScheduler()
-    }
 
-    private fun startScheduler() {
+        timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
+            synchronized(schedule) {
+                if (nextAdIdx == 0 && schedule.isEmpty())
+                    return@synchronized
 
-        val thread = Thread({
-            var i = 0
-            while (true) {
-                currentAd = adList[i % adList.size]
-                i++
-                Thread.sleep(1000)
+                val prevAd = schedule.getOrNull(nextAdIdx - 1)
+
+                if (prevAd != null) {
+                    prevAd.remaining = prevAd.remaining.minus(cfg.period)
+                    if (prevAd.remaining.isZero || prevAd.remaining.isNegative) {
+                        schedule.removeAt(nextAdIdx - 1)
+                        nextAdIdx--
+                    }
+                }
+
+                if (schedule.isNotEmpty()) {
+                    val nextAd = schedule[nextAdIdx++ % schedule.size]
+                    currentAd = nextAd.ad
+                }
             }
-        }, "ad-scheduler")
-        thread.start()
+        }
     }
 
     private inline fun <reified T> parse(field: String, output: String): T? {

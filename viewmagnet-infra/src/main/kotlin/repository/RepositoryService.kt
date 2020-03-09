@@ -1,8 +1,9 @@
 package repository
 
+import model.Mode
 import model.Persistable
 import repository.mongo.MongoRepositoryService
-import topic.Mode
+
 
 typealias Predicate<T> = (T) -> Boolean
 

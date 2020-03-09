@@ -1,7 +1,7 @@
 package lorem.bitsinartiksum.ad
 
-import lorem.bitsinartiksum.config.Config
-import lorem.bitsinartiksum.listener.CommandListener
+import lorem.bitsinartiksum.CommandListener
+import lorem.bitsinartiksum.Config
 import model.Ad
 import model.AdPoolChanged
 import org.junit.jupiter.api.Test
@@ -26,7 +26,7 @@ internal class AdManagerTest {
         adManager.start()
 
         ts.subscribe { println("RECEIVED $it") }
-        val newPool = setOf(testAd)
+        val newPool = setOf(testAd to 0.5f)
         ts.publish(AdPoolChanged(newPool))
         Thread.sleep(1000)
 

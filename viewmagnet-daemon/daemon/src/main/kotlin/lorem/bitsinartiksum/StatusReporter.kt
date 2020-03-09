@@ -1,8 +1,7 @@
-package lorem.bitsinartiksum.reporter
+package lorem.bitsinartiksum
 
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.selects.select
-import lorem.bitsinartiksum.config.Config
 import model.BillboardEnvironment
 import model.BillboardStatus
 import model.Health
@@ -26,7 +25,7 @@ class StatusReporter(val cfg: Config) {
 
     suspend fun start(envUpdates: ReceiveChannel<BillboardEnvironment>, adUpdates: ReceiveChannel<String>) {
 
-        timer.scheduleAtFixedRate(0, cfg.periodMs) {
+        timer.scheduleAtFixedRate(0, cfg.period.toMillis()) {
             ts.publish(BillboardStatus(Health.UP, currentAdId, currentEnv))
         }
 
