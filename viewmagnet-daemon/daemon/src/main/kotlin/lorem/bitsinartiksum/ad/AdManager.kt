@@ -13,6 +13,7 @@ import java.util.concurrent.Executors
 import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
+
 data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
@@ -44,7 +45,7 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             updateDisplay(newAd)
         }
 
-    private var schedule: List<AdTrack> = listOf(AdTrack(currentAd, 1.0f, Duration.ZERO))
+    private var schedule: MutableList<AdTrack> = mutableListOf(AdTrack(currentAd, 1.0f, Duration.ZERO))
     private var nextAdIdx = 0
 
     fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
@@ -54,7 +55,7 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             val totalSim = pool.fold(0f) { total, (_, sim) -> total + sim }
             schedule = pool.map { (ad, sim) ->
                 AdTrack(ad, sim, Duration.ofMillis((cfg.period.toMillis() * sim / totalSim).toLong()))
-            }
+            }.toMutableList()
             println("REFRESHING POOL $newPool")
         }
     }
@@ -76,13 +77,23 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                     return@synchronized
 
                 val prevAd = schedule.getOrNull(nextAdIdx - 1)
-                if (prevAd != null)
+
+                if (prevAd != null) {
                     prevAd.remaining = prevAd.remaining.minus(cfg.period)
-                val nextAd = schedule[nextAdIdx++ % schedule.size]
-                currentAd = nextAd.ad
+                    if (prevAd.remaining.isZero || prevAd.remaining.isNegative) {
+                        schedule.removeAt(nextAdIdx - 1)
+                        nextAdIdx--
+                    }
+                }
+
+                if (schedule.isNotEmpty()) {
+                    val nextAd = schedule[nextAdIdx++ % schedule.size]
+                    currentAd = nextAd.ad
+                }
             }
         }
     }
+
 
     private fun startWatching() {
         runPythonScript("test.py") {
