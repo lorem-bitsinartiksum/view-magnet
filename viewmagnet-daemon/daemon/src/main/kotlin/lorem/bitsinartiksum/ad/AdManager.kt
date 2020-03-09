@@ -12,6 +12,8 @@ import java.nio.file.Path
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
+data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
+
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
     private var adList = listOf(
@@ -87,7 +89,6 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     }
 
     val jackson = jacksonObjectMapper()
-    data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
     private fun startWatching() {
         var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
@@ -124,7 +125,15 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 println("READ : $it")
             }
             else if(it.startsWith("object : ")){
-                println("READ : $it")
+                if(it.contains("dog", ignoreCase=true)){
+                    println("DOG DOG DOG")
+                }
+                else if(it.contains("person", ignoreCase=true)){
+                    println("PERSON PERSON PERSON")
+                }
+                else{
+                    println("READ : $it")
+                }
             }
         }
 
