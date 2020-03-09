@@ -25,7 +25,7 @@ class StatusReporter(val cfg: Config) {
 
     suspend fun start(envUpdates: ReceiveChannel<BillboardEnvironment>, adUpdates: ReceiveChannel<String>) {
 
-        timer.scheduleAtFixedRate(0, cfg.periodMs) {
+        timer.scheduleAtFixedRate(0, cfg.period.toMillis()) {
             ts.publish(BillboardStatus(Health.UP, currentAdId, currentEnv))
         }
 
