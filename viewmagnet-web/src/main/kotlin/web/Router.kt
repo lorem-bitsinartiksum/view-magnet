@@ -1,21 +1,20 @@
 package web
 
-import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.delete
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.path
-import io.javalin.apibuilder.ApiBuilder.post
-import io.javalin.apibuilder.ApiBuilder.put
-import io.javalin.security.SecurityUtil.roles
 import config.Roles
-import web.controllers.UserController
+import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.security.SecurityUtil.roles
 import org.koin.standalone.KoinComponent
 import web.controllers.AdController
 import web.controllers.AdminController
+import web.controllers.BillboardController
+import web.controllers.UserController
 
-class Router(private val userController: UserController,
-             private val adController: AdController,
-             private val adminController: AdminController
+class Router(
+    private val userController: UserController,
+    private val adController: AdController,
+    private val adminController: AdminController,
+    private val billboardController: BillboardController
 ) : KoinComponent {
 
     fun register(app: Javalin) {
@@ -53,8 +52,9 @@ class Router(private val userController: UserController,
                 put(adminController::update, roles(Roles.ADMIN))
                 delete(adminController::delete, roles(Roles.ADMIN))
                 path("manager") {
-                    path(":billboard_id") {
-                        get(adminController::getBillboardStatus, roles(Roles.ADMIN))
+                    ws("status") { ws ->
+                        ws.onConnect { billboardController.subscribe(it) }
+                        ws.onClose { session, statusCode, reason -> billboardController.unsubscribe(session) }
                     }
                     path("command") {
                         path("show-ad/:ad_id") {

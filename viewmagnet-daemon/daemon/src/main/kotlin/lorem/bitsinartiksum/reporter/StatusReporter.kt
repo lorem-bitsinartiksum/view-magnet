@@ -21,7 +21,7 @@ class StatusReporter(val cfg: Config) {
     )
 
     private val timer = Timer("status-reporter")
-    private var currentEnv = BillboardEnvironment(Weather.CLOUDY, Int.MIN_VALUE, Int.MIN_VALUE)
+    private var currentEnv = BillboardEnvironment(Weather.CLOUDS, Int.MIN_VALUE, Int.MIN_VALUE)
     private var currentAdId = "#NULL#"
 
     suspend fun start(envUpdates: ReceiveChannel<BillboardEnvironment>, adUpdates: ReceiveChannel<String>) {

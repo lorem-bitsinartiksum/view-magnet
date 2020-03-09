@@ -1,7 +1,8 @@
 package model
 
+typealias Similarity = Float
 
-data class AdPoolChanged(val newPool: Set<Ad>)
+data class AdPoolChanged(val newPool: Set<Pair<Ad, Similarity>>)
 
 data class AdChanged(
     val ad: Ad,
@@ -10,6 +11,8 @@ data class AdChanged(
 )
 
 data class Ad(override val id: String, val content: String) : Persistable
+
+data class AdWithFeature(override val id: String, val content: String, val feature : List<Float> = emptyList()) : Persistable
 
 data class Person(val gender: Gender, val age: Age)
 
