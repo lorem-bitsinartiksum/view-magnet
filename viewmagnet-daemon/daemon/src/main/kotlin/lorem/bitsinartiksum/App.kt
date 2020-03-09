@@ -66,7 +66,7 @@ fun main() = runBlocking<Unit> {
 fun CoroutineScope.envUpdate() = produce {
     while (true) {
         var t = 1
-        send(BillboardEnvironment(Weather.FOG, t++, t * 10))
+        send(BillboardEnvironment(Weather.FOG, t++.toFloat(), (t * 10).toFloat(),t.toLong(), (t+20).toLong(),t,"country",t.toFloat()))
         delay(2000)
     }
 }
