@@ -6,9 +6,7 @@ import model.AdChanged
 import model.AdPoolChanged
 import model.Similarity
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import lorem.bitsinartiksum.config.Config
 import model.*
-import topic.Country
 import topic.TopicContext
 import topic.TopicService
 import java.io.BufferedReader
@@ -16,14 +14,13 @@ import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Duration
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicReference
 
-data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
 data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
+data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
