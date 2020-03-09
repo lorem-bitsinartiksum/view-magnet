@@ -12,6 +12,7 @@ import java.time.Duration
 import java.util.concurrent.Executors
 import kotlin.concurrent.timer
 
+typealias AdPool = Set<Pair<Ad, Similarity>>
 data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
@@ -84,9 +85,9 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     }
 
     private fun startWatching() {
-//        runPythonScript("test.py") {
-//            println("READ: $it")
-//        }
+        runPythonScript("test.py") {
+            println("READ: $it")
+        }
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
