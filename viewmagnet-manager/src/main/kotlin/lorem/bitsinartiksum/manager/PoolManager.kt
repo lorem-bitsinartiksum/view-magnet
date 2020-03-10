@@ -7,10 +7,10 @@ import topic.TopicService
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import com.google.common.flogger.FluentLogger
 
 
 data class Billboard(
-    val id: String,
     var pool: Set<Pair<Ad, Similarity>>,
     var interest: List<Float> = emptyList(),
     var counter: Int = 0
@@ -27,6 +27,8 @@ class PoolManager(config: Config) {
 
     private val repositoryService = RepositoryService.createFor(AdWithFeature::class.java)
 
+    private val logger = FluentLogger.forEnclosingClass()
+
     private val mode = config.mode
 
     private val maxPoolSize = config.maxPoolSize
@@ -34,8 +36,7 @@ class PoolManager(config: Config) {
     init {
         adChangedTs.subscribe {
             val billboardId = it.header.source
-            //TODO: Log null returns
-            val billboard = billboards[billboardId] ?: return@subscribe
+            val billboard = billboards.getOrPut(billboardId) {Billboard(emptySet(), emptyList(), 0) }
             //TODO: countQR should be set to count of QR interactions
             val countQR = 0
             val interest = calcNewInterest(it.payload.ad.id, billboard, it.payload.detections.size, countQR)
@@ -51,21 +52,25 @@ class PoolManager(config: Config) {
                 updateBillboardPool(it.value)
                 adPoolChangedTs.publish(AdPoolChanged(it.value.pool), TopicContext(individual = it.key))
             }
-        }, 0, 10, TimeUnit.SECONDS)
+        }, 0, 1, TimeUnit.SECONDS)
     }
 
-    private fun calcNewInterest(adId: String, billboard: Billboard, detectionsLength: Int, countQR: Int): List<Float> {
+    fun calcNewInterest(adId: String, billboard: Billboard, detectionsLength: Int, countQR: Int): List<Float> {
         return when (mode) {
             Mode.SIM -> {
-                val ad = repositoryService.findById(adId) ?: return emptyList()
+                val ad = repositoryService.find {adWithFeature ->  adWithFeature.id == adId}
+                if (ad == null) {
+                    logger.atWarning().log("AdWithFeature not found")
+                    return emptyList()
+                }
                 val adFeature = ad.feature
                 val interest = billboard.interest
                 val counter = billboard.counter
-                val ratio = countQR / detectionsLength
+                val ratio = countQR / detectionsLength.toFloat()
                 val factor = ratio / countQR
                 val newInterest = adFeature
                     .map { factor * it }
-                    .mapIndexed { i, feature -> feature + interest[i] * ((counter - 1) / counter) }
+                    .mapIndexed { i, feature -> feature + interest[i] * ((counter - 1) / counter.toFloat()) }
                 newInterest
             }
             Mode.REAL -> {
@@ -75,7 +80,7 @@ class PoolManager(config: Config) {
         }
     }
 
-    private fun updateBillboardPool(billboard: Billboard) {
+    fun updateBillboardPool(billboard: Billboard) {
 
         val iteratorAds = repositoryService.findAll()
 
@@ -104,6 +109,10 @@ class PoolManager(config: Config) {
             normB += Math.pow(vec2[i].toDouble(), 2.0)
         }
         return (dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))).toFloat()
+    }
+
+    fun get(billboardId: String): Billboard? {
+        return billboards[billboardId]
     }
 
 }
