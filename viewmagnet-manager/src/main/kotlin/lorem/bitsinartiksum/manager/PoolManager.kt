@@ -74,7 +74,21 @@ class PoolManager(config: Config) {
                 newInterest
             }
             Mode.REAL -> {
-                //TODO; handlethis
+                //TODO: Changes may be required for Real mode
+                val ad = repositoryService.find {adWithFeature ->  adWithFeature.id == adId}
+                if (ad == null) {
+                    logger.atWarning().log("AdWithFeature not found")
+                    return emptyList()
+                }
+                val adFeature = ad.feature
+                val interest = billboard.interest
+                val counter = billboard.counter
+                val ratio = countQR / detectionsLength.toFloat()
+                val factor = ratio / countQR
+                val newInterest = adFeature
+                    .map { factor * it }
+                    .mapIndexed { i, feature -> feature + interest[i] * ((counter - 1) / counter.toFloat()) }
+                newInterest
                 return emptyList()
             }
         }
