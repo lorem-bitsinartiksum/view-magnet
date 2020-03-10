@@ -9,7 +9,7 @@ import java.awt.Color
 data class Daemon(
     val cfg: Config = Config(),
     val adDisplay: AdDisplay = AdDisplay(
-        AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
+        AdDisplay.loadImg("https://wallpaperaccess.com/full/173836.jpg")!!,
         200,
         300
     ),

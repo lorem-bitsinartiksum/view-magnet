@@ -4,28 +4,37 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import model.Ad
 import model.AdPoolChanged
 import model.BillboardEnvironment
 import model.Weather
 import topic.TopicContext
 import topic.TopicService
 import java.util.*
-import java.util.logging.LogManager
+import java.util.concurrent.Executors
 
-class Other() {
-    init {
-        println("ASDDAS")
-        val otherTs = TopicService.createFor(AdPoolChanged::class.java, "test-pub2", TopicContext())
-
-        otherTs.subscribe { println("RECEIVED $it") }
-    }
-}
 fun main() = runBlocking<Unit> {
-    LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream("logging.properties"))
 
-//    println(ClassLoader.getSystemResourceAsStream("logging.properties")?.readAllBytes().toString())
-    val d = Daemon()
-    d.start()
+    Executors.newSingleThreadExecutor().execute {
+        val d = Daemon()
+        d.start()
+
+    }
+
+    val newPool = setOf(
+        Ad(
+            "t1",
+            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
+        ) to 0.6f,
+        Ad(
+            "t2",
+            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
+        ) to 0.4f
+    )
+    delay(1500)
+    val ts = TopicService.createFor(AdPoolChanged::class.java, "pool-changer", TopicContext())
+    ts.publish(AdPoolChanged(newPool))
+
 //    val cfg = Config()
 //
 //    val display = AdDisplay(
@@ -70,7 +79,7 @@ fun main() = runBlocking<Unit> {
 fun CoroutineScope.envUpdate() = produce {
     while (true) {
         var t = 1
-        send(BillboardEnvironment(Weather.FOG, t++.toFloat(), (t * 10).toFloat(),t.toLong(), (t+20).toLong(),t,"country",t.toFloat()))
+        send(BillboardEnvironment(Weather.FOG, t++, t * 10))
         delay(2000)
     }
 }

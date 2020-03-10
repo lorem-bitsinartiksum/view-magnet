@@ -9,7 +9,6 @@ import topic.TopicService
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
-import java.time.Duration
 import java.util.concurrent.Executors
 import kotlin.concurrent.timer
 
@@ -26,16 +25,8 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     var pool: AdPool = setOf(
         Ad(
             "t1",
-            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-        ) to 0.5f,
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
-        ) to 0.2f,
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
-        ) to 0.64f
+            "https://wallpaperaccess.com/full/173836.jpg"
+        ) to 0.1f
     )
         private set
 
@@ -47,18 +38,13 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             updateDisplay(newAd)
         }
 
-    private var schedule: MutableList<AdTrack> = mutableListOf(AdTrack(currentAd, 1.0f, Duration.ZERO))
-    private var nextAdIdx = 0
+    private var schedule = Schedule(pool.toList(), cfg.window)
 
     fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
         synchronized(schedule) {
             pool = newPool
-            nextAdIdx = 0
-            val totalSim = pool.fold(0f) { total, (_, sim) -> total + sim }
-            schedule = pool.map { (ad, sim) ->
-                AdTrack(ad, sim, Duration.ofMillis((cfg.period.toMillis() * sim / totalSim).toLong()))
-            }.toMutableList()
-            logger.atInfo().log("Refreshing Pool $newPool")
+            schedule = Schedule(pool.toList(), cfg.window)
+            println("REFRESHING POOL $newPool")
         }
     }
 
@@ -75,26 +61,9 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
     fun start() {
         startWatching()
-
         timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
             synchronized(schedule) {
-                if (nextAdIdx == 0 && schedule.isEmpty())
-                    return@synchronized
-
-                val prevAd = schedule.getOrNull(nextAdIdx - 1)
-
-                if (prevAd != null) {
-                    prevAd.remaining = prevAd.remaining.minus(cfg.period)
-                    if (prevAd.remaining.isZero || prevAd.remaining.isNegative) {
-                        schedule.removeAt(nextAdIdx - 1)
-                        nextAdIdx--
-                    }
-                }
-
-                if (schedule.isNotEmpty()) {
-                    val nextAd = schedule[nextAdIdx++ % schedule.size]
-                    currentAd = nextAd.ad
-                }
+                currentAd = schedule.next() ?: currentAd
             }
         }
     }
@@ -115,6 +84,8 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     val jackson = jacksonObjectMapper()
 
     private fun startWatching() {
+        runPythonScript("test.py") {
+//            println("READ: $it")
         var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
         var envRef: BillboardEnvironment
 
