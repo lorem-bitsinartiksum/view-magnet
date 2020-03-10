@@ -5,16 +5,22 @@ import model.Ad
 import model.AdChanged
 import model.AdPoolChanged
 import model.Similarity
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import model.*
 import topic.TopicContext
 import topic.TopicService
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Duration
 import java.util.concurrent.Executors
+
 import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
 data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
+data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
 
@@ -94,33 +100,101 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         }
     }
 
+    private inline fun <reified T> parse(field: String, output: String): T? {
+        return if (output.startsWith(field)) {
+            val found = output.subSequence(output.indexOf(" ") + 1, output.length).toString()
+            when (T::class) {
+                Long::class -> found.toLong() as T
+                Float::class -> found.toFloat() as T
+                Int::class -> found.toInt() as T
+                String::class -> found.toString() as T
+                else -> null
+            }
+        } else null
+    }
+
+    val jackson = jacksonObjectMapper()
 
     private fun startWatching() {
-        runPythonScript("test.py") {
-            println("READ: $it")
+        var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
+        var envRef: BillboardEnvironment
+
+        runPythonScript("weather-info\\weather.py") {
+            val json = jackson.readTree(it)
+            if(!json.isEmpty){
+                val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
+                val temp = (json.path("main").get("temp").asText("0")).toFloat()
+                val wind = (json.path("wind").get("speed").asText("0")).toFloat()
+                val sunrise = (json.path("sys").get("sunrise").asText("0")).toLong()
+                val sunset = (json.path("sys").get("sunset").asText("0")).toLong()
+                val timezone = (json.get("timezone").asText("0")).toInt()
+                val country = (json.path("sys").get("country").asText("UNKNOWN")).toString()
+
+                weatherInfo = weatherInfo(weather = weather, tempC = temp, windSpeed = wind, sunrise = sunrise, sunset = sunset, timezone = timezone, country = country)
+                print(weatherInfo)
+            }
         }
+
+        runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
+            println("READ Desibel: $it")
+            val sound = it.toFloat()
+
+            if(sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)){
+                envRef = BillboardEnvironment(weather = weatherInfo.weather, tempC = weatherInfo.tempC, windSpeed = weatherInfo.windSpeed, sunrise = weatherInfo.sunrise, sunset = weatherInfo.sunset, timezone = weatherInfo.timezone, country = weatherInfo.country, soundDb = sound)
+                println(envRef.toString())
+            }
+        }
+
+        runPythonScriptWithBatch("age-gender-pred") {
+            if (it.startsWith("age-gender : ")) {
+                println("READ : $it")
+            }
+            else if(it.startsWith("object : ")){
+                if(it.contains("dog", ignoreCase=true)){
+                    println("DOG DOG DOG")
+                }
+                else if(it.contains("person", ignoreCase=true)){
+                    println("PERSON PERSON PERSON")
+                }
+                else{
+                    println("READ : $it")
+                }
+            }
+        }
+
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
-
         val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
 
-        val builder = ProcessBuilder("python3", scriptPath.toString()).redirectErrorStream(true)
-        val proc = builder.start()
-        // We wont be sending anything.
-        proc.outputStream.close()
-
         Executors.newSingleThreadExecutor().execute {
+            val command = "python $scriptPath";
+            val process = Runtime.getRuntime().exec(command)
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
 
-            val out = proc.inputStream
-            val reader = out.bufferedReader()
-            while (proc.isAlive) {
-                if (out.available() > 0)
-                    handler(reader.readLine())
-                else {
-                    Thread.sleep(10)
-                }
+            var line = reader.readLine()
+            while (line != null) {
+                handler(line)
+                line = reader.readLine()
             }
+            process.waitFor();
+        }
+    }
+
+    private fun runPythonScriptWithBatch(name: String, handler: (String) -> Unit) {
+        val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
+        Executors.newSingleThreadExecutor().execute {
+            val process =
+                ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            process.outputStream.close();
+
+            var line = reader.readLine()
+            while (line != null) {
+                handler(line)
+                line = reader.readLine()
+            }
+            process.waitFor();
         }
     }
 }

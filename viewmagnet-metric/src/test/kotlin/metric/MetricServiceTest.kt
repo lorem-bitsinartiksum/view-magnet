@@ -42,7 +42,7 @@ internal class MetricServiceTest {
     @Test
     fun `published BillboardStatus should create BillboardStatus metric on influxdb`() {
         val topicService = TopicService.createFor(BillboardStatus::class.java, "metric-service-test", TopicContext())
-        val billboardEnvironment = BillboardEnvironment(Weather.SUNNY,10,10)
+        val billboardEnvironment = BillboardEnvironment(Weather.CLOUDS, Float.MIN_VALUE, Float.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE, Int.MIN_VALUE,"country",Float.MIN_VALUE)
         val billboardStatus = BillboardStatus(Health.UP,"12", billboardEnvironment)
         println("Published $billboardStatus")
         topicService.publish(billboardStatus)
