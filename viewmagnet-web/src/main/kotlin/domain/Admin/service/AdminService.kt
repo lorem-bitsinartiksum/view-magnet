@@ -50,7 +50,12 @@ class AdminService(private val jwtProvider: JwtProvider, private val adminReposi
 
     fun update(email: String?, admin: Admin): Admin? {
         email ?: throw HttpResponseException(HttpStatus.NOT_ACCEPTABLE_406, "admin not found to update.")
-        return adminRepository.update(email, admin.copy(password = String(base64Encoder.encode(Cipher.encrypt(admin.password)))))
+        return if(admin.password.isNullOrEmpty()){
+            adminRepository.update(email, admin)
+        }else{
+            adminRepository.update(email, admin.copy(password = String(base64Encoder.encode(Cipher.encrypt(admin.password)))))
+        }
+
     }
 
     private fun generateJwtToken(admin: Admin): String? {
