@@ -51,6 +51,7 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
                     .tag("billboard_id", billboardId)
                     .addField("person_age", it.age.toString())
                     .tag("person_gender", it.gender.toString())
+                    .tag("mode", mode.toString())
                     .build()
             )
         }
@@ -108,6 +109,7 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
                 .addField("timezone", billboardStatus.env.timezone)
                 .addField("country", billboardStatus.env.country)
                 .addField("sound_dB", billboardStatus.env.soundDb)
+                .tag("mode", mode.toString())
                 .build()
         )
     }
@@ -125,8 +127,8 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
         return results.first().series.first().values
             .map { mutableList ->
                 Person(
-                    Gender.valueOf(mutableList[4].toString()),
-                    Age.valueOf(mutableList[3].toString())
+                    Gender.valueOf(mutableList[5].toString()),
+                    Age.valueOf(mutableList[4].toString())
                 )
             }[0]
     }
@@ -153,14 +155,14 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
                     Health.valueOf(mutableList[4].toString()),
                     mutableList[1].toString(),
                     BillboardEnvironment(
-                        Weather.valueOf(mutableList[10].toString()),
-                        mutableList[8].toString().toFloat(),
-                        mutableList[11].toString().toFloat(),
-                        mutableList[6].toString().toDouble().toLong(),
+                        Weather.valueOf(mutableList[11].toString()),
+                        mutableList[9].toString().toFloat(),
+                        mutableList[12].toString().toFloat(),
                         mutableList[7].toString().toDouble().toLong(),
-                        mutableList[9].toString().toDouble().toInt(),
+                        mutableList[8].toString().toDouble().toLong(),
+                        mutableList[10].toString().toDouble().toInt(),
                         mutableList[3].toString(),
-                        mutableList[5].toString().toFloat()
+                        mutableList[6].toString().toFloat()
                     )
                 )
             }[0]
@@ -201,6 +203,7 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
                 .tag("billboard_id", billboardId)
                 .tag("ad_id", adId)
                 .addField("duration_ms", durationMs)
+                .tag("mode", mode.toString())
                 .build()
         )
 
