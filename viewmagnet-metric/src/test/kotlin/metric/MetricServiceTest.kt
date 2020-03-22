@@ -60,7 +60,7 @@ internal class MetricServiceTest {
         topicService.publish(adPoolChanged)
         Thread.sleep(1000)
         val adPoolLastRecord = metricService.getLastAdPoolRecord()
-        Assert.assertEquals(adPoolChanged, adPoolLastRecord)
+        Assert.assertEquals("2" to 0.9f, adPoolLastRecord)
     }
 
     @Test

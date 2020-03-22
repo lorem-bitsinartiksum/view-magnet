@@ -150,12 +150,17 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
         return results.first().series.first().values
             .map { mutableList ->
                 BillboardStatus(
-                    Health.valueOf(mutableList[3].toString()),
+                    Health.valueOf(mutableList[4].toString()),
                     mutableList[1].toString(),
                     BillboardEnvironment(
-                        Weather.valueOf(mutableList[6].toString()),
-                        mutableList[5].toString().toDouble().toInt(),
-                        mutableList[4].toString().toDouble().toInt()
+                        Weather.valueOf(mutableList[10].toString()),
+                        mutableList[8].toString().toFloat(),
+                        mutableList[11].toString().toFloat(),
+                        mutableList[6].toString().toDouble().toLong(),
+                        mutableList[7].toString().toDouble().toLong(),
+                        mutableList[9].toString().toDouble().toInt(),
+                        mutableList[3].toString(),
+                        mutableList[5].toString().toFloat()
                     )
                 )
             }[0]
@@ -173,7 +178,7 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
         }
     }
 
-    fun getLastAdPoolRecord(): AdPoolChanged? {
+    fun getLastAdPoolRecord(): Pair<String, Similarity>? {
         val query = Query(
             createQueryLastRecord(adPoolMeasurement),
             dbName
@@ -185,14 +190,7 @@ class MetricService @JvmOverloads constructor (private val mode: Mode,
         }
         return results.first().series.first().values
             .map { mutableList ->
-                val poolSet = mutableSetOf<String>()
-                mutableList.forEachIndexed { index, e ->
-                    if (index != 0) {
-                        poolSet.add(e.toString())
-                    }
-                }
-                AdPoolChanged(poolSet
-                )
+                mutableList[1].toString() to mutableList[4].toString().toFloat()
             }[0]
     }
 
