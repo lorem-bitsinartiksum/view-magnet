@@ -11,7 +11,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
+class MetricService @JvmOverloads constructor (private val mode: Mode,
+                                               private val influxDB: InfluxDB,
                                                private val dbName: String = "viewmagnet_influx") {
 
     private val personMeasurement: String = "person"
@@ -101,6 +102,11 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
                 .tag("ad_id", billboardStatus.adId)
                 .addField("weather", billboardStatus.env.weather.toString())
                 .addField("temp_C", billboardStatus.env.tempC)
+                .addField("wind_speed", billboardStatus.env.windSpeed)
+                .addField("sunrise", billboardStatus.env.sunrise)
+                .addField("sunset", billboardStatus.env.sunset)
+                .addField("timezone", billboardStatus.env.timezone)
+                .addField("country", billboardStatus.env.country)
                 .addField("sound_dB", billboardStatus.env.soundDb)
                 .build()
         )
@@ -155,13 +161,16 @@ class MetricService @JvmOverloads constructor (private val influxDB: InfluxDB,
             }[0]
     }
 
-    fun createAdPool(adIdList: Set<String>, timestamp: Long) {
-        val pointBuilder = Point.measurement(adPoolMeasurement)
-        pointBuilder.time(timestamp, TimeUnit.MILLISECONDS)
-        adIdList.forEachIndexed { index, s ->
-            pointBuilder.addField("ad_pool_item_" + index, s)
+    fun createAdPool(billboardId: String, pool: Set<Pair<Ad, Similarity>>, timestamp: Long) {
+        pool.forEachIndexed { index, element ->
+            val pointBuilder = Point.measurement(adPoolMeasurement)
+            pointBuilder.time(timestamp, TimeUnit.MILLISECONDS)
+            pointBuilder.tag("billboard_id", billboardId)
+            pointBuilder.tag("ad_id", element.first.id)
+            pointBuilder.addField("similarity", element.second)
+            pointBuilder.tag("mode", mode.toString())
+            influxDB.write(dbName, "", pointBuilder.build())
         }
-        influxDB.write(dbName, "", pointBuilder.build())
     }
 
     fun getLastAdPoolRecord(): AdPoolChanged? {
