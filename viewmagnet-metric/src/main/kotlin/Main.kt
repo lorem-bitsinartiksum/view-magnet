@@ -14,7 +14,7 @@ data class MetricCount(val count: Int = 0)
 data class FieldAverage(val average: Double = 0.0)
 
 
-private val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
+val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086", "root", "root") }
 
 private val tsAdChanged = TopicService.createFor(AdChanged::class.java, "metric-service", TopicContext())
 
