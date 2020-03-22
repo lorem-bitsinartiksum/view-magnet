@@ -131,4 +131,5 @@ buildNumber.properties
 # End of https://www.gitignore.io/api/maven,kotlin,intellij
 
 .vscode
+.env
 /pretrained_models/weights.18-4.06.hdf5
