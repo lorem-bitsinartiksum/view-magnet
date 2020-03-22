@@ -1,8 +1,10 @@
 package domain.User.repository
 
 import com.mongodb.client.model.Filters
+import domain.Ad.Ad
 import domain.User.User
 import org.litote.kmongo.*
+import java.util.*
 
 class UserRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
@@ -26,18 +28,33 @@ class UserRepository() {
     }
 
     fun update(email: String, user: User): User?{
-        if (user.username != null)
+        val colAd = database.getCollection<Ad>() //KMongo extension method
+
+        if (user.username != null){
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::username, user.username))
             col.updateMany(Filters.eq("email", email), SetTo(User::username, user.username))
-        if (user.password != null)
+        }
+        if (user.password != null){
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::password, user.password))
             col.updateMany(Filters.eq("email", email), SetTo(User::password, user.password))
-        if (user.phone != null)
+        }
+        if (user.phone != null){
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::phone, user.phone))
             col.updateMany(Filters.eq("email", email), SetTo(User::phone, user.phone))
-        if (user.location != null)
+        }
+        if (user.location != null){
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::location, user.location))
             col.updateMany(Filters.eq("email", email), SetTo(User::location, user.location))
+        }
         if (user.email != null){
+            val now = Date()
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now))
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::email, user.email))
             col.updateMany(Filters.eq("email", email), SetTo(User::email, user.email))
             return findByEmail(user.email)
         }
+        val now = Date()
+        colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now))
         return findByEmail(email)
     }
 
