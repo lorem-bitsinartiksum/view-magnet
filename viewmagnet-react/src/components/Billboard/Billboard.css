@@ -1,0 +1,32 @@
+.billboard {
+    display: grid;
+    grid-template-columns: 2.9fr 1.8fr;
+    grid-template-rows: 0.4fr 1.6fr 1fr;
+    grid-template-areas: "poster header" "poster info" "poster info";
+    font-family: "Helvetica Neue", serif;
+    height: 350px;
+    width: 400px;
+}
+
+.header {
+    grid-area: header;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    justify-self: center;
+}
+
+.poster {
+    grid-area: poster;
+    background: #3fc1c9;
+    border-radius: 12px;
+    border: 2px solid white;
+}
+
+.info {
+    grid-area: info;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 14px;
+    margin-left: 4px;
+    grid-auto-rows: 20px;
+}
