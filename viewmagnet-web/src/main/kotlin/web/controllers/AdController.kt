@@ -1,16 +1,20 @@
 package web.controllers
 
-import model.AdDTO
-import model.AdsDTO
 import domain.Ad.service.AdService
 import io.javalin.Context
+import model.Ad
+import model.AdReq
+
+data class AdReqDTO(val ad: AdReq?)
+data class AdDTO(val ad: Ad?)
+data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
 
 class AdController(private val adService: AdService) {
 
     fun create(ctx: Context) {
-        ctx.validatedBody<AdDTO>()
+        ctx.validatedBody<AdReqDTO>()
             .check({ !it.ad?.title.isNullOrBlank() })
-            .check({ !it.ad?.description.isNullOrBlank() })
+            .check({ !it.ad?.content.isNullOrBlank() })
             .getOrThrow().ad?.also { ad ->
             adService.create(ctx.attribute("email"), ad).apply {
                 ctx.json(AdDTO(this))
@@ -26,8 +30,8 @@ class AdController(private val adService: AdService) {
 
     fun update(ctx: Context) {
         val id = ctx.validatedPathParam("id").getOrThrow()
-        ctx.validatedBody<AdDTO>()
-            .check({ !it.ad?.title.isNullOrBlank() })
+        ctx.validatedBody<AdReqDTO>()
+            //.check({ !it.ad?.title.isNullOrBlank() })
             .getOrThrow().ad?.also { ad ->
             adService.update(ctx.attribute("email"),id, ad).apply {
                 ctx.json(AdDTO(this))

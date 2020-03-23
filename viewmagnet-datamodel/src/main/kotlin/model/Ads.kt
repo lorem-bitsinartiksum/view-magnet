@@ -12,19 +12,15 @@ data class AdChanged(
     val detections: List<Person>
 )
 
-data class AdDTO(val ad: Ad?)
-
-data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
-
-data class Ad(
-    val id: String ? = null,
+data class AdReq(
+    val id: String? = null,
     val content: String? = null,
     val user: User? = null,
-    val title: String,
-    val description: String,
-    val targetGender: List<Gender>?= null,
-    val targetAge: List<Age>?= null,
-    val targetWeather: List<Weather>?= null,
+    val title: String? = null,
+    val description: String? = null,
+    val targetGender: List<Gender>? = null,
+    val targetAge: List<Age>? = null,
+    val targetWeather: List<Weather>? = null,
     val targetLowTemp: Int? = null,
     val targetHighTemp: Int? = null,
     val targetLowSoundLevel: Int? = null,
@@ -32,32 +28,52 @@ data class Ad(
     val createdAt: Date? = null,
     val updatedAt: Date? = null)
 
-data class AdWithFeature(
-    val id: String ? = null,
+data class Ad(
+    override val id: String,
     val content: String,
-    val user: User? = null,
-    val title: String,
-    val description: String,
-    val targetGender: List<Gender>?= null,
-    val targetAge: List<Age>?= null,
-    val targetWeather: List<Weather>?= null,
-    val targetLowTemp: Int? = null,
-    val targetHighTemp: Int? = null,
-    val targetLowSoundLevel: Int? = null,
-    val targetHighSoundLevel: Int? = null,
-    val createdAt: Date? = null,
-    val updatedAt: Date? = null,
-    val feature : List<Float> = emptyList())
+    val user: User = User(id = null, email = "", location = null, phone = null, username = null, password = null, token = null),
+    val title: String = "",
+    val description: String = "",
+    val targetGender: List<Gender> = emptyList(),
+    val targetAge: List<Age> = emptyList(),
+    val targetWeather: List<Weather> = emptyList(),
+    val targetLowTemp: Int = 0,
+    val targetHighTemp: Int = 0,
+    val targetLowSoundLevel: Int = 0,
+    val targetHighSoundLevel: Int = 0,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()) : Persistable
+
+data class AdWithFeature(
+    override val id: String,
+    val content: String,
+    val feature : List<Float> = emptyList(),
+    val user: User = User(id = null, email = "", location = null, phone = null, username = null, password = null, token = null),
+    val title: String = "",
+    val description: String = "",
+    val targetGender: List<Gender> = emptyList(),
+    val targetAge: List<Age> = emptyList(),
+    val targetWeather: List<Weather> = emptyList(),
+    val targetLowTemp: Int = 0,
+    val targetHighTemp: Int = 0,
+    val targetLowSoundLevel: Int = 0,
+    val targetHighSoundLevel: Int = 0,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()) : Persistable
+
 
 data class Person(val gender: Gender, val age: Age)
 
-
 enum class Gender {
-    MALE, FEMALE, UNDETECTED
+    MAN,
+    WOMAN,
+    UNDETECTED
 }
 
 enum class Age {
-    BABY, CHILD, YOUNG, ADULT, ELDERLY
+    BABY,
+    CHILD,
+    YOUNG,
+    ADULT,
+    ELDERLY
 }
-
-

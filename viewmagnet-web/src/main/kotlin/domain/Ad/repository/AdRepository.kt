@@ -3,6 +3,7 @@ package domain.Ad.repository
 import com.github.slugify.Slugify
 import com.mongodb.client.model.Filters
 import model.Ad
+import model.AdReq
 import org.litote.kmongo.*
 import java.util.*
 
@@ -22,7 +23,7 @@ class AdRepository() {
         col.deleteOne(Filters.eq("id", id))
     }
 
-    fun update(id: String, ad: Ad): Ad? {
+    fun update(id: String, ad: AdReq): Ad? {
         if (ad.description != null)
             col.updateMany(Filters.eq("id", id), SetTo(Ad::description, ad.description))
         if (ad.content != null)

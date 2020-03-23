@@ -10,6 +10,7 @@ import io.javalin.BadRequestResponse
 import domain.User.repository.UserRepository
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
+import java.util.*
 
 class AdService(private val adRepository: AdRepository,
                 private val userRepository: UserRepository,
@@ -19,12 +20,69 @@ class AdService(private val adRepository: AdRepository,
         return enumValues<T>().any { it.name == name}
     }
 
-    fun create(email: String?, ad: Ad): Ad {
+    fun create(email: String?, ad: AdReq): Ad {
+        var description: String = ""
+        var targetGender: List<Gender> = emptyList()
+        var targetAge: List<Age> = emptyList()
+        var targetWeather: List<Weather> = emptyList()
+        var targetLowTemp: Int = 0
+        var targetHighTemp: Int = 0
+        var targetLowSoundLevel: Int = 0
+        var targetHighSoundLevel: Int = 0
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        if (ad.description != null){
+            description = ad.description!!
+        }
+        if (ad.targetGender != null){
+            targetGender = ad.targetGender!!
+        }
+        if (ad.targetAge != null){
+            targetAge = ad.targetAge!!
+        }
+        if (ad.targetWeather != null){
+            targetWeather = ad.targetWeather!!
+        }
+        if (ad.targetLowTemp != null){
+            targetLowTemp = ad.targetLowTemp!!
+        }
+        if (ad.targetHighTemp != null){
+            targetHighTemp = ad.targetHighTemp!!
+        }
+        if (ad.targetLowSoundLevel != null){
+            targetLowSoundLevel = ad.targetLowSoundLevel!!
+        }
+        if (ad.targetHighSoundLevel != null){
+            targetHighSoundLevel = ad.targetHighSoundLevel!!
+        }
+        if (ad.createdAt != null){
+            createdAt = ad.createdAt!!
+        }
+        if (ad.updatedAt != null){
+            updatedAt = ad.updatedAt!!
+        }
+
         email ?: throw BadRequestResponse("invalid user to create ad") as Throwable
         return userRepository.findByEmail(email).let { user ->
             user ?: throw BadRequestResponse("invalid user to create ad")
             adRepository.create(
-                ad.copy(id = Slugify().slugify(ad.title), user = user))
+                Ad(
+                    id = Slugify().slugify(ad.title),
+                    content = ad.content!!,
+                    user = user,
+                    title = ad.title!!,
+                    description = description,
+                    targetGender=targetGender,
+                    targetAge = targetAge,
+                    targetWeather = targetWeather,
+                    targetLowTemp = targetLowTemp,
+                    targetHighTemp = targetHighTemp,
+                    targetLowSoundLevel = targetLowSoundLevel,
+                    targetHighSoundLevel = targetHighSoundLevel,
+                    createdAt = createdAt,
+                    updatedAt = updatedAt
+                ))
                 ?: throw InternalServerErrorResponse("Error to create ad.")
         }
     }
@@ -37,10 +95,9 @@ class AdService(private val adRepository: AdRepository,
             adRepository.delete(id)
         else
             throw UnauthorizedResponse("Unauthorized User")
-
     }
 
-    fun update(email: String?,id: String, ad: Ad): Ad? {
+    fun update(email: String?,id: String, ad: AdReq): Ad? {
         val adOld = findById(email,id) ?: throw NotFoundResponse()
         val admin = email?.let { adminRepository.findByEmail(it) }
         if (adOld.user?.email.equals(email) || !admin?.email.isNullOrBlank())
@@ -50,7 +107,6 @@ class AdService(private val adRepository: AdRepository,
         else
             throw UnauthorizedResponse("Unauthorized User")
     }
-
 
     fun findById(email: String?, id: String): Ad? {
         var ad =  adRepository.findById(id) ?: throw NotFoundResponse()

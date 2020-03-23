@@ -9,14 +9,13 @@ package io.javalin.util
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
-import model.Ad
-import model.AdDTO
-import model.Admin
-import model.AdminDTO
-import model.User
-import model.UserDTO
+import model.*
 import io.javalin.core.util.Header
 import io.javalin.json.JavalinJson
+
+data class AdReqDTO(val ad: AdReq?)
+data class AdDTO(val ad: Ad?)
+data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
 
 class HttpUtil(port: Int) {
     private val json = "application/json"
@@ -97,14 +96,14 @@ class HttpUtil(port: Int) {
         return admin
     }
 
-    fun createAd(ad: Ad): HttpResponse<AdDTO> {
+    fun createAd(ad: AdReq): HttpResponse<AdReqDTO> {
         createUser()
-        return post<AdDTO>("/api/ads", AdDTO(ad))
+        return post<AdReqDTO>("/api/ads", AdReqDTO(ad))
     }
 
-    fun createAd(): HttpResponse<AdDTO> {
-        return createAd(Ad(title = "volkswagen",
-            description = "volkswagen. das auto."))
+    fun createAd(): HttpResponse<AdReqDTO> {
+        return createAd(AdReq(title = "volkswagen",
+            content = "volkswagen. das auto."))
     }
 
 }
