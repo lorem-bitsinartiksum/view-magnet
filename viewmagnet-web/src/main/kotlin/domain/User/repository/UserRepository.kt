@@ -1,7 +1,7 @@
 package domain.User.repository
 
 import com.mongodb.client.model.Filters
-import domain.Ad.Ad
+import model.Ad
 import model.User
 import org.litote.kmongo.*
 import java.util.*

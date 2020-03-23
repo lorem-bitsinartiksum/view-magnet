@@ -1,7 +1,7 @@
 package web.controllers
 
-import domain.Ad.AdDTO
-import domain.Ad.AdsDTO
+import model.AdDTO
+import model.AdsDTO
 import domain.Ad.service.AdService
 import io.javalin.Context
 
@@ -19,27 +19,27 @@ class AdController(private val adService: AdService) {
     }
 
     fun delete(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
-            adService.delete(ctx.attribute("email"), slug)
+        ctx.validatedPathParam("id").getOrThrow().also { id ->
+            adService.delete(ctx.attribute("email"), id)
         }
     }
 
     fun update(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug").getOrThrow()
+        val id = ctx.validatedPathParam("id").getOrThrow()
         ctx.validatedBody<AdDTO>()
             .check({ !it.ad?.title.isNullOrBlank() })
             .getOrThrow().ad?.also { ad ->
-            adService.update(ctx.attribute("email"),slug, ad).apply {
+            adService.update(ctx.attribute("email"),id, ad).apply {
                 ctx.json(AdDTO(this))
             }
         }
     }
 
     fun get(ctx: Context) {
-        ctx.validatedPathParam("slug")
+        ctx.validatedPathParam("id")
             .check({ it.isNotBlank() })
-            .getOrThrow().also { slug ->
-                adService.findBySlug(ctx.attribute("email"),slug).apply {
+            .getOrThrow().also { id ->
+                adService.findById(ctx.attribute("email"),id).apply {
                     ctx.json(AdDTO(this))
                 }
             }

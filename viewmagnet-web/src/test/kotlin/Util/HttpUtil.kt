@@ -9,8 +9,8 @@ package io.javalin.util
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
-import domain.Ad.Ad
-import domain.Ad.AdDTO
+import model.Ad
+import model.AdDTO
 import model.Admin
 import model.AdminDTO
 import model.User

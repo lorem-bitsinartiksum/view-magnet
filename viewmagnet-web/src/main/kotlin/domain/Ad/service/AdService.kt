@@ -1,10 +1,7 @@
 package domain.Ad.service
 
 import com.github.slugify.Slugify
-import domain.Ad.Ad
-import domain.Ad.Age
-import domain.Ad.Gender
-import domain.Ad.Weather
+import model.*
 import domain.Ad.repository.AdRepository
 import domain.Admin.repository.AdminRepository
 import io.javalin.InternalServerErrorResponse
@@ -27,36 +24,36 @@ class AdService(private val adRepository: AdRepository,
         return userRepository.findByEmail(email).let { user ->
             user ?: throw BadRequestResponse("invalid user to create ad")
             adRepository.create(
-                ad.copy(slug = Slugify().slugify(ad.title), user = user))
+                ad.copy(id = Slugify().slugify(ad.title), user = user))
                 ?: throw InternalServerErrorResponse("Error to create ad.")
         }
     }
 
-    fun delete(email: String?, slug: String) {
+    fun delete(email: String?, id: String) {
         email ?: throw BadRequestResponse("invalid user to delete ad")
-        val ad = findBySlug(email,slug) ?: throw NotFoundResponse()
+        val ad = findById(email,id) ?: throw NotFoundResponse()
         val admin = adminRepository.findByEmail(email)
         if (ad.user?.email.equals(email) || !admin?.email.isNullOrBlank())
-            adRepository.delete(slug)
+            adRepository.delete(id)
         else
             throw UnauthorizedResponse("Unauthorized User")
 
     }
 
-    fun update(email: String?,slug: String, ad: Ad): Ad? {
-        val adOld = findBySlug(email,slug) ?: throw NotFoundResponse()
+    fun update(email: String?,id: String, ad: Ad): Ad? {
+        val adOld = findById(email,id) ?: throw NotFoundResponse()
         val admin = email?.let { adminRepository.findByEmail(it) }
         if (adOld.user?.email.equals(email) || !admin?.email.isNullOrBlank())
-            return findBySlug(email,slug).run {
-                adRepository.update(slug, ad.copy(slug = slug))
+            return findById(email,id).run {
+                adRepository.update(id, ad.copy(id = id))
             }
         else
             throw UnauthorizedResponse("Unauthorized User")
     }
 
 
-    fun findBySlug(email: String?, slug: String): Ad? {
-        var ad =  adRepository.findBySlug(slug) ?: throw NotFoundResponse()
+    fun findById(email: String?, id: String): Ad? {
+        var ad =  adRepository.findById(id) ?: throw NotFoundResponse()
         val admin = email?.let { adminRepository.findByEmail(it) }
         if (ad.user?.email.equals(email) || !admin?.email.isNullOrBlank())
             return ad

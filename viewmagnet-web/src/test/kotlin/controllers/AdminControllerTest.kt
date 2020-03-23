@@ -3,13 +3,7 @@ package controllers
 import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import config.AppConfig
-import domain.Ad.Ad
-import domain.Ad.AdDTO
-import domain.Ad.AdsDTO
-import model.Admin
-import model.AdminDTO
-import model.User
-import model.UserDTO
+import model.*
 import web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After
@@ -149,7 +143,7 @@ class AdminControllerTest {
     }
 
     @Test
-    fun `delete ad by slug`() {
+    fun `delete ad by id`() {
         val email = "email_valid3@valid_email.com"
         val password = "Test3"
         http.registerUser(email, password, "username_Test3")
@@ -158,7 +152,7 @@ class AdminControllerTest {
         val adDTO = AdDTO(Ad(title = "valid_title3", description = "valid_description3"))
         val response = http.post<AdDTO>("/api/ads", adDTO)
         assertEquals(HttpStatus.OK_200,response.status)
-        val slug = response.body.ad?.slug;
+        val id = response.body.ad?.id;
 
         http.deleteToken()
 
@@ -167,7 +161,7 @@ class AdminControllerTest {
         http.registerAdmin(admin_email, admin_password, "admin_username_Test3")
         http.loginAndSetTokenHeaderForAdmin(admin_email, admin_password)
 
-        val response2 = http.delete("/api/ads/$slug")
+        val response2 = http.delete("/api/ads/$id")
         assertEquals(HttpStatus.OK_200,response2.status)
 
         http.delete("/api/user")
@@ -219,7 +213,7 @@ class AdminControllerTest {
         val adDTO = AdDTO(Ad(title = "valid_title7", description = "valid_description7"))
         val response = http.post<AdDTO>("/api/ads", adDTO)
         assertEquals(response.status, HttpStatus.OK_200)
-        val slug = response.body.ad?.slug;
+        val id = response.body.ad?.id;
 
         http.deleteToken()
         val admin_email = "admin_email_valid4@valid_email.com"
@@ -228,7 +222,7 @@ class AdminControllerTest {
         http.loginAndSetTokenHeaderForAdmin(admin_email, admin_password)
 
         val updatedAdDTO = AdDTO(Ad(title = "updated_valid_title7", description = "updated_valid_description7"))
-        val response2 = http.put<AdDTO>("/api/ads/$slug",updatedAdDTO)
+        val response2 = http.put<AdDTO>("/api/ads/$id",updatedAdDTO)
 
         assertEquals(HttpStatus.OK_200,response2.status)
         assertEquals("updated_valid_title7",response2.body.ad?.title)
