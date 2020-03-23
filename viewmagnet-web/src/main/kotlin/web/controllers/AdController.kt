@@ -2,12 +2,11 @@ package web.controllers
 
 import domain.Ad.service.AdService
 import io.javalin.Context
-import model.Ad
-import model.AdReq
+import model.*
 
 data class AdReqDTO(val ad: AdReq?)
-data class AdDTO(val ad: Ad?)
-data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
+data class AdDTO(val ad: AdWithFeature?)
+data class AdsDTO(val ads: List<AdWithFeature>, val adsCount: Int)
 
 class AdController(private val adService: AdService) {
 

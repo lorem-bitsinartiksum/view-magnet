@@ -4,6 +4,7 @@ import com.github.slugify.Slugify
 import com.mongodb.client.model.Filters
 import model.Ad
 import model.AdReq
+import model.AdWithFeature
 import org.litote.kmongo.*
 import java.util.*
 
@@ -11,11 +12,11 @@ import java.util.*
 class AdRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
     val database = client.getDatabase("ViewMagnet") //normal java driver usage
-    val col = database.getCollection<Ad>() //KMongo extension method
+    val col = database.getCollection<AdWithFeature>() //KMongo extension method
 
-    fun create(ad: Ad): Ad? {
+    fun create(ad: AdWithFeature): AdWithFeature? {
         val now = Date()
-        col.insertOne(Ad(id = ad.id, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now))
+        col.insertOne(AdWithFeature(id = ad.id, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now, feature = ad.feature))
         return findById(ad.id!!)
     }
 
@@ -23,7 +24,7 @@ class AdRepository() {
         col.deleteOne(Filters.eq("id", id))
     }
 
-    fun update(id: String, ad: AdReq): Ad? {
+    fun update(id: String, ad: AdReq): AdWithFeature? {
         if (ad.description != null)
             col.updateMany(Filters.eq("id", id), SetTo(Ad::description, ad.description))
         if (ad.content != null)
@@ -48,35 +49,35 @@ class AdRepository() {
 
     }
 
-    fun findById(id: String): Ad? {
+    fun findById(id: String): AdWithFeature? {
         return col.findOne("{id:'$id'}")
     }
 
-    fun findByEmail(email: String): List<Ad> {
+    fun findByEmail(email: String): List<AdWithFeature> {
         return col.find("{'user.email':'$email'}").toList()
     }
 
-    fun findByTitle(title: String): List<Ad> {
+    fun findByTitle(title: String): List<AdWithFeature> {
         return col.find("{title:'$title'}").toList()
     }
 
-    fun findAll(): List<Ad> {
+    fun findAll(): List<AdWithFeature> {
         return col.find().toList()
     }
 
-    fun findByAge(targetAge: String): List<Ad> {
+    fun findByAge(targetAge: String): List<AdWithFeature> {
         return col.find("{targetAge:'$targetAge'}").toList()
     }
 
-    fun findByGender(targetGender: String): List<Ad> {
+    fun findByGender(targetGender: String): List<AdWithFeature> {
         return col.find("{targetGender:'$targetGender'}").toList()
     }
 
-    fun findByWeather(targetWeather: String): List<Ad> {
+    fun findByWeather(targetWeather: String): List<AdWithFeature> {
         return col.find("{targetWeather:'$targetWeather'}").toList()
     }
 
-    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<Ad> {
+    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<AdWithFeature> {
 
         var filteredList = col.find().toList()
         if(!title.isNullOrBlank()){

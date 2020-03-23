@@ -14,8 +14,8 @@ import io.javalin.core.util.Header
 import io.javalin.json.JavalinJson
 
 data class AdReqDTO(val ad: AdReq?)
-data class AdDTO(val ad: Ad?)
-data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
+data class AdDTO(val ad: AdWithFeature?)
+data class AdsDTO(val ads: List<AdWithFeature>, val adsCount: Int)
 
 class HttpUtil(port: Int) {
     private val json = "application/json"

@@ -26,7 +26,8 @@ data class AdReq(
     val targetLowSoundLevel: Int? = null,
     val targetHighSoundLevel: Int? = null,
     val createdAt: Date? = null,
-    val updatedAt: Date? = null)
+    val updatedAt: Date? = null,
+    val feature : List<Float>? = null)
 
 data class Ad(
     override val id: String,

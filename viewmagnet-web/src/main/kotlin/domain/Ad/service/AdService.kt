@@ -20,7 +20,7 @@ class AdService(private val adRepository: AdRepository,
         return enumValues<T>().any { it.name == name}
     }
 
-    fun create(email: String?, ad: AdReq): Ad {
+    fun create(email: String?, ad: AdReq): AdWithFeature {
         var description: String = ""
         var targetGender: List<Gender> = emptyList()
         var targetAge: List<Age> = emptyList()
@@ -31,6 +31,7 @@ class AdService(private val adRepository: AdRepository,
         var targetHighSoundLevel: Int = 0
         var createdAt: Date = Date()
         var updatedAt: Date = Date()
+        var feature: List<Float> = emptyList()
 
         if (ad.description != null){
             description = ad.description!!
@@ -62,12 +63,15 @@ class AdService(private val adRepository: AdRepository,
         if (ad.updatedAt != null){
             updatedAt = ad.updatedAt!!
         }
+        if (ad.feature != null){
+            feature = ad.feature!!
+        }
 
         email ?: throw BadRequestResponse("invalid user to create ad") as Throwable
         return userRepository.findByEmail(email).let { user ->
             user ?: throw BadRequestResponse("invalid user to create ad")
             adRepository.create(
-                Ad(
+                AdWithFeature(
                     id = Slugify().slugify(ad.title),
                     content = ad.content!!,
                     user = user,
@@ -81,7 +85,8 @@ class AdService(private val adRepository: AdRepository,
                     targetLowSoundLevel = targetLowSoundLevel,
                     targetHighSoundLevel = targetHighSoundLevel,
                     createdAt = createdAt,
-                    updatedAt = updatedAt
+                    updatedAt = updatedAt,
+                    feature = feature
                 ))
                 ?: throw InternalServerErrorResponse("Error to create ad.")
         }
@@ -97,7 +102,7 @@ class AdService(private val adRepository: AdRepository,
             throw UnauthorizedResponse("Unauthorized User")
     }
 
-    fun update(email: String?,id: String, ad: AdReq): Ad? {
+    fun update(email: String?,id: String, ad: AdReq): AdWithFeature? {
         val adOld = findById(email,id) ?: throw NotFoundResponse()
         val admin = email?.let { adminRepository.findByEmail(it) }
         if (adOld.user?.email.equals(email) || !admin?.email.isNullOrBlank())
@@ -108,7 +113,7 @@ class AdService(private val adRepository: AdRepository,
             throw UnauthorizedResponse("Unauthorized User")
     }
 
-    fun findById(email: String?, id: String): Ad? {
+    fun findById(email: String?, id: String): AdWithFeature? {
         var ad =  adRepository.findById(id) ?: throw NotFoundResponse()
         val admin = email?.let { adminRepository.findByEmail(it) }
         if (ad.user?.email.equals(email) || !admin?.email.isNullOrBlank())
@@ -117,7 +122,7 @@ class AdService(private val adRepository: AdRepository,
             throw UnauthorizedResponse("Unauthorized User")
     }
 
-    fun findBy(title: String?, email: String?, targetAge: String?, targetGender: String?,targetWeather: String?): List<Ad> {
+    fun findBy(title: String?, email: String?, targetAge: String?, targetGender: String?,targetWeather: String?): List<AdWithFeature> {
         if(!targetAge.isNullOrBlank() && !enumContains<Age>(targetAge)) throw BadRequestResponse("Invalid age")
         if(!targetGender.isNullOrBlank() && !enumContains<Gender>(targetGender)) throw BadRequestResponse("Invalid gender")
         if(!targetWeather.isNullOrBlank() && !enumContains<Weather>(targetWeather)) throw BadRequestResponse("Invalid weather")

@@ -13,8 +13,8 @@ import org.junit.Test
 import web.ErrorResponse
 
 data class AdReqDTO(val ad: AdReq?)
-data class AdDTO(val ad: Ad?)
-data class AdsDTO(val ads: List<Ad>, val adsCount: Int)
+data class AdDTO(val ad: AdWithFeature?)
+data class AdsDTO(val ads: List<AdWithFeature>, val adsCount: Int)
 
 class AdControllerTest{
     private lateinit var app: Javalin
