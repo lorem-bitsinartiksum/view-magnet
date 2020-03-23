@@ -31,8 +31,8 @@ fun main() {
 fun subscribeAdChanged(metricService: MetricService) {
     tsAdChanged.subscribe {
         println("Received AdChanged from Billboard(${it.header.source})")
-        metricService.createPersonMetrics(it.payload.detections, it.header.source, it.header.createdAt, it.header.source)
-        metricService.createAdDuration(it.payload.durationMs, it.header.source, it.header.createdAt, it.header.source)
+        metricService.createPersonMetrics(it.payload.detections, it.header.source, it.header.createdAt, it.payload.ad.id)
+        metricService.createAdDuration(it.payload.durationMs, it.header.source, it.header.createdAt, it.payload.ad.id)
     }
 }
 
