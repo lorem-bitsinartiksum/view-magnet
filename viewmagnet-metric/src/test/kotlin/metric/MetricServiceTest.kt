@@ -9,11 +9,10 @@ import subscribeAdPoolChanged
 import subscribeBillboardStatus
 import topic.TopicContext
 import topic.TopicService
-import java.util.*
 
 internal class MetricServiceTest {
 
-    private val metricService = MetricService(influxDB)
+    private val metricService = MetricService(Mode.SIM, influxDB)
 
     @Before
     fun start() {
@@ -31,7 +30,7 @@ internal class MetricServiceTest {
     fun `published AdChanged should create Person metrics on influxdb`() {
         val topicService = TopicService.createFor(AdChanged::class.java, "metric-service-test", TopicContext())
         val person = Person(Gender.MAN, Age.ADULT)
-        val adChanged = AdChanged("2",10000, listOf(person))
+        val adChanged = AdChanged(Ad("0", "asd"),10000, listOf(person))
         println("Published $adChanged")
         topicService.publish(adChanged)
         Thread.sleep(1000)
@@ -54,19 +53,21 @@ internal class MetricServiceTest {
     @Test
     fun `published AdPoolChanged should create AdPool metric on influxdb`() {
         val topicService = TopicService.createFor(AdPoolChanged::class.java, "metric-service-test", TopicContext())
-        val adPoolChanged = AdPoolChanged(setOf("1", "2", "5", "6", "7", "100"))
+        val adPoolChanged = AdPoolChanged(setOf(Ad("0", "asd") to 0.2f,
+            Ad("1", "qwe") to 0.5f,
+            Ad("2", "zxc") to 0.9f))
         println("Published $adPoolChanged")
         topicService.publish(adPoolChanged)
         Thread.sleep(1000)
         val adPoolLastRecord = metricService.getLastAdPoolRecord()
-        Assert.assertEquals(adPoolChanged, adPoolLastRecord)
+        Assert.assertEquals("2" to 0.9f, adPoolLastRecord)
     }
 
     @Test
     fun `published AdChanged should create AdDuration metric on influxdb`() {
         val topicService = TopicService.createFor(AdChanged::class.java, "metric-service-test", TopicContext())
         val person = Person(Gender.MAN, Age.ADULT)
-        val adChanged = AdChanged("2",20000, listOf(person))
+        val adChanged = AdChanged(Ad("0", "asd"),20000, listOf(person))
         println("Published $adChanged")
         topicService.publish(adChanged)
         Thread.sleep(1000)
