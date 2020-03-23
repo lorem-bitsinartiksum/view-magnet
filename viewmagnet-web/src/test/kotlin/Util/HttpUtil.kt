@@ -11,10 +11,10 @@ import com.mashape.unirest.http.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import domain.Ad.Ad
 import domain.Ad.AdDTO
-import domain.Admin.Admin
-import domain.Admin.AdminDTO
-import domain.User.User
-import domain.User.UserDTO
+import model.Admin
+import model.AdminDTO
+import model.User
+import model.UserDTO
 import io.javalin.core.util.Header
 import io.javalin.json.JavalinJson
 

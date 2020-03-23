@@ -3,8 +3,8 @@ package controllers
 import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import config.AppConfig
-import domain.User.User
-import domain.User.UserDTO
+import model.User
+import model.UserDTO
 import web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After

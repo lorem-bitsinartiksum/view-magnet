@@ -1,4 +1,4 @@
-package domain.User
+package model
 
 data class UserDTO(val user: User? = null)
 

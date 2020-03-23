@@ -5,7 +5,7 @@ import io.javalin.HttpResponseException
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
 import config.Roles
-import domain.User.User
+import model.User
 import domain.User.repository.UserRepository
 import utils.Cipher
 import utils.JwtProvider

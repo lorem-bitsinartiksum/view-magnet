@@ -6,10 +6,10 @@ import config.AppConfig
 import domain.Ad.Ad
 import domain.Ad.AdDTO
 import domain.Ad.AdsDTO
-import domain.Admin.Admin
-import domain.Admin.AdminDTO
-import domain.User.User
-import domain.User.UserDTO
+import model.Admin
+import model.AdminDTO
+import model.User
+import model.UserDTO
 import web.ErrorResponse
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After

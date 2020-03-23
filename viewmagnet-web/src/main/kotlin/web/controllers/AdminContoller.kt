@@ -1,6 +1,6 @@
 package web.controllers
 
-import domain.Admin.AdminDTO
+import model.AdminDTO
 import domain.Admin.service.AdminService
 import io.javalin.Context
 import model.Ad

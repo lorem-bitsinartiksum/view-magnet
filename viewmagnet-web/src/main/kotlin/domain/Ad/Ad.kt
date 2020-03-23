@@ -1,6 +1,6 @@
 package domain.Ad
 
-import domain.User.User
+import model.User
 import java.util.*
 
 enum class Age {

@@ -2,9 +2,9 @@ package utils
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
-import domain.Admin.Admin
+import model.Admin
 import io.javalin.security.Role
-import domain.User.User
+import model.User
 import java.util.*
 
 class JwtProvider {
