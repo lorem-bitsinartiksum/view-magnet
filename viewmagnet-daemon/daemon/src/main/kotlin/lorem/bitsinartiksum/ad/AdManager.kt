@@ -1,11 +1,8 @@
 package lorem.bitsinartiksum.ad
 
-import lorem.bitsinartiksum.Config
-import model.Ad
-import model.AdChanged
-import model.AdPoolChanged
-import model.Similarity
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.common.flogger.FluentLogger
+import lorem.bitsinartiksum.Config
 import model.*
 import topic.TopicContext
 import topic.TopicService
@@ -14,7 +11,6 @@ import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Duration
 import java.util.concurrent.Executors
-
 import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
@@ -23,7 +19,7 @@ data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Durati
 data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
-
+    private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
 
@@ -62,7 +58,7 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             schedule = pool.map { (ad, sim) ->
                 AdTrack(ad, sim, Duration.ofMillis((cfg.period.toMillis() * sim / totalSim).toLong()))
             }.toMutableList()
-            println("REFRESHING POOL $newPool")
+            logger.atInfo().log("Refreshing Pool $newPool")
         }
     }
 

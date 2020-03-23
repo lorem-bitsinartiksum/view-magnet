@@ -10,6 +10,7 @@ import model.Weather
 import topic.TopicContext
 import topic.TopicService
 import java.util.*
+import java.util.logging.LogManager
 
 class Other() {
     init {
@@ -20,6 +21,9 @@ class Other() {
     }
 }
 fun main() = runBlocking<Unit> {
+    LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream("logging.properties"))
+
+//    println(ClassLoader.getSystemResourceAsStream("logging.properties")?.readAllBytes().toString())
     val d = Daemon()
     d.start()
 //    val cfg = Config()
