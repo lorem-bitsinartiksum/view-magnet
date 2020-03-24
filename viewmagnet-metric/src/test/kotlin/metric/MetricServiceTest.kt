@@ -29,7 +29,7 @@ internal class MetricServiceTest {
     @Test
     fun `published AdChanged should create Person metrics on influxdb`() {
         val topicService = TopicService.createFor(AdChanged::class.java, "metric-service-test", TopicContext())
-        val person = Person(Gender.MAN, Age.ADULT)
+        val person = Person(Gender.WOMAN, Age.CHILD)
         val adChanged = AdChanged(Ad("0", "asd"),10000, listOf(person))
         println("Published $adChanged")
         topicService.publish(adChanged)
