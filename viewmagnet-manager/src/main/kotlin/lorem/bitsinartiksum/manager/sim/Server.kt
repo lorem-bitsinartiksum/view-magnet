@@ -14,7 +14,7 @@ fun main() {
 }
 
 class ApiServer {
-    private val app = Javalin.create({ it.enableCorsForAllOrigins() })
+    private val app = Javalin.create { it.enableCorsForAllOrigins() }
     private val logger = FluentLogger.forEnclosingClass()
     private var sessions = setOf<SseClient>()
     private val jack = jacksonObjectMapper()
@@ -28,7 +28,7 @@ class ApiServer {
     }
 
     fun start() {
-        app.start(6232)
+        app.start(System.getProperty("port", "6232").toInt())
     }
 
 
