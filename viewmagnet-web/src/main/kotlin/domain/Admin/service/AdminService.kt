@@ -1,7 +1,7 @@
 package domain.Admin.service
 
 import config.Roles
-import domain.Admin.Admin
+import model.Admin
 import domain.Admin.repository.AdminRepository
 import io.javalin.BadRequestResponse
 import io.javalin.HttpResponseException

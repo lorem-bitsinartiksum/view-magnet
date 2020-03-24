@@ -37,7 +37,7 @@ class Router(
             path("ads") {
                 post(adController::create, roles(Roles.AUTHENTICATED))
                 get(adController::findBy, rolesOptionalAuthenticated)
-                path(":slug") {
+                path(":id") {
                     get(adController::get, rolesOptionalAuthenticated)
                     delete(adController::delete, rolesOptionalAuthenticated)
                     put(adController::update, rolesOptionalAuthenticated)

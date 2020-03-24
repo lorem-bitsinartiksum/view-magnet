@@ -1,7 +1,7 @@
 package web.controllers
 
 import io.javalin.Context
-import domain.User.UserDTO
+import model.UserDTO
 import domain.User.service.UserService
 
 const val MAIL_REGEX = ("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"

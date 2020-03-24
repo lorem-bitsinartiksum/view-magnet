@@ -1,4 +1,4 @@
-package domain.Admin
+package model
 
 data class AdminDTO(val admin: Admin? = null)
 
