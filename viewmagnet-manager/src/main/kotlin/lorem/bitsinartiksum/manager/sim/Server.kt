@@ -3,48 +3,83 @@ package lorem.bitsinartiksum.manager.sim
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.flogger.FluentLogger
 import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.sse.SseClient
 import lorem.bitsinartiksum.manager.HealthChecker
 
-fun main() {
 
+fun main() {
+    val server = ApiServer()
+    server.start()
 }
 
 class ApiServer {
-    val app = Javalin.create().start(6232)
+    private val app = Javalin.create({ it.enableCorsForAllOrigins() })
     private val logger = FluentLogger.forEnclosingClass()
     private var sessions = setOf<SseClient>()
     private val jack = jacksonObjectMapper()
 
     data class BillboardReq(val pos: List<Float>, val interest: List<Float>)
+    data class InterestChangeReq(val interest: List<Float>)
 
     init {
         registerRoutes()
         pushBillboardStatusUpdates()
     }
 
-    fun pushBillboardStatusUpdates() {
+    fun start() {
+        app.start(6232)
+    }
+
+
+    private fun registerRoutes() {
+
+        app.routes {
+            path("billboard") {
+                post { ctx ->
+                    val info = ctx.bodyAsClass(BillboardReq::class.java)
+                    launchNewBillboard(info.pos.joinToString(":"), info.pos, info.interest)
+                }
+                patch(":id") { ctx ->
+                    val id = ctx.pathParam("id")
+                    val req = ctx.bodyAsClass(InterestChangeReq::class.java)
+                    updateInterest(id, req.interest)
+                }
+                delete(":id") { ctx ->
+                    val id = ctx.pathParam("id")
+                    shutdownBillboard(id)
+                }
+                sse("status") { client ->
+                    client.onClose {
+                        sessions = sessions - client
+                        logger.atInfo().log("A client disconnected, total: ${sessions.size}")
+                    }
+
+                    sessions = sessions + client
+                    logger.atInfo().log("New client connected, total: ${sessions.size}")
+                }
+            }
+        }
+    }
+
+
+    private fun pushBillboardStatusUpdates() {
         val hc = HealthChecker()
         hc.subscribe { status ->
             sessions.forEach { it.sendEvent(jack.writeValueAsString(status)) }
         }
     }
 
-    fun registerRoutes() {
-        app.post("newbillboard") { ctx ->
-            val (pos, interest) = ctx.bodyAsClass(BillboardReq::class.java)
-            logger.atInfo().log("Launching new daemon @$pos with interest: $interest")
-        }
-        app.sse("status") { client ->
+    private fun launchNewBillboard(id: String, pos: List<Float>, interest: List<Float>) {
+        logger.atInfo().log("Launching new daemon $id @${pos} with interest: ${interest}")
+    }
 
-            client.onClose {
-                logger.atInfo().log("A client disconnected, total: ${sessions.size}")
-                sessions = sessions - client
-            }
+    private fun updateInterest(id: String, newInterest: List<Float>) {
+        logger.atInfo().log("Changing interest of $id to $newInterest")
+    }
 
-            logger.atInfo().log("New client connected, total: ${sessions.size}")
-            sessions = sessions + client
-        }
+    private fun shutdownBillboard(id: String) {
+        logger.atInfo().log("Shutting down billboard: $id")
     }
 
 }
