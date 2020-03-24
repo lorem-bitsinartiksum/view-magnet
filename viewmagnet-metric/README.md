@@ -19,7 +19,7 @@ Service for creating metric records on influxdb by subscribing related topics
 * Install [Grafana](https://grafana.com/docs/grafana/latest/)
 * Login on http://localhost:3000/
 * Add InfluxDB as data source to Grafana
-* Export dashboards as json in `grafana-dashboards` folder
+* Import dashboards as json in `grafana-dashboards` folder
 * Add API key with viewer role
 
 ####There are 3 dashboards
