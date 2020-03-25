@@ -12,6 +12,7 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 
 fun main() {
@@ -25,6 +26,7 @@ class ApiServer {
     private val logger = FluentLogger.forEnclosingClass()
     private var sessions = setOf<SseClient>()
     private val jack = jacksonObjectMapper()
+    private val spawnedDaemons = ConcurrentHashMap<String, Process>()
 
     data class BillboardReq(val pos: List<Float>, val interest: List<Float>)
     data class InterestChangeReq(val interest: List<Float>)
@@ -32,6 +34,10 @@ class ApiServer {
     init {
         registerRoutes()
         pushBillboardStatusUpdates()
+
+        Runtime.getRuntime().addShutdownHook(
+            Thread({ spawnedDaemons.values.forEach(Process::destroy) }, "shutdown-hook")
+        )
     }
 
     fun start() {
@@ -91,10 +97,9 @@ class ApiServer {
             daemonJarLoc
         )
 
-        Thread("BILLBOARD#$id").run {
-
+        Thread({
             val process = pBuilder.start()
-
+            spawnedDaemons[id] = process
             CompletableFuture.supplyAsync {
                 BufferedReader(InputStreamReader(process.inputStream, StandardCharsets.UTF_8)).useLines {
                     it.forEach { logger.atInfo().log("BB#$id $it") }
@@ -106,9 +111,10 @@ class ApiServer {
                     it.forEach { logger.atSevere().log("BB#$id $it") }
                 }
             }
+
             val status = process.waitFor()
             logger.atWarning().log("BB#$id exited with $status")
-        }
+        }, "BILLBOARD#$id").start()
     }
 
     private fun updateInterest(id: String, newInterest: List<Float>) {
@@ -117,6 +123,7 @@ class ApiServer {
 
     private fun shutdownBillboard(id: String) {
         logger.atInfo().log("Shutting down billboard: $id")
+        spawnedDaemons[id]?.destroy()
     }
 
 }
