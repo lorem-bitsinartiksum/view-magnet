@@ -1,5 +1,6 @@
 package lorem.bitsinartiksum
 
+import model.Mode
 import java.time.Duration
 
 
@@ -9,5 +10,6 @@ data class Config(
     val interest: List<Float> = System.getProperty("interest", "0.0, 0.0, 0.0")
         .replace("\\s", "")
         .split(",")
-        .map { it.toFloat() }
+        .map { it.toFloat() },
+    val mode: Mode = Mode.valueOf(System.getProperty("mode", "real").toUpperCase())
 )

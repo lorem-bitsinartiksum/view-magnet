@@ -2,6 +2,7 @@ package topic
 
 
 import com.google.common.flogger.FluentLogger
+import model.Mode
 import topic.internal.TSBackend
 import topic.internal.TSNatsBackend
 import topic.internal.serde.JsonSerde
@@ -45,6 +46,10 @@ class TopicService<TopicType> private constructor(
     }
 
     companion object {
+        /**
+         * mode vm arg has higher priority than mode inside passed [activeCtx],
+         * if -Dmode=SIM/REAL passed it will overwrite passed mode.
+         */
         fun <TopicType> createFor(
             topicClass: Class<TopicType>,
             serviceName: String,
@@ -56,7 +61,7 @@ class TopicService<TopicType> private constructor(
                 JsonSerde(topicClass),
                 topicClass,
                 serviceName,
-                activeCtx
+                activeCtx.copy(mode = Mode.valueOf(System.getProperty("mode", activeCtx.mode.toString()).toUpperCase()))
             )
         }
     }

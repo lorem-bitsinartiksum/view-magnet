@@ -18,7 +18,7 @@ typealias AdPool = Set<Pair<Ad, Similarity>>
 data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
 data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
-class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
+class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
@@ -66,6 +66,9 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         when (T::class.java) {
             AdPoolChanged::class.java -> {
                 refreshPool((cmd as AdPoolChanged).newPool)
+            }
+            ShowAd::class.java -> {
+                updateDisplay((cmd as ShowAd).ad)
             }
         }
     }
