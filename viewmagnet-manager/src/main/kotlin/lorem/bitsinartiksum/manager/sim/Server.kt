@@ -6,9 +6,16 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.sse.SseClient
 import lorem.bitsinartiksum.manager.HealthChecker
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
+import java.util.*
+import java.util.concurrent.CompletableFuture
 
 
 fun main() {
+    Objects.requireNonNull(System.getProperty("daemon")) { "Please set daemon path. -Ddaemon=<jarLocation>" }
     val server = ApiServer()
     server.start()
 }
@@ -70,8 +77,38 @@ class ApiServer {
         }
     }
 
-    private fun launchNewBillboard(id: String, pos: List<Float>, interest: List<Float>) {
+    fun launchNewBillboard(id: String, pos: List<Float>, interest: List<Float>) {
         logger.atInfo().log("Launching new daemon $id @${pos} with interest: ${interest}")
+
+        val javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java"
+        val daemonJarLoc = System.getProperty("daemon")
+        val pBuilder = ProcessBuilder(
+            javaBin,
+            "-Did=$id",
+            "-Dperiod=5",
+            "-Dinterest=${interest.joinToString(", ")}",
+            "-jar",
+            daemonJarLoc
+        )
+
+        Thread("BILLBOARD#$id").run {
+
+            val process = pBuilder.start()
+
+            CompletableFuture.supplyAsync {
+                BufferedReader(InputStreamReader(process.inputStream, StandardCharsets.UTF_8)).useLines {
+                    it.forEach { logger.atInfo().log("BB#$id $it") }
+                }
+            }
+
+            CompletableFuture.supplyAsync {
+                BufferedReader(InputStreamReader(process.errorStream, StandardCharsets.UTF_8)).useLines {
+                    it.forEach { logger.atSevere().log("BB#$id $it") }
+                }
+            }
+            val status = process.waitFor()
+            logger.atWarning().log("BB#$id exited with $status")
+        }
     }
 
     private fun updateInterest(id: String, newInterest: List<Float>) {
