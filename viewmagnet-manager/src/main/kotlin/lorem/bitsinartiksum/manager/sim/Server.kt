@@ -6,6 +6,12 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.sse.SseClient
 import lorem.bitsinartiksum.manager.HealthChecker
+import model.Ad
+import model.Mode
+import model.ShowAd
+import model.Shutdown
+import topic.TopicContext
+import topic.TopicService
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -17,8 +23,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 fun main() {
     Objects.requireNonNull(System.getProperty("daemon")) { "Please set daemon path. -Ddaemon=<jarLocation>" }
-    val server = ApiServer()
-    server.start()
+    var x: Int? = 4
+    x?.div(2) ?: println(23)
+//    val server = ApiServer()
+//    server.start()
 }
 
 class ApiServer {
@@ -27,9 +35,12 @@ class ApiServer {
     private var sessions = setOf<SseClient>()
     private val jack = jacksonObjectMapper()
     private val spawnedDaemons = ConcurrentHashMap<String, Process>()
+    private val showAdTs = TopicService.createFor(ShowAd::class.java, "SIM_MGR", TopicContext(mode = Mode.SIM))
+    private val shuwdownTs = TopicService.createFor(Shutdown::class.java, "SIM_MGR", TopicContext(mode = Mode.SIM))
 
     data class BillboardReq(val pos: List<Float>, val interest: List<Float>)
     data class InterestChangeReq(val interest: List<Float>)
+    data class ShowAdReq(val r: Float, val g: Float, val b: Float)
 
     init {
         registerRoutes()
@@ -62,6 +73,11 @@ class ApiServer {
                     val id = ctx.pathParam("id")
                     shutdownBillboard(id)
                 }
+                post(":id/show-ad") { ctx ->
+                    val color = ctx.bodyAsClass(ShowAdReq::class.java)
+                    val newAd = Ad(UUID.randomUUID().toString(), content = "${color.r},${color.g},${color.b}")
+                    showAdTs.publish(ShowAd(newAd))
+                }
                 sse("status") { client ->
                     client.onClose {
                         sessions = sessions - client
@@ -83,7 +99,7 @@ class ApiServer {
         }
     }
 
-    fun launchNewBillboard(id: String, pos: List<Float>, interest: List<Float>) {
+    private fun launchNewBillboard(id: String, pos: List<Float>, interest: List<Float>) {
         logger.atInfo().log("Launching new daemon $id @${pos} with interest: ${interest}")
 
         val javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java"
@@ -123,7 +139,8 @@ class ApiServer {
 
     private fun shutdownBillboard(id: String) {
         logger.atInfo().log("Shutting down billboard: $id")
-        spawnedDaemons[id]?.destroy()
+        val daemon = spawnedDaemons[id]
+        daemon?.destroy() ?: shuwdownTs.publish(Shutdown(id), TopicContext(individual = id))
     }
 
 }
