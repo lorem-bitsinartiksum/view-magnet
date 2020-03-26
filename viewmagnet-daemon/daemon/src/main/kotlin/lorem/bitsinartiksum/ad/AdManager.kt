@@ -9,6 +9,7 @@ import topic.TopicService
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
@@ -36,15 +37,15 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         private set
 
     private var schedule = Schedule(pool.toList(), cfg.window)
+    val highPriorityAds: Queue<Ad> = LinkedList()
 
-    var currentAd: Ad = pool.first().first
+    var currentAd: Ad = Ad("Default", "0,0,0")
         private set(newAd) {
             val durationMs = System.currentTimeMillis() - rollStartTime
             adChangedTs.publish(AdChanged(field, durationMs, listOf()))
             field = newAd
             updateDisplay(newAd)
         }
-
 
 
     fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
@@ -61,7 +62,8 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 refreshPool((cmd as AdPoolChanged).newPool)
             }
             ShowAd::class.java -> {
-                updateDisplay((cmd as ShowAd).ad)
+                val ad = (cmd as ShowAd).ad
+                highPriorityAds.add(ad)
             }
         }
     }
@@ -70,7 +72,10 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         startWatching()
         timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
             rwLock.read {
-                currentAd = schedule.next() ?: currentAd
+                currentAd = if (highPriorityAds.isNotEmpty())
+                    highPriorityAds.poll()
+                else
+                    schedule.next() ?: currentAd
             }
         }
     }
