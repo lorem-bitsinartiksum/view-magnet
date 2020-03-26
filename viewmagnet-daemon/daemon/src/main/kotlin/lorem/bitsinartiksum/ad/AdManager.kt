@@ -10,7 +10,10 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.Executors
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
 import kotlin.concurrent.timer
+import kotlin.concurrent.write
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
@@ -28,9 +31,11 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
-
+    private val rwLock = ReentrantReadWriteLock()
     var pool: AdPool = setOf()
         private set
+
+    private var schedule = Schedule(pool.toList(), cfg.window)
 
     var currentAd: Ad = pool.first().first
         private set(newAd) {
@@ -40,13 +45,13 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             updateDisplay(newAd)
         }
 
-    private var schedule = Schedule(pool.toList(), cfg.window)
+
 
     fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
-        synchronized(schedule) {
+        rwLock.write {
             pool = newPool
             schedule = Schedule(pool.toList(), cfg.window)
-            println("REFRESHING POOL $newPool")
+            logger.atInfo().log("Refreshing Pool New Pool: $newPool")
         }
     }
 
@@ -64,7 +69,7 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     fun start() {
         startWatching()
         timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
-            synchronized(schedule) {
+            rwLock.read {
                 currentAd = schedule.next() ?: currentAd
             }
         }
@@ -73,8 +78,6 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     val jackson = jacksonObjectMapper()
 
     private fun startWatching() {
-
-//            println("READ: $it")
         var weatherInfo = weatherInfo(
             weather = Weather.UNKNOWN,
             tempC = 0F,
