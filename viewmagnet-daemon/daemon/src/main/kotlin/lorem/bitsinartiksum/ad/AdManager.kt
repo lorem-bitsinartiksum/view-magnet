@@ -14,7 +14,6 @@ import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
-data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
 data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
 class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
@@ -66,19 +65,6 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 currentAd = schedule.next() ?: currentAd
             }
         }
-    }
-
-    private inline fun <reified T> parse(field: String, output: String): T? {
-        return if (output.startsWith(field)) {
-            val found = output.subSequence(output.indexOf(" ") + 1, output.length).toString()
-            when (T::class) {
-                Long::class -> found.toLong() as T
-                Float::class -> found.toFloat() as T
-                Int::class -> found.toInt() as T
-                String::class -> found.toString() as T
-                else -> null
-            }
-        } else null
     }
 
     val jackson = jacksonObjectMapper()
@@ -138,7 +124,7 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
 
         Executors.newSingleThreadExecutor().execute {
-            val command = "python $scriptPath";
+            val command = "python $scriptPath"
             val process = Runtime.getRuntime().exec(command)
             val reader = BufferedReader(InputStreamReader(process.inputStream))
 
@@ -147,7 +133,7 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 handler(line)
                 line = reader.readLine()
             }
-            process.waitFor();
+            process.waitFor()
         }
     }
 
@@ -157,14 +143,14 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             val process =
                 ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
             val reader = BufferedReader(InputStreamReader(process.inputStream))
-            process.outputStream.close();
+            process.outputStream.close()
 
             var line = reader.readLine()
             while (line != null) {
                 handler(line)
                 line = reader.readLine()
             }
-            process.waitFor();
+            process.waitFor()
         }
     }
 }
