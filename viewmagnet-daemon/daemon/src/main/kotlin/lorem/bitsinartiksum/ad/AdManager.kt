@@ -14,19 +14,22 @@ import kotlin.concurrent.timer
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
-data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
+data class weatherInfo(
+    val weather: Weather,
+    val tempC: Float,
+    val windSpeed: Float,
+    val sunrise: Long,
+    val sunset: Long,
+    val timezone: Int,
+    val country: String
+)
 
 class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
 
-    var pool: AdPool = setOf(
-        Ad(
-            "t1",
-            "https://wallpaperaccess.com/full/173836.jpg"
-        ) to 0.1f
-    )
+    var pool: AdPool = setOf()
         private set
 
     var currentAd: Ad = pool.first().first
@@ -70,14 +73,22 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
     val jackson = jacksonObjectMapper()
 
     private fun startWatching() {
-        runPythonScript("test.py") {
+
 //            println("READ: $it")
-        var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
+        var weatherInfo = weatherInfo(
+            weather = Weather.UNKNOWN,
+            tempC = 0F,
+            windSpeed = 0F,
+            sunrise = 0,
+            sunset = 0,
+            timezone = 0,
+            country = "country"
+        )
         var envRef: BillboardEnvironment
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)
-            if(!json.isEmpty){
+            if (!json.isEmpty) {
                 val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
                 val temp = (json.path("main").get("temp").asText("0")).toFloat()
                 val wind = (json.path("wind").get("speed").asText("0")).toFloat()
@@ -86,7 +97,15 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 val timezone = (json.get("timezone").asText("0")).toInt()
                 val country = (json.path("sys").get("country").asText("UNKNOWN")).toString()
 
-                weatherInfo = weatherInfo(weather = weather, tempC = temp, windSpeed = wind, sunrise = sunrise, sunset = sunset, timezone = timezone, country = country)
+                weatherInfo = weatherInfo(
+                    weather = weather,
+                    tempC = temp,
+                    windSpeed = wind,
+                    sunrise = sunrise,
+                    sunset = sunset,
+                    timezone = timezone,
+                    country = country
+                )
                 print(weatherInfo)
             }
         }
@@ -95,8 +114,17 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             println("READ Desibel: $it")
             val sound = it.toFloat()
 
-            if(sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)){
-                envRef = BillboardEnvironment(weather = weatherInfo.weather, tempC = weatherInfo.tempC, windSpeed = weatherInfo.windSpeed, sunrise = weatherInfo.sunrise, sunset = weatherInfo.sunset, timezone = weatherInfo.timezone, country = weatherInfo.country, soundDb = sound)
+            if (sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)) {
+                envRef = BillboardEnvironment(
+                    weather = weatherInfo.weather,
+                    tempC = weatherInfo.tempC,
+                    windSpeed = weatherInfo.windSpeed,
+                    sunrise = weatherInfo.sunrise,
+                    sunset = weatherInfo.sunset,
+                    timezone = weatherInfo.timezone,
+                    country = weatherInfo.country,
+                    soundDb = sound
+                )
                 println(envRef.toString())
             }
         }
@@ -104,20 +132,16 @@ class AdManager(val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         runPythonScriptWithBatch("age-gender-pred") {
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
-            }
-            else if(it.startsWith("object : ")){
-                if(it.contains("dog", ignoreCase=true)){
+            } else if (it.startsWith("object : ")) {
+                if (it.contains("dog", ignoreCase = true)) {
                     println("DOG DOG DOG")
-                }
-                else if(it.contains("person", ignoreCase=true)){
+                } else if (it.contains("person", ignoreCase = true)) {
                     println("PERSON PERSON PERSON")
-                }
-                else{
+                } else {
                     println("READ : $it")
                 }
             }
         }
-
     }
 
     private fun runPythonScript(name: String, handler: (String) -> Unit) {
