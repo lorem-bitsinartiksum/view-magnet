@@ -35,6 +35,8 @@ class PoolManager(config: Config) {
 
     private val maxPoolSize = config.maxPoolSize
 
+    private val threshold = config.similarityThreshold
+
     init {
         adChangedTs.subscribe {
             val billboardId = it.header.source
@@ -114,7 +116,12 @@ class PoolManager(config: Config) {
             if (ad1.second > ad2.second) 1 else -1
         }
 
-        iteratorAds.forEach { ad -> similarities.add(ad to cosineSimilarity(ad.feature, billboard.interest)) }
+        iteratorAds.forEach { ad ->
+            val pair = ad to cosineSimilarity(ad.feature, billboard.interest)
+            if (pair.second >= threshold) {
+                similarities.add(pair)
+            }
+        }
 
         val newPool = similarities.descendingIterator().asSequence().take(maxPoolSize).map {
             val adWithFeature = it.first
