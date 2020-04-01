@@ -1,16 +1,19 @@
 package web.controllers
 
-import domain.Ad.AdDTO
-import domain.Ad.AdsDTO
 import domain.Ad.service.AdService
 import io.javalin.Context
+import model.*
+
+data class AdReqDTO(val ad: AdReq?)
+data class AdDTO(val ad: AdWithFeature?)
+data class AdsDTO(val ads: List<AdWithFeature>, val adsCount: Int)
 
 class AdController(private val adService: AdService) {
 
     fun create(ctx: Context) {
-        ctx.validatedBody<AdDTO>()
+        ctx.validatedBody<AdReqDTO>()
             .check({ !it.ad?.title.isNullOrBlank() })
-            .check({ !it.ad?.description.isNullOrBlank() })
+            .check({ !it.ad?.content.isNullOrBlank() })
             .getOrThrow().ad?.also { ad ->
             adService.create(ctx.attribute("email"), ad).apply {
                 ctx.json(AdDTO(this))
@@ -19,27 +22,27 @@ class AdController(private val adService: AdService) {
     }
 
     fun delete(ctx: Context) {
-        ctx.validatedPathParam("slug").getOrThrow().also { slug ->
-            adService.delete(ctx.attribute("email"), slug)
+        ctx.validatedPathParam("id").getOrThrow().also { id ->
+            adService.delete(ctx.attribute("email"), id)
         }
     }
 
     fun update(ctx: Context) {
-        val slug = ctx.validatedPathParam("slug").getOrThrow()
-        ctx.validatedBody<AdDTO>()
-            .check({ !it.ad?.title.isNullOrBlank() })
+        val id = ctx.validatedPathParam("id").getOrThrow()
+        ctx.validatedBody<AdReqDTO>()
+            //.check({ !it.ad?.title.isNullOrBlank() })
             .getOrThrow().ad?.also { ad ->
-            adService.update(ctx.attribute("email"),slug, ad).apply {
+            adService.update(ctx.attribute("email"),id, ad).apply {
                 ctx.json(AdDTO(this))
             }
         }
     }
 
     fun get(ctx: Context) {
-        ctx.validatedPathParam("slug")
+        ctx.validatedPathParam("id")
             .check({ it.isNotBlank() })
-            .getOrThrow().also { slug ->
-                adService.findBySlug(ctx.attribute("email"),slug).apply {
+            .getOrThrow().also { id ->
+                adService.findById(ctx.attribute("email"),id).apply {
                     ctx.json(AdDTO(this))
                 }
             }

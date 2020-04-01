@@ -2,7 +2,9 @@ package domain.Ad.repository
 
 import com.github.slugify.Slugify
 import com.mongodb.client.model.Filters
-import domain.Ad.Ad
+import model.Ad
+import model.AdReq
+import model.AdWithFeature
 import org.litote.kmongo.*
 import java.util.*
 
@@ -10,72 +12,72 @@ import java.util.*
 class AdRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
     val database = client.getDatabase("ViewMagnet") //normal java driver usage
-    val col = database.getCollection<Ad>() //KMongo extension method
+    val col = database.getCollection<AdWithFeature>() //KMongo extension method
 
-    fun create(ad: Ad): Ad? {
+    fun create(ad: AdWithFeature): AdWithFeature? {
         val now = Date()
-        col.insertOne(Ad(slug = ad.slug, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now))
-        return findBySlug(ad.slug!!)
+        col.insertOne(AdWithFeature(id = ad.id, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now, updatedAt = now, feature = ad.feature))
+        return findById(ad.id!!)
     }
 
-    fun delete(slug: String) {
-        col.deleteOne(Filters.eq("slug", slug))
+    fun delete(id: String) {
+        col.deleteOne(Filters.eq("id", id))
     }
 
-    fun update(slug: String, ad: Ad): Ad? {
+    fun update(id: String, ad: AdReq): AdWithFeature? {
         if (ad.description != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::description, ad.description))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::description, ad.description))
         if (ad.content != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::content, ad.content))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::content, ad.content))
         if (ad.targetGender != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetGender, ad.targetGender))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetGender, ad.targetGender))
         if (ad.targetAge != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetAge, ad.targetAge))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetAge, ad.targetAge))
         if (ad.targetWeather != null)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::targetWeather, ad.targetWeather))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetWeather, ad.targetWeather))
         if (ad.title != null){
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::title, ad.title))
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::title, ad.title))
             val now = Date()
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::updatedAt, now))
-            val newSlug = Slugify().slugify(ad.title)
-            col.updateMany(Filters.eq("slug", slug), SetTo(Ad::slug, newSlug))
-            return newSlug?.let { findBySlug(it) }
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::updatedAt, now))
+            val newId = Slugify().slugify(ad.title)
+            col.updateMany(Filters.eq("id", id), SetTo(Ad::id, newId))
+            return newId?.let { findById(it) }
         }
         val now = Date()
-        col.updateMany(Filters.eq("slug", slug), SetTo(Ad::updatedAt, now))
-        return findBySlug(slug)
+        col.updateMany(Filters.eq("id", id), SetTo(Ad::updatedAt, now))
+        return findById(id)
 
     }
 
-    fun findBySlug(slug: String): Ad? {
-        return col.findOne("{slug:'$slug'}")
+    fun findById(id: String): AdWithFeature? {
+        return col.findOne("{id:'$id'}")
     }
 
-    fun findByEmail(email: String): List<Ad> {
+    fun findByEmail(email: String): List<AdWithFeature> {
         return col.find("{'user.email':'$email'}").toList()
     }
 
-    fun findByTitle(title: String): List<Ad> {
+    fun findByTitle(title: String): List<AdWithFeature> {
         return col.find("{title:'$title'}").toList()
     }
 
-    fun findAll(): List<Ad> {
+    fun findAll(): List<AdWithFeature> {
         return col.find().toList()
     }
 
-    fun findByAge(targetAge: String): List<Ad> {
+    fun findByAge(targetAge: String): List<AdWithFeature> {
         return col.find("{targetAge:'$targetAge'}").toList()
     }
 
-    fun findByGender(targetGender: String): List<Ad> {
+    fun findByGender(targetGender: String): List<AdWithFeature> {
         return col.find("{targetGender:'$targetGender'}").toList()
     }
 
-    fun findByWeather(targetWeather: String): List<Ad> {
+    fun findByWeather(targetWeather: String): List<AdWithFeature> {
         return col.find("{targetWeather:'$targetWeather'}").toList()
     }
 
-    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<Ad> {
+    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<AdWithFeature> {
 
         var filteredList = col.find().toList()
         if(!title.isNullOrBlank()){

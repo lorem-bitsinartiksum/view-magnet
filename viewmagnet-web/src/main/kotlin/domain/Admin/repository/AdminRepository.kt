@@ -1,7 +1,7 @@
 package domain.Admin.repository
 
 import com.mongodb.client.model.Filters
-import domain.Admin.Admin
+import model.Admin
 import org.litote.kmongo.*
 
 class AdminRepository() {
