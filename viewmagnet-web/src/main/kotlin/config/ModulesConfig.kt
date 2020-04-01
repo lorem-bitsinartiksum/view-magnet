@@ -43,7 +43,7 @@ object ModulesConfig {
 
     private val QrModule = module {
         single { QrController(get()) }
-        single { QrService() }
+        single { QrService(get()) }
     }
 
     internal val allModules = listOf(

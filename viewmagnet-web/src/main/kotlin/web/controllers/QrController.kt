@@ -8,7 +8,8 @@ class QrController(private val qrService: QrService) {
         val billboardId = ctx.queryParam("billboard")
         val adId = ctx.queryParam("ad")
         qrService.increaseInteraction(billboardId, adId).apply {
-            ctx.json("link")
+            ctx.redirect(this.toString())
+            //ctx.redirect("https://javalin.io/documentation#context")
         }
     }
 }
