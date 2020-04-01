@@ -17,7 +17,7 @@ class QrService(private val adRepository: AdRepository)  {
             throw BadRequestResponse("invalid adId") as Throwable
         }
 
-        val qr = repositoryService.find { Qr ->  Qr.billboardId == billboardId}
+        val qr = repositoryService.find { Qr ->  Qr.billboardId == billboardId && Qr.adId == adId}
 
         if(qr == null){
             val interactionList = ArrayList<String>()
