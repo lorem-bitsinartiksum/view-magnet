@@ -5,16 +5,14 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.security.SecurityUtil.roles
 import org.koin.standalone.KoinComponent
-import web.controllers.AdController
-import web.controllers.AdminController
-import web.controllers.BillboardController
-import web.controllers.UserController
+import web.controllers.*
 
 class Router(
     private val userController: UserController,
     private val adController: AdController,
     private val adminController: AdminController,
-    private val billboardController: BillboardController
+    private val billboardController: BillboardController,
+    private val qrController: QrController
 ) : KoinComponent {
 
     fun register(app: Javalin) {
@@ -65,6 +63,9 @@ class Router(
                         }
                     }
                 }
+            }
+            path("qr") {
+                post(qrController::increaseInteraction, roles(Roles.ANYONE))
             }
         }
     }
