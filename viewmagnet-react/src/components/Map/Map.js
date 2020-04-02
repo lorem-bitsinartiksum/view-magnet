@@ -18,9 +18,9 @@ function Map() {
             onOk() {
                 return new Promise((resolve, reject) => {
                     let {lat, lng} = e.latlng;
-                    addBillboard([lat, lng]);
+                    addBillboard({pos: [lat, lng], interest: [0, 0, 0]});
                     resolve()
-                }).catch(() => console.log('Oops errors!'));
+                }).catch(() => console.error("Sth went wrong"));
             },
             onCancel() {
             },

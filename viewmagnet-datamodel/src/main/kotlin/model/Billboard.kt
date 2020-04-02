@@ -1,7 +1,10 @@
 package model
 
+data class Location(val lat: Double, val lon: Double)
 
 data class BillboardStatus(
+    val billboardId: String,
+    val billboardLocation: Location,
     val health: Health,
     val adId: String,
     val env: BillboardEnvironment

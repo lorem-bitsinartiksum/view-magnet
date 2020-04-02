@@ -23,10 +23,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 fun main() {
     Objects.requireNonNull(System.getProperty("daemon")) { "Please set daemon path. -Ddaemon=<jarLocation>" }
-    var x: Int? = 4
-    x?.div(2) ?: println(23)
-//    val server = ApiServer()
-//    server.start()
+    val server = ApiServer()
+    server.start()
 }
 
 class ApiServer {

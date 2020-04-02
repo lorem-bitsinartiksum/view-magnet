@@ -2,15 +2,21 @@ package lorem.bitsinartiksum
 
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.selects.select
-import model.BillboardEnvironment
-import model.BillboardStatus
-import model.Health
-import model.Weather
+import model.*
 import topic.TopicContext
 import topic.TopicService
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
+
+private val String.asLocation: Location
+    get() {
+        val parts = this.split(",")
+        if (parts.size != 2)
+            return Location(0.0, 0.0)
+        val (lat, lon) = parts
+        return Location(lat.toDouble(), lon.toDouble())
+    }
 
 class StatusReporter(val cfg: Config) {
 
@@ -26,7 +32,7 @@ class StatusReporter(val cfg: Config) {
     suspend fun start(envUpdates: ReceiveChannel<BillboardEnvironment>, adUpdates: ReceiveChannel<String>) {
 
         timer.scheduleAtFixedRate(0, cfg.period.toMillis()) {
-            ts.publish(BillboardStatus(Health.UP, currentAdId, currentEnv))
+            ts.publish(BillboardStatus(cfg.id, cfg.id.asLocation, Health.UP, currentAdId, currentEnv))
         }
 
         while (true) {
