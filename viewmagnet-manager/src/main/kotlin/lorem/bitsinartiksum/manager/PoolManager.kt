@@ -50,7 +50,7 @@ class PoolManager(config: Config) {
             val adEndTime = it.header.createdAt
             var countQR = 0
             qr?.interactionTimes?.forEach { time ->
-                if (adStartTime <= time || time <= adEndTime) {
+                if (time in adStartTime..adEndTime) {
                     countQR++
                 }
             }
