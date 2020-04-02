@@ -28,7 +28,10 @@ class QrService(private val adRepository: AdRepository)  {
             return ad?.description
         }
         else{
-            val interactionList = qr.interactionTimes
+            val interactionList = ArrayList<String>()
+                qr.interactionTimes.forEach(){
+                    interactionList.add(it)
+            }
             val now = Date()
             interactionList.add(now.time.toString())
             repositoryService.deleteById(qr.id)
