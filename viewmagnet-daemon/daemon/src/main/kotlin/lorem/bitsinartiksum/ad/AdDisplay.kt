@@ -2,16 +2,23 @@ package lorem.bitsinartiksum.ad
 
 import java.awt.EventQueue
 import java.awt.FlowLayout
+import java.awt.Graphics2D
 import java.awt.Image
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.awt.image.BufferedImage
 import java.net.URL
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JFrame
 import javax.swing.JLabel
 
-class AdDisplay(val defaultImg: Image, width: Int, height: Int) {
+class AdDisplay(
+    val defaultImg: Image,
+    width: Int,
+    height: Int,
+    QRImage: BufferedImage
+) {
 
     private val frame = JFrame()
     private var img = JLabel(ImageIcon(defaultImg.getScaledInstance(width, height, Image.SCALE_SMOOTH)))
@@ -19,7 +26,18 @@ class AdDisplay(val defaultImg: Image, width: Int, height: Int) {
     init {
         frame.layout = FlowLayout()
         frame.setSize(width, height)
-        frame.add(img)
+
+        val combinedImage = BufferedImage(
+            width,
+            height,
+            BufferedImage.TYPE_INT_ARGB
+        )
+        val g: Graphics2D = combinedImage.createGraphics()
+        g.drawImage(defaultImg, 0, 0, null)
+        g.drawImage(QRImage, width-100, height-150, null)
+        g.dispose()
+
+        frame.add(JLabel(ImageIcon(combinedImage)))
 
         frame.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent) {
