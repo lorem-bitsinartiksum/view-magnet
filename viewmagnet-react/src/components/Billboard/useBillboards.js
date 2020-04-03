@@ -27,7 +27,7 @@ export default function useBillboards() {
             .catch(err => console.error(`Post to ${endpoint} went wrong, err: ${err}`))
     };
 
-    let addBillboard = useCallback((pos, interest) => {
+    let addBillboard = useCallback(({pos, interest}) => {
         post("billboard", {pos, interest})
     }, []);
 
