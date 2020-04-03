@@ -1,11 +1,11 @@
-import React, {useState} from "react";
-import {Button, Dropdown} from "antd";
+import React, { useState } from "react";
+import { Button, Dropdown } from "antd";
 import "./Billboard.css"
-import {CompactPicker} from "react-color"
+import { CompactPicker } from "react-color"
 
-export default function Billboard({id, position, status, interest, ad}) {
+export default function Billboard({ id, position, status, interest, ad }) {
 
-    let [color, setColor] = useState(mapInterestToColor(interest));
+    let [adColor, setAdColor] = useState(mapValToColor(ad.content));
 
     let changeInterest = () => {
         console.log("send change request")
@@ -13,24 +13,24 @@ export default function Billboard({id, position, status, interest, ad}) {
 
     return (
         <div className="billboard">
-            <div className="poster" style={{background: color.hex}}/>
+            <div className="poster" style={{ background: adColor.hex }} />
             <h2 className="header">
                 {id}
             </h2>
             <div className="info">
-                <Info label="Status" info={status}/>
-                <span>Interest:</span>
+                <Info label="Status" info={status} />
+                <span>Ad:</span>
                 <Dropdown
                     overlay={<CompactPicker
-                        color={color.rgb}
-                        onChangeComplete={(color, _) => {
-                            color.rgb.a = null;
-                            setColor(color);
-                        }}/>}
+                        color={adColor.rgb}
+                        onChangeComplete={(clr, _) => {
+                            clr.rgb.a = null;
+                            setAdColor(clr);
+                        }} />}
                     trigger={['click']}>
                     <Button className="ant-dropdown-link" onClick={e => e.preventDefault()}
-                            style={{color: color.hex}}>
-                        {Object.values(color.rgb).join(" ")}
+                        style={{ color: adColor.hex }}>
+                        {Object.values(adColor.rgb).join(" ")}
                     </Button>
                 </Dropdown>
             </div>
@@ -38,29 +38,21 @@ export default function Billboard({id, position, status, interest, ad}) {
     )
 }
 
-function Info({label, info}) {
+function Info({ label, info }) {
     return (
         <>
-        <span>
-            {label}:
+            <span>
+                {label}:
         </span>
             <span>
-            {info}
-        </span>
+                {info}
+            </span>
         </>
     )
 }
 
-function rgbToHex(rgb) {
-    let hex = Number(rgb).toString(16);
-    if (hex.length < 2) {
-        hex = "0" + hex;
-    }
-    return hex;
-}
-
-function mapInterestToColor(interest) {
-    let rgb = {r: interest[0] * 255, g: interest[1] * 255, b: interest[2] * 255};
-    let hex = "#" + rgbToHex(rgb.r) + rgbToHex(rgb.g) + rgbToHex(rgb.b);
-    return {rgb, hex};
+export function mapValToColor(val) {
+    let rgb = { r: val[0] * 255, g: val[1] * 255, b: val[2] * 255 };
+    let hex = "#" + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1, 7);
+    return { rgb, hex };
 }

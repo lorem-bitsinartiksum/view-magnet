@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState, Fragment } from 'react'
 import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
 import useBillboards from "../Billboard/useBillboards";
-import Billboard from "../Billboard/Billboard";
+import Billboard, { mapValToColor } from "../Billboard/Billboard";
 import { Modal, Button, Row, Col } from "antd";
 
 const { confirm } = Modal;
@@ -46,7 +46,7 @@ function Map() {
                                         <Billboard {...billboard} />
                                     </Popup>
                                 </Marker>
-                                <Circle center={billboard.position} radius={5000} />
+                                <Circle center={billboard.position} color={mapValToColor(billboard.interest).hex} radius={5000} />
                             </Fragment>))}
                     </LMap>
                 </Col>
