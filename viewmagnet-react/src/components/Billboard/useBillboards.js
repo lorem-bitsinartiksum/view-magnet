@@ -1,13 +1,13 @@
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 let dummyBbStat = [
     {
         id: "#BB1", position: [45.4, -75.7], status: "UP", interest: [0.2, 0.4, 0.2],
-        ad: {id: "ADID#1", content: [0.2, 0.4, 0.1]}
+        ad: { id: "ADID#1", content: [0.2, 0.4, 0.1] }
     },
     {
         id: "#BB2", adId: "23:43:23", position: [45.2, -75.7], status: "UP", interest: [0.2, 0.4, 0.2],
-        ad: {id: "ADID#6", content: [0.4, 0.1, 0.5]}
+        ad: { id: "ADID#6", content: [0.4, 0.1, 0.5] }
     }
 ];
 
@@ -27,15 +27,15 @@ export default function useBillboards() {
             .catch(err => console.error(`Post to ${endpoint} went wrong, err: ${err}`))
     };
 
-    let addBillboard = useCallback((pos, interest) => {
-        post("billboard", {pos, interest})
+    let addBillboard = useCallback((data) => {
+        post("billboard", { pos: data.pos, interest: data.interest })
     }, []);
 
     let changeInterest = useCallback((id, newInterest) => {
         post(`billboard/${id}`, newInterest)
     }, []);
 
-    let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/${id}`, {method: "DELETE"}),
+    let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/${id}`, { method: "DELETE" }),
         []);
 
 
@@ -46,7 +46,7 @@ export default function useBillboards() {
             let status = JSON.parse(e.data);
             let formatted = {
                 id: status.billboardId, position: Object.values(status.position), status: status.status,
-                interest: status.interest, ad: {id: status.adId, content: convertToColor(status.adId, ":")}
+                interest: status.interest, ad: { id: status.adId, content: convertToColor(status.adId, ":") }
             };
             setBillboards(bs => {
                 let i = bs.findIndex(b => b.id === formatted.id);
@@ -57,7 +57,7 @@ export default function useBillboards() {
         return () => eventSrc.close();
     }, []);
 
-    return {billboards, addBillboard, shutdownBillboard, changeInterest}
+    return { billboards, addBillboard, shutdownBillboard, changeInterest }
 }
 
 function convertToColor(id, delimiter) {
