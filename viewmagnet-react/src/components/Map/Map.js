@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState, Fragment } from 'react'
 import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
 import useBillboards from "../Billboard/useBillboards";
-import Billboard, { mapValToColor } from "../Billboard/Billboard";
+import Billboard, { mapValToColor, mapColorToVal } from "../Billboard/Billboard";
 import { Modal, Button, Row, Col, Dropdown } from "antd";
 import { CompactPicker } from "react-color"
 
@@ -13,7 +13,6 @@ function Map() {
     let { billboards, addBillboard, shutdownBillboard, changeInterest } = useBillboards();
     const [canAdd, setCanAdd] = useState(false)
     const [tempColor, setTempColor] = useState(null)
-    const [permColor, setPermColor] = useState(false)
 
     let handleClick = (e) => {
         console.log(canAdd)
@@ -49,19 +48,17 @@ function Map() {
                                         <Billboard {...billboard} />
                                     </Popup>
                                 </Marker>
-                                <Circle center={billboard.position} color={(tempColor !== null && permColor) ? tempColor : mapValToColor(billboard.interest).hex} radius={5000}
+                                <Circle center={billboard.position} color={mapValToColor(billboard.interest).hex} radius={5000}
                                     onClick={() => confirm({
                                         title: "You are about to change the interests of the people nearby.",
                                         content: <CompactPicker
                                             onChangeComplete={(clr, _) => {
-                                                setPermColor(false)
                                                 clr.rgb.a = null;
                                                 setTempColor(clr.hex)
                                             }} />,
                                         okType: "danger",
                                         okText: "Save Changes",
-                                        onOk: () => setPermColor(true),
-                                        // onOk: () => changeInterest(billboard.id, mapColorToVal(tempColor).val),
+                                        onOk: () => changeInterest(billboard.id, mapColorToVal(tempColor).val),
                                     })} />
                             </Fragment>))}
                     </LMap>
