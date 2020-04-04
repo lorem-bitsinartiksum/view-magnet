@@ -11,6 +11,7 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.random.Random
 
 class BillboardService {
 
@@ -33,7 +34,7 @@ class BillboardService {
             javaBin,
             "-Did=$id",
             "-Dperiod=5",
-            "-Dinterest=${interest.joinToString(", ")}",
+            "-Dinterest=${"%.2f".format(Random.nextFloat())+", "+ "%.2f".format(Random.nextFloat())+", "+ "%.2f".format(Random.nextFloat())}", // "-Dinterest=${interest.joinToString(", ")}",
             "-jar",
             daemonJarLoc
         )

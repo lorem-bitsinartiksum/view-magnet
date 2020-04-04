@@ -51,7 +51,7 @@ class ApiServer(
             path("billboard") {
                 post { ctx ->
                     val info = ctx.bodyAsClass(BillboardReq::class.java)
-                    billboardService.launchNewBillboard(info.pos.joinToString(":"), info.pos, info.interest)
+                    billboardService.launchNewBillboard(info.pos.joinToString(","), info.pos, info.interest)
                 }
                 patch(":id") { ctx ->
                     val id = ctx.pathParam("id")
