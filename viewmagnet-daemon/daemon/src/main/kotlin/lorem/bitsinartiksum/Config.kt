@@ -5,7 +5,7 @@ import java.time.Duration
 
 
 data class Config(
-    val id: String = System.getProperty("id", "2343:23456"),
+    val id: String = System.getProperty("id", "39.9035557,32.622682"),
     val period: Duration = Duration.ofSeconds(System.getProperty("period", "2").toLong()),
     val window: Duration = Duration.ofSeconds(10),
     val mode: Mode = Mode.valueOf(System.getProperty("mode", "sim").toUpperCase()),

@@ -32,7 +32,7 @@ class StatusReporter(val cfg: Config) {
     suspend fun start(envUpdates: ReceiveChannel<BillboardEnvironment>, adUpdates: ReceiveChannel<String>) {
 
         timer.scheduleAtFixedRate(0, cfg.period.toMillis()) {
-            ts.publish(BillboardStatus(cfg.id, cfg.id.asLocation, Health.UP, currentAdId, currentEnv))
+            ts.publish(BillboardStatus(cfg.id, cfg.id.asLocation, Health.UP, currentAdId, currentEnv, cfg.interest))
         }
 
         while (true) {

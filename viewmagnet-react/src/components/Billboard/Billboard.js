@@ -7,10 +7,6 @@ export default function Billboard({ id, position, status, interest, ad }) {
 
     let [adColor, setAdColor] = useState(mapValToColor(ad.content));
 
-    let changeInterest = () => {
-        console.log("send change request")
-    };
-
     return (
         <div className="billboard">
             <div className="poster" style={{ background: adColor.hex }} />
@@ -55,4 +51,11 @@ export function mapValToColor(val) {
     let rgb = { r: val[0] * 255, g: val[1] * 255, b: val[2] * 255 };
     let hex = "#" + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1, 7);
     return { rgb, hex };
+}
+
+export function mapColorToVal(hex) {
+    let bigint = parseInt(hex, 16);
+    let rgb = { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 }
+    let val = [rgb.r / 255, rgb.g / 255, rgb.b / 255]
+    return { rgb, val };
 }

@@ -7,7 +7,8 @@ data class BillboardStatus(
     val billboardLocation: Location,
     val health: Health,
     val adId: String,
-    val env: BillboardEnvironment
+    val env: BillboardEnvironment,
+    val interest: List<Float>
 )
 
 data class BillboardEnvironment(

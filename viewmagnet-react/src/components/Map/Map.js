@@ -3,18 +3,21 @@ import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
 import useBillboards from "../Billboard/useBillboards";
 import Billboard, { mapValToColor } from "../Billboard/Billboard";
-import { Modal, Button, Row, Col } from "antd";
+import { Modal, Button, Row, Col, Dropdown } from "antd";
+import { CompactPicker } from "react-color"
 
 const { confirm } = Modal;
 
 function Map() {
     let mapRef = useRef();
-    let { billboards, addBillboard } = useBillboards();
-    const [shouldAdd, setShouldAdd] = useState(false)
+    let { billboards, addBillboard, shutdownBillboard, changeInterest } = useBillboards();
+    const [canAdd, setCanAdd] = useState(false)
+    const [tempColor, setTempColor] = useState(null)
+    const [permColor, setPermColor] = useState(false)
 
     let handleClick = (e) => {
-        console.log(shouldAdd)
-        if (shouldAdd)
+        console.log(canAdd)
+        if (canAdd)
             confirm({
                 title: 'Add a new billboard?',
                 content: 'Construct a new billboard on given location.',
@@ -23,7 +26,7 @@ function Map() {
                         let { lat, lng } = e.latlng;
                         addBillboard({ pos: [lat, lng], interest: [0, 0, 0] });
                         resolve()
-                        setShouldAdd(false)
+                        setCanAdd(false)
                     }).catch(() => console.error("Sth went wrong"));
                 },
                 onCancel() {
@@ -46,19 +49,28 @@ function Map() {
                                         <Billboard {...billboard} />
                                     </Popup>
                                 </Marker>
-                                <Circle center={billboard.position} color={mapValToColor(billboard.interest).hex} radius={5000} />
+                                <Circle center={billboard.position} color={(tempColor !== null && permColor) ? tempColor : mapValToColor(billboard.interest).hex} radius={5000}
+                                    onClick={() => confirm({
+                                        title: "You are about to change the interests of the people nearby.",
+                                        content: <CompactPicker
+                                            onChangeComplete={(clr, _) => {
+                                                setPermColor(false)
+                                                clr.rgb.a = null;
+                                                setTempColor(clr.hex)
+                                            }} />,
+                                        okType: "danger",
+                                        okText: "Save Changes",
+                                        onOk: () => setPermColor(true),
+                                        // onOk: () => changeInterest(billboard.id, mapColorToVal(tempColor).val),
+                                    })} />
                             </Fragment>))}
                     </LMap>
                 </Col>
                 <Col span={2}>
-                    <Button onClick={() => setShouldAdd(true)}>Add new Bb</Button>
+                    <Button onClick={() => setCanAdd(true)}>Add new Bb</Button>
                 </Col>
             </Row>
         </Fragment>)
-}
-
-function showConfirm() {
-
 }
 
 export default Map
