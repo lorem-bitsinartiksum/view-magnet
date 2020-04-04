@@ -35,7 +35,7 @@ function Map() {
                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             />
             {billboards.map(billboard => (
-                <Marker key={billboard.position} position={billboard.position}>
+                <Marker onClick={() => console.count("Marker")} key={billboard.position} position={billboard.position}>
                     <Popup maxWidth="400" maxHeight="auto">
                         <Billboard {...billboard} />
                     </Popup>

@@ -20,7 +20,10 @@ fun main() {
     server.start()
 }
 
-class ApiServer(private val billboardService: BillboardService = BillboardService()) {
+class ApiServer(
+    private val billboardService: BillboardService = BillboardService(),
+    private val adService: AdService = AdService()
+) {
     private val app = Javalin.create { it.enableCorsForAllOrigins() }
     private val logger = FluentLogger.forEnclosingClass()
     private var sessions = setOf<SseClient>()
@@ -75,6 +78,7 @@ class ApiServer(private val billboardService: BillboardService = BillboardServic
             }
             post("ad") { ctx ->
                 val newAd = ctx.bodyAsClass(NewAdReq::class.java)
+                adService.addNewAd(newAd.color)
             }
         }
     }
