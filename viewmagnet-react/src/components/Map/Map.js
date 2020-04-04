@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, Fragment } from 'react'
+import React, { useCallback, useEffect, useRef, useState, Fragment } from 'react'
 import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
 import useBillboards from "../Billboard/useBillboards";
@@ -13,9 +13,9 @@ function Map() {
     let { billboards, addBillboard, shutdownBillboard, changeInterest } = useBillboards();
     const [canAdd, setCanAdd] = useState(false)
     const [tempColor, setTempColor] = useState(null)
+    const [colorShouldUpdate, setColorShouldUpdate] = useState(false)
 
     let handleClick = (e) => {
-        console.log(canAdd)
         if (canAdd)
             confirm({
                 title: 'Add a new billboard?',
@@ -32,6 +32,13 @@ function Map() {
                 },
             });
     }
+    useEffect(() => {
+        if (colorShouldUpdate) {
+            changeInterest(tempColor.billId, mapColorToVal(tempColor.colrHex).val)
+            setColorShouldUpdate(false)
+            console.log(mapColorToVal(tempColor.colrHex).val)
+        }
+    }, [colorShouldUpdate])
 
     return (
         <Fragment>
@@ -49,17 +56,20 @@ function Map() {
                                     </Popup>
                                 </Marker>
                                 <Circle center={billboard.position} color={mapValToColor(billboard.interest).hex} radius={5000}
-                                    onClick={() => confirm({
-                                        title: "You are about to change the interests of the people nearby.",
-                                        content: <CompactPicker
-                                            onChangeComplete={(clr, _) => {
-                                                clr.rgb.a = null;
-                                                setTempColor(clr.hex)
-                                            }} />,
-                                        okType: "danger",
-                                        okText: "Save Changes",
-                                        onOk: () => changeInterest(billboard.id, mapColorToVal(tempColor).val),
-                                    })} />
+                                    onClick={() => {
+                                        confirm({
+                                            title: "You are about to change the interests of the people nearby.",
+                                            content: <CompactPicker
+                                                color={tempColor === null ? "#ffffff" : tempColor.colrHex}
+                                                onChangeComplete={(clr, _) => {
+                                                    clr.rgb.a = null;
+                                                    setTempColor({ billId: billboard.id, colrHex: clr.hex })
+                                                }} />,
+                                            okType: "danger",
+                                            okText: "Save Changes",
+                                            onOk: () => setColorShouldUpdate(true)
+                                        });
+                                    }} />
                             </Fragment>))}
                     </LMap>
                 </Col>

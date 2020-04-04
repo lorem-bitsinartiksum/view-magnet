@@ -24,11 +24,10 @@ export default function useBillboards() {
         req(`billboard/${id}`, { interest: newInterest }, null, "PATCH")
     }, []);
 
-    let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/${id}`, { method: "DELETE" }),
+    let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/billboard/${id}`, { method: "DELETE" }),
         []);
 
     useEffect(() => {
-        //  let eventSrc = new WebSocket("ws://localhost:7000/api/admin/manager/status");
         let eventSrc = new EventSource("http://localhost:8000/billboard/status");
 
         eventSrc.onmessage = e => {

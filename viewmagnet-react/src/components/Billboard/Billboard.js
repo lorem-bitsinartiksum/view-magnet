@@ -1,49 +1,59 @@
 import React, { useState } from "react";
-import { Button, Dropdown } from "antd";
+import { Button, Dropdown, Row, Col } from "antd";
 import "./Billboard.css"
+import useBillboards from "./useBillboards";
 import { CompactPicker } from "react-color"
+import ButtonGroup from "antd/lib/button/button-group";
 
 export default function Billboard({ id, position, status, interest, ad }) {
 
     let [adColor, setAdColor] = useState(mapValToColor(ad.content));
+    let { shutdownBillboard } = useBillboards();
 
     return (
         <div className="billboard">
             <div className="poster" style={{ background: adColor.hex }} />
-            <h2 className="header">
-                {id}
-            </h2>
-            <div className="info">
-                <Info label="Status" info={status} />
-                <span>Ad:</span>
-                <Dropdown
-                    overlay={<CompactPicker
-                        color={adColor.rgb}
-                        onChangeComplete={(clr, _) => {
-                            clr.rgb.a = null;
-                            setAdColor(clr);
-                        }} />}
-                    trigger={['click']}>
-                    <Button className="ant-dropdown-link" onClick={e => e.preventDefault()}
-                        style={{ color: adColor.hex }}>
-                        {Object.values(adColor.rgb).join(" ")}
-                    </Button>
-                </Dropdown>
+            <div>
+                <div>
+                    <Row>
+                        <br></br>
+                        <h3 className="header">
+                            {id}
+                        </h3>
+                    </Row>
+                    <Row>
+                        <br></br>
+                        <ButtonGroup>
+                            <Button>Status: </Button>
+                            <Button>{status}</Button>
+                        </ButtonGroup>
+                    </Row>
+                    <Row>
+                        <br></br>
+                        <ButtonGroup>
+                            <Button>Ad:</Button>
+                            <Dropdown
+                                overlay={<CompactPicker
+                                    color={adColor.rgb}
+                                    onChangeComplete={(clr, _) => {
+                                        clr.rgb.a = null;
+                                        setAdColor(clr);
+                                    }} />}
+                                trigger={['click']}>
+                                <Button type={"dashed"} className="ant-dropdown-link" onClick={e => e.preventDefault()}
+                                    style={{ color: adColor.hex }}>
+                                    {Object.values(adColor.rgb).join(" ")}
+                                </Button>
+                            </Dropdown>
+                        </ButtonGroup>
+                    </Row>
+                    <Row>
+                        <br></br>
+                        <Button type={"danger"} style={{ width: "100%" }} onClick={() => shutdownBillboard(id)}>SHUTDOWN</Button>
+                    </Row>
+                </div>
             </div>
-        </div>
-    )
-}
-
-function Info({ label, info }) {
-    return (
-        <>
-            <span>
-                {label}:
-        </span>
-            <span>
-                {info}
-            </span>
-        </>
+        </div >
     )
 }
 
@@ -54,8 +64,8 @@ export function mapValToColor(val) {
 }
 
 export function mapColorToVal(hex) {
-    let bigint = parseInt(hex, 16);
+    let bigint = parseInt(hex.substring(1), 16);
     let rgb = { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 }
-    let val = [rgb.r / 255, rgb.g / 255, rgb.b / 255]
+    let val = [(rgb.r / 255).toFixed(1), (rgb.g / 255).toFixed(1), (rgb.b / 255).toFixed(1)]
     return { rgb, val };
 }

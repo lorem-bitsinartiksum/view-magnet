@@ -1,10 +1,10 @@
 .billboard {
     display: grid;
-    grid-template-columns: 2.9fr 1.8fr;
+    grid-template-columns: 2.5fr 2.3fr;
     grid-template-rows: 0.4fr 1.6fr 1fr;
     grid-template-areas: "poster header" "poster info" "poster info";
     font-family: "Helvetica Neue", serif;
-    height: 350px;
+    height: 400px;
     width: 400px;
 }
 
@@ -19,7 +19,8 @@
     grid-area: poster;
     background: #3fc1c9;
     border-radius: 12px;
-    border: 2px solid white;
+    border: 1px solid white;
+    width: 200px;
 }
 
 .info {
