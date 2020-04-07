@@ -7,7 +7,7 @@ data class TopicContext(
     val city: City = City.ALL,
     val district: District = District.ALL,
     val individual: String = "ALL",
-    val mode: Mode = Mode.SIM
+    val mode: Mode = Mode.REAL
 )
 
 enum class Country {

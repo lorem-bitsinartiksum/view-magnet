@@ -44,6 +44,7 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
     var currentAd: Ad = Ad("0,0,0", "0,0,0")
         private set(newAd) {
             val durationMs = System.currentTimeMillis() - rollStartTime
+            rollStartTime = System.currentTimeMillis()
             adChangedTs.publish(AdChanged(field, durationMs, listOf()))
             field = newAd
             updateDisplay(newAd, Duration.ofMillis(durationMs))

@@ -8,19 +8,12 @@ import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
 import model.BillboardEnvironment
 import model.Weather
-import java.awt.image.BufferedImage
-
-fun generateQr(text: String): BufferedImage {
-    val QR = QRGenerator()
-    return QRGenerator().generateQRCodeImage(text, 100, 100)
-}
 
 data class Daemon(
     val cfg: Config = Config(),
     val adDisplay: AdDisplay = AdDisplay(
         AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
-        650, 1000,
-        generateQr("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")
+        650, 1000
     ),
     val adManager: AdManager = AdManager({ ad, duration ->
         val img = AdDisplay.loadImg(ad.content) ?: return@AdManager
