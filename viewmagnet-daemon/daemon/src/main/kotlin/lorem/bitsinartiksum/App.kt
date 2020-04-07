@@ -1,15 +1,9 @@
 package lorem.bitsinartiksum
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import model.AdPoolChanged
-import model.BillboardEnvironment
-import model.Weather
 import topic.TopicContext
 import topic.TopicService
-import java.util.*
 import java.util.logging.LogManager
 
 class Other() {
@@ -65,19 +59,4 @@ fun main() = runBlocking<Unit> {
 //    tss.publish(AdPoolChanged(setOf(testAd)))
 
 
-}
-
-fun CoroutineScope.envUpdate() = produce {
-    while (true) {
-        var t = 1
-        send(BillboardEnvironment(Weather.FOG, t++.toFloat(), (t * 10).toFloat(),t.toLong(), (t+20).toLong(),t,"country",t.toFloat()))
-        delay(2000)
-    }
-}
-
-fun CoroutineScope.adUpdate() = produce {
-    while (true) {
-        send(UUID.randomUUID().toString())
-        delay(1000)
-    }
 }
