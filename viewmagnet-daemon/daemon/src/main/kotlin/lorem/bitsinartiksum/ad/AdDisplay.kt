@@ -10,6 +10,8 @@ import java.awt.event.ComponentEvent
 import java.awt.image.BufferedImage
 import java.net.URL
 import java.time.Duration
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JFrame
@@ -37,6 +39,13 @@ class AdDisplay(
         })
         overlayQr("/home")
         frame.add(poster)
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
+            EventQueue.invokeLater {
+                frame.title = "${duration?.toSeconds() ?: "AdViewer"}s"
+            }
+            duration = duration?.minusSeconds(1)
+        }, 0, 1, TimeUnit.SECONDS)
     }
 
     fun show() {
