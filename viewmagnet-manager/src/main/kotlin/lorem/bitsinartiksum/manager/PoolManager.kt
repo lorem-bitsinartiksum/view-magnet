@@ -25,7 +25,9 @@ class PoolManager(config: Config) {
 
     private val adPoolChangedTs = TopicService.createFor(AdPoolChanged::class.java, "pool-manager", TopicContext())
 
-    private val repositoryService = RepositoryService.createFor(AdWithFeature::class.java)
+    private val repositoryServiceAd = RepositoryService.createFor(AdWithFeature::class.java)
+
+    private val repositoryServiceQR = RepositoryService.createFor(QR::class.java)
 
     private val logger = FluentLogger.forEnclosingClass()
 
@@ -33,13 +35,26 @@ class PoolManager(config: Config) {
 
     private val maxPoolSize = config.maxPoolSize
 
+    private val threshold = config.similarityThreshold
+
     init {
         adChangedTs.subscribe {
             val billboardId = it.header.source
             val billboard = billboards.getOrPut(billboardId) {Billboard(emptySet(), emptyList(), 0) }
-            //TODO: countQR should be set to count of QR interactions
-            val countQR = 0
-            val interest = calcNewInterest(it.payload.ad.id, billboard, it.payload.detections.size, countQR)
+            val adId = it.payload.ad.id
+            val qr = repositoryServiceQR.find { qr ->
+                qr.billboardId == billboardId &&
+                qr.adId == adId
+            }
+            val adStartTime = it.header.createdAt - it.payload.durationMs
+            val adEndTime = it.header.createdAt
+            var countQR = 0
+            qr?.interactionTimes?.forEach { time ->
+                if (time in adStartTime..adEndTime) {
+                    countQR++
+                }
+            }
+            val interest = calcNewInterest(adId, billboard, it.payload.detections.size, countQR)
             billboard.counter++
             billboard.interest = interest
         }
@@ -58,7 +73,7 @@ class PoolManager(config: Config) {
     fun calcNewInterest(adId: String, billboard: Billboard, detectionsLength: Int, countQR: Int): List<Float> {
         return when (mode) {
             Mode.SIM -> {
-                val ad = repositoryService.find {adWithFeature ->  adWithFeature.id == adId}
+                val ad = repositoryServiceAd.find {adWithFeature ->  adWithFeature.id == adId}
                 if (ad == null) {
                     logger.atWarning().log("AdWithFeature not found")
                     return emptyList()
@@ -75,7 +90,7 @@ class PoolManager(config: Config) {
             }
             Mode.REAL -> {
                 //TODO: Changes may be required for Real mode
-                val ad = repositoryService.find {adWithFeature ->  adWithFeature.id == adId}
+                val ad = repositoryServiceAd.find {adWithFeature ->  adWithFeature.id == adId}
                 if (ad == null) {
                     logger.atWarning().log("AdWithFeature not found")
                     return emptyList()
@@ -89,20 +104,24 @@ class PoolManager(config: Config) {
                     .map { factor * it }
                     .mapIndexed { i, feature -> feature + interest[i] * ((counter - 1) / counter.toFloat()) }
                 newInterest
-                return emptyList()
             }
         }
     }
 
     fun updateBillboardPool(billboard: Billboard) {
 
-        val iteratorAds = repositoryService.findAll()
+        val iteratorAds = repositoryServiceAd.findAll()
 
         val similarities = TreeSet<Pair<AdWithFeature, Similarity>> { ad1, ad2 ->
             if (ad1.second > ad2.second) 1 else -1
         }
 
-        iteratorAds.forEach { ad -> similarities.add(ad to cosineSimilarity(ad.feature, billboard.interest)) }
+        iteratorAds.forEach { ad ->
+            val pair = ad to cosineSimilarity(ad.feature, billboard.interest)
+            if (pair.second >= threshold) {
+                similarities.add(pair)
+            }
+        }
 
         val newPool = similarities.descendingIterator().asSequence().take(maxPoolSize).map {
             val adWithFeature = it.first
