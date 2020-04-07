@@ -5,13 +5,14 @@ import com.mongodb.client.model.Filters
 import model.Ad
 import model.AdReq
 import model.AdWithFeature
+import model.Mode
 import org.litote.kmongo.*
 import java.util.*
 
 
 class AdRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
-    val database = client.getDatabase("ViewMagnet") //normal java driver usage
+    val database = client.getDatabase("viewmagnet-${Mode.REAL}") //normal java driver usage
     val col = database.getCollection<AdWithFeature>() //KMongo extension method
 
     fun create(ad: AdWithFeature): AdWithFeature? {

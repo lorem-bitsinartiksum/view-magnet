@@ -4,5 +4,5 @@ data class QR(
     override val id: String,
     val billboardId: String,
     val adId: String,
-    val interactionTimes: List<Long>
+    val interactionTimes: List<String>
 ) : Persistable
