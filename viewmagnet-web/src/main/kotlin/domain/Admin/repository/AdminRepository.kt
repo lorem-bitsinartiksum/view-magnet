@@ -2,11 +2,12 @@ package domain.Admin.repository
 
 import com.mongodb.client.model.Filters
 import model.Admin
+import model.Mode
 import org.litote.kmongo.*
 
 class AdminRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
-    val database = client.getDatabase("ViewMagnet") //normal java driver usage
+    val database = client.getDatabase("viewmagnet-${Mode.REAL}") //normal java driver usage
     val col = database.getCollection<Admin>() //KMongo extension method
 
     fun findByEmail(email: String): Admin? {

@@ -2,13 +2,14 @@ package domain.User.repository
 
 import com.mongodb.client.model.Filters
 import model.Ad
+import model.Mode
 import model.User
 import org.litote.kmongo.*
 import java.util.*
 
 class UserRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
-    val database = client.getDatabase("ViewMagnet") //normal java driver usage
+    val database = client.getDatabase("viewmagnet-${Mode.REAL}") //normal java driver usage
     val col = database.getCollection<User>() //KMongo extension method
 
     fun findByEmail(email: String): User? {

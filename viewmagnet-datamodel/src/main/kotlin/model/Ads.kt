@@ -25,8 +25,8 @@ data class AdReq(
     val targetHighTemp: Int? = null,
     val targetLowSoundLevel: Int? = null,
     val targetHighSoundLevel: Int? = null,
-    val createdAt: Date? = null,
-    val updatedAt: Date? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null,
     val feature : List<Float>? = null)
 
 data class Ad(
@@ -42,8 +42,8 @@ data class Ad(
     val targetHighTemp: Int = 0,
     val targetLowSoundLevel: Int = 0,
     val targetHighSoundLevel: Int = 0,
-    val createdAt: Date = Date(),
-    val updatedAt: Date = Date()) : Persistable
+    val createdAt: String = "",
+    val updatedAt: String = "") : Persistable
 
 data class AdWithFeature(
     override val id: String,
@@ -59,8 +59,8 @@ data class AdWithFeature(
     val targetHighTemp: Int = 0,
     val targetLowSoundLevel: Int = 0,
     val targetHighSoundLevel: Int = 0,
-    val createdAt: Date = Date(),
-    val updatedAt: Date = Date()) : Persistable
+    val createdAt: String = "",
+    val updatedAt: String = "") : Persistable
 
 
 data class Person(val gender: Gender, val age: Age)
