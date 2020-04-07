@@ -4,7 +4,6 @@ import lorem.bitsinartiksum.ad.AdManager
 import model.AdPoolChanged
 import model.ShowAd
 import topic.TopicContext
-
 import topic.TopicService
 
 
@@ -16,7 +15,7 @@ class CommandListener(val cfg: Config, val manager: AdManager) {
     }
 
     private inline fun <reified T> subscribe(clazz: Class<T>) {
-        val ts = TopicService.createFor(clazz, "billboard-${cfg.id}", TopicContext())
+        val ts = TopicService.createFor(clazz, "billboard-${cfg.id}", TopicContext(mode = cfg.mode))
         ts.subscribe {
             manager.handleCommand(it.payload)
         }

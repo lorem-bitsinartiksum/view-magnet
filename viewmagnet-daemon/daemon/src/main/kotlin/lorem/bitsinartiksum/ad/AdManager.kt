@@ -10,55 +10,53 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Duration
+import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
 import kotlin.concurrent.timer
+import kotlin.concurrent.write
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
-data class AdTrack(val ad: Ad, val similarity: Similarity, var remaining: Duration)
-data class weatherInfo(val weather: Weather, val tempC: Float, val windSpeed: Float, val sunrise:Long, val sunset: Long, val timezone: Int, val country: String)
 
-class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
+data class weatherInfo(
+    val weather: Weather,
+    val tempC: Float,
+    val windSpeed: Float,
+    val sunrise: Long,
+    val sunset: Long,
+    val timezone: Int,
+    val country: String
+)
+
+class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Config) {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
-
-    var pool: AdPool = setOf(
-        Ad(
-            "t1",
-            "https://images.unsplash.com/photo-1582740735409-d0ae8d48976e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-        ) to 0.5f,
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1539006749419-f9a3eb2bf3fe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
-        ) to 0.2f,
-        Ad(
-            "t2",
-            "https://images.unsplash.com/photo-1582999275987-a02e090da23b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
-        ) to 0.64f
-    )
+    private val rwLock = ReentrantReadWriteLock()
+    var pool: AdPool = setOf()
         private set
 
-    var currentAd: Ad = pool.first().first
+    private var schedule = Schedule(pool.toList(), cfg.window)
+    val highPriorityAds: Queue<Ad> = LinkedList()
+
+    var currentAd: Ad = Ad("0,0,0", "0,0,0")
         private set(newAd) {
+            if (newAd == field) return
             val durationMs = System.currentTimeMillis() - rollStartTime
+            rollStartTime = System.currentTimeMillis()
             adChangedTs.publish(AdChanged(field, durationMs, listOf()))
             field = newAd
-            updateDisplay(newAd)
+            updateDisplay(newAd, Duration.ofMillis(durationMs))
         }
 
-    private var schedule: MutableList<AdTrack> = mutableListOf(AdTrack(currentAd, 1.0f, Duration.ZERO))
-    private var nextAdIdx = 0
 
     fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
-        synchronized(schedule) {
+        rwLock.write {
             pool = newPool
-            nextAdIdx = 0
-            val totalSim = pool.fold(0f) { total, (_, sim) -> total + sim }
-            schedule = pool.map { (ad, sim) ->
-                AdTrack(ad, sim, Duration.ofMillis((cfg.period.toMillis() * sim / totalSim).toLong()))
-            }.toMutableList()
-            logger.atInfo().log("Refreshing Pool $newPool")
+            schedule = Schedule(pool.toList(), cfg.window)
+            logger.atInfo().log("Refreshing Pool New Pool: $newPool")
         }
     }
 
@@ -67,57 +65,42 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             AdPoolChanged::class.java -> {
                 refreshPool((cmd as AdPoolChanged).newPool)
             }
+            ShowAd::class.java -> {
+                val ad = (cmd as ShowAd).ad
+                highPriorityAds.add(ad)
+            }
         }
     }
 
     fun start() {
         startWatching()
-
         timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
-            synchronized(schedule) {
-                if (nextAdIdx == 0 && schedule.isEmpty())
-                    return@synchronized
-
-                val prevAd = schedule.getOrNull(nextAdIdx - 1)
-
-                if (prevAd != null) {
-                    prevAd.remaining = prevAd.remaining.minus(cfg.period)
-                    if (prevAd.remaining.isZero || prevAd.remaining.isNegative) {
-                        schedule.removeAt(nextAdIdx - 1)
-                        nextAdIdx--
-                    }
-                }
-
-                if (schedule.isNotEmpty()) {
-                    val nextAd = schedule[nextAdIdx++ % schedule.size]
-                    currentAd = nextAd.ad
-                }
+            rwLock.read {
+                currentAd = if (highPriorityAds.isNotEmpty())
+                    highPriorityAds.poll()
+                else
+                    schedule.next() ?: currentAd
             }
         }
-    }
-
-    private inline fun <reified T> parse(field: String, output: String): T? {
-        return if (output.startsWith(field)) {
-            val found = output.subSequence(output.indexOf(" ") + 1, output.length).toString()
-            when (T::class) {
-                Long::class -> found.toLong() as T
-                Float::class -> found.toFloat() as T
-                Int::class -> found.toInt() as T
-                String::class -> found.toString() as T
-                else -> null
-            }
-        } else null
     }
 
     val jackson = jacksonObjectMapper()
 
     private fun startWatching() {
-        var  weatherInfo = weatherInfo(weather = Weather.UNKNOWN , tempC = 0F, windSpeed = 0F, sunrise = 0, sunset = 0, timezone = 0, country = "country")
+        var weatherInfo = weatherInfo(
+            weather = Weather.UNKNOWN,
+            tempC = 0F,
+            windSpeed = 0F,
+            sunrise = 0,
+            sunset = 0,
+            timezone = 0,
+            country = "country"
+        )
         var envRef: BillboardEnvironment
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)
-            if(!json.isEmpty){
+            if (!json.isEmpty) {
                 val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
                 val temp = (json.path("main").get("temp").asText("0")).toFloat()
                 val wind = (json.path("wind").get("speed").asText("0")).toFloat()
@@ -126,7 +109,15 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
                 val timezone = (json.get("timezone").asText("0")).toInt()
                 val country = (json.path("sys").get("country").asText("UNKNOWN")).toString()
 
-                weatherInfo = weatherInfo(weather = weather, tempC = temp, windSpeed = wind, sunrise = sunrise, sunset = sunset, timezone = timezone, country = country)
+                weatherInfo = weatherInfo(
+                    weather = weather,
+                    tempC = temp,
+                    windSpeed = wind,
+                    sunrise = sunrise,
+                    sunset = sunset,
+                    timezone = timezone,
+                    country = country
+                )
                 print(weatherInfo)
             }
         }
@@ -135,8 +126,17 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
             println("READ Desibel: $it")
             val sound = it.toFloat()
 
-            if(sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)){
-                envRef = BillboardEnvironment(weather = weatherInfo.weather, tempC = weatherInfo.tempC, windSpeed = weatherInfo.windSpeed, sunrise = weatherInfo.sunrise, sunset = weatherInfo.sunset, timezone = weatherInfo.timezone, country = weatherInfo.country, soundDb = sound)
+            if (sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)) {
+                envRef = BillboardEnvironment(
+                    weather = weatherInfo.weather,
+                    tempC = weatherInfo.tempC,
+                    windSpeed = weatherInfo.windSpeed,
+                    sunrise = weatherInfo.sunrise,
+                    sunset = weatherInfo.sunset,
+                    timezone = weatherInfo.timezone,
+                    country = weatherInfo.country,
+                    soundDb = sound
+                )
                 println(envRef.toString())
             }
         }
@@ -144,15 +144,12 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) {
         runPythonScriptWithBatch("age-gender-pred") {
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
-            }
-            else if(it.startsWith("object : ")){
-                if(it.contains("dog", ignoreCase=true)){
+            } else if (it.startsWith("object : ")) {
+                if (it.contains("dog", ignoreCase = true)) {
                     println("DOG DOG DOG")
-                }
-                else if(it.contains("person", ignoreCase=true)){
+                } else if (it.contains("person", ignoreCase = true)) {
                     println("PERSON PERSON PERSON")
-                }
-                else{
+                } else {
                     println("READ : $it")
                 }
             }

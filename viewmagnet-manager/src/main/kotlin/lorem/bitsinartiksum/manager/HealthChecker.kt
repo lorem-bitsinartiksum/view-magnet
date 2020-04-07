@@ -18,9 +18,11 @@ class HealthChecker {
 
     init {
         ts.subscribe { topic ->
+            // If ad manager decided a billboard is down, we dont need to process that.
+            if (topic.header.source == "ad-manager") return@subscribe
             val status = topic.payload
             lastReceived[topic.header.source] = System.currentTimeMillis() to status
-            subbers.forEach { it(status) }
+            subbers.forEach { handler -> handler(status) }
         }
         startChecker()
     }
@@ -38,7 +40,7 @@ class HealthChecker {
             lastReceived
                 .filter { isBillboardDown(it.value.first) }
                 .forEach {
-                    val newStatus = it.value.second.copy(Health.DOWN)
+                    val newStatus = it.value.second.copy(health = Health.DOWN)
                     ts.publish(newStatus)
                     subbers.forEach { handler -> handler(newStatus) }
                 }
