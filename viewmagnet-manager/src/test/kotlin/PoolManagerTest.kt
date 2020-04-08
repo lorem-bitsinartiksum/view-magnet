@@ -1,5 +1,6 @@
 import lorem.bitsinartiksum.manager.Billboard
 import lorem.bitsinartiksum.manager.Config
+import lorem.bitsinartiksum.manager.HealthChecker
 import lorem.bitsinartiksum.manager.PoolManager
 import model.*
 import org.junit.Test
@@ -20,7 +21,7 @@ class PoolManagerTest {
         repositoryService.save(ad1)
         repositoryService.save(ad2)
         repositoryService.save(ad3)
-        val poolManager = PoolManager(config)
+        val poolManager = PoolManager(config, HealthChecker())
         val billboard = Billboard(emptySet(), listOf(0.9f, 0.2f, 0.5f), 1)
         poolManager.updateBillboardPool(billboard)
         assertEquals(billboard.pool.size, 3)
@@ -31,7 +32,7 @@ class PoolManagerTest {
     @Test
     fun `test2 calcNewInterest`() {
         repositoryService.save(AdWithFeature("4", "asd", listOf(0.7f, 0.7f, 0.7f)))
-        val poolManager = PoolManager(config)
+        val poolManager = PoolManager(config, HealthChecker())
         val newInterest = poolManager.calcNewInterest("4", Billboard(emptySet(), listOf(0.3f, 0.2f, 0.4f), 2), 2, 1)
         assertEquals(listOf(0.5f, 0.45f, 0.55f), newInterest)
     }

@@ -13,7 +13,7 @@ import java.util.*
 class AdRepository() {
     val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
     val database = client.getDatabase("viewmagnet-${Mode.REAL}") //normal java driver usage
-    val col = database.getCollection<AdWithFeature>() //KMongo extension method
+        val col = database.getCollection<AdWithFeature>(AdWithFeature::class.java.name) //KMongo extension method
 
     fun create(ad: AdWithFeature): AdWithFeature? {
         val now = Date()
