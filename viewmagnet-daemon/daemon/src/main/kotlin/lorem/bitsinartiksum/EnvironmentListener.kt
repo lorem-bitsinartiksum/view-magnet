@@ -1,6 +1,7 @@
 package lorem.bitsinartiksum
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import lorem.bitsinartiksum.ad.Detection
 import model.BillboardEnvironment
 import model.Weather
 import java.io.BufferedReader
@@ -21,32 +22,14 @@ data class weatherInfo(
     val country: String
 )
 
-interface EnvironmentListenerInterface {
 
-    fun showDogRelatedAd()
+class EnvironmentListener(private val cmdHandler: CommandHandler) {
 
-    fun showCatRelatedAd()
 
-    fun showBicycleRelatedAd()
-
-    fun showRainRelatedAd()
-
-    fun showTornadoRelatedAd()
-
-    fun showColdRelatedAd()
-
-    fun showHotRelatedAd()
-
-    fun showHighSoundLevelRelatedAd()
-
-    fun showBabyRelatedAd()
-
-}
-
-class EnvironmentListener : EnvironmentListenerInterface {
     fun start() {
         startWatching()
     }
+
     private fun startWatching() {
         var weatherInfo = weatherInfo(
             weather = Weather.UNKNOWN,
@@ -83,8 +66,8 @@ class EnvironmentListener : EnvironmentListenerInterface {
         }
 
         runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
-            val sound = it.toFloat()
-            if (sound != null && !weatherInfo.weather.equals(Weather.UNKNOWN)) {
+            val sound = it.toFloatOrNull()
+            if (sound != null && weatherInfo.weather != Weather.UNKNOWN) {
                 envRef = BillboardEnvironment(
                     weather = weatherInfo.weather,
                     tempC = weatherInfo.tempC,
@@ -97,21 +80,11 @@ class EnvironmentListener : EnvironmentListenerInterface {
                 )
                 println(envRef.toString())
                 when {
-                    envRef.weather > Weather.TORNADO -> {
-                    showTornadoRelatedAd()
-                    }
-                    envRef.weather > Weather.RAIN -> {
-                    showRainRelatedAd()
-                    }
-                    envRef.soundDb > 80 -> {
-                    showHighSoundLevelRelatedAd()
-                    }
-                    envRef.tempC > 35 -> {
-                    showHotRelatedAd()
-                    }
-                    envRef.tempC < -5 -> {
-                    showColdRelatedAd()
-                    }
+                    envRef.weather > Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
+                    envRef.weather > Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
+                    envRef.soundDb > 80 -> cmdHandler.showRelatedAd(Detection.NOISE)
+                    envRef.tempC > 35 -> cmdHandler.showRelatedAd(Detection.HOT)
+                    envRef.tempC < -5 -> cmdHandler.showRelatedAd(Detection.COLD)
                 }
             }
         }
@@ -119,12 +92,13 @@ class EnvironmentListener : EnvironmentListenerInterface {
         runPythonScriptWithBatch("age-gender-pred") {
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
-                var values = it
-                values = values.replace("age-gender : ", "")
-                values = values.replace("[", "")
-                values = values.replace("]", "")
-                values = values.replace("'", "")
-                values = values.replace(" ", "")
+                val values = it
+                    .replace("age-gender : ", "")
+                    .replace("[", "")
+                    .replace("]", "")
+                    .replace("'", "")
+                    .replace(" ", "")
+
                 val parts = values.split(",")
 
                 val arrayListAge = ArrayList<Int>()
@@ -138,59 +112,23 @@ class EnvironmentListener : EnvironmentListenerInterface {
                     }
                 }
                 if (arrayListAge.isNotEmpty() && arrayListAge.min()!! < 11) {
-                showBabyRelatedAd()
+                    cmdHandler.showRelatedAd(Detection.BABY)
                 }
             } else if (it.startsWith("object : ")) {
                 when {
                     it.contains("dog", ignoreCase = true) -> {
-                showDogRelatedAd()
+                        cmdHandler.showRelatedAd(Detection.DOG)
                     }
                     it.contains("cat", ignoreCase = true) -> {
-                showCatRelatedAd()
+                        cmdHandler.showRelatedAd(Detection.CAT)
                     }
                     it.contains("bicycle", ignoreCase = true) -> {
-                showBicycleRelatedAd()
+                        cmdHandler.showRelatedAd(Detection.BICYCLE)
                     }
                 }
             }
         }
 
-    }
-
-    override fun showDogRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showCatRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showBicycleRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showRainRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showTornadoRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showColdRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showHotRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showHighSoundLevelRelatedAd() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showBabyRelatedAd() {
-        TODO("Not yet implemented")
     }
 }
 

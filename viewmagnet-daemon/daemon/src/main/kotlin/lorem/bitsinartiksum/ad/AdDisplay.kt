@@ -44,7 +44,7 @@ class AdDisplay(
             EventQueue.invokeLater {
                 frame.title = "${duration?.toSeconds() ?: "AdViewer"}s"
             }
-            duration = duration?.minusSeconds(1)
+            duration = duration?.plusSeconds(1)
         }, 0, 1, TimeUnit.SECONDS)
     }
 
@@ -53,10 +53,12 @@ class AdDisplay(
         frame.isVisible = true
     }
 
-    fun changeAd(newImg: Image, newDuration: Duration) {
-        img = newImg
-        duration = newDuration
-        overlayQr("//")
+    fun changeAd(newImg: Image) {
+        EventQueue.invokeLater {
+            img = newImg
+            duration = Duration.ofMillis(0)
+            overlayQr("//")
+        }
     }
 
     private fun overlayQr(url: String) {
@@ -66,14 +68,13 @@ class AdDisplay(
             height,
             BufferedImage.TYPE_INT_ARGB
         )
-        EventQueue.invokeLater {
-            val g: Graphics2D = combinedImage.createGraphics()
-            val QRimg = QRGenerator.generateQRCodeImage(url, 100, 100)
-            g.drawImage(img, 0, 0, null)
-            g.drawImage(QRimg, width - 100, height - 150, null)
-            g.dispose()
-            poster.icon = ImageIcon(combinedImage)
-        }
+        val g: Graphics2D = combinedImage.createGraphics()
+        val QRimg = QRGenerator.generateQRCodeImage(url, 100, 100)
+        g.drawImage(img, 0, 0, null)
+        g.drawImage(QRimg, width - 100, height - 150, null)
+        g.dispose()
+        poster.icon = ImageIcon(combinedImage)
+
     }
 
     companion object {

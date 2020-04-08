@@ -20,7 +20,7 @@ internal class AdManagerTest {
             "TESTAD",
             "https://images.unsplash.com/photo-1583073600538-f219abfb20bc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
         )
-        val adManager = AdManager({ ad, duration -> println("Current AD: ${ad.id}") }, Config())
+        val adManager = AdManager({ ad -> println("Current AD: ${ad.id}") }, Config())
         val cmdListener = CommandListener(Config(), adManager)
         cmdListener.start()
         adManager.start()
