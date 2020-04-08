@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.timer
 import kotlin.concurrent.write
+import kotlin.system.exitProcess
 
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
@@ -70,7 +71,8 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : Comm
     }
 
     override fun shutdown() {
-        TODO("Not yet implemented")
+        logger.atFine().log("Exiting...")
+        exitProcess(0)
     }
 
     fun start() {
