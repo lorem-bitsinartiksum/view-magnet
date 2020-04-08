@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class PoolManagerTest {
 
-    private val repositoryService = RepositoryService.createFor(AdWithFeature::class.java)
+    private val repositoryService = RepositoryService.createFor(Mode.SIM, AdWithFeature::class.java)
 
     @Test
     fun `test1 updateBillboardPool`() {
