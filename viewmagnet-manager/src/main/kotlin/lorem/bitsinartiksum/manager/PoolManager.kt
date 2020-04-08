@@ -16,7 +16,7 @@ data class Billboard(
     var counter: Int = 0
 )
 
-class PoolManager(config: Config) {
+class PoolManager(config: Config, hc: HealthChecker) {
 
     private val billboards = mutableMapOf<String, Billboard>()
 
@@ -38,13 +38,20 @@ class PoolManager(config: Config) {
     private val repositoryServiceQR = RepositoryService.createFor(QR::class.java, mode)
 
     init {
+        hc.subscribe { billboardId, newStatus ->
+            if (billboards.contains(billboardId) && newStatus.health == Health.DOWN) {
+                billboards.remove(billboardId)
+            } else if (!billboards.contains(billboardId) && newStatus.health == Health.UP) {
+                billboards[billboardId] = Billboard(emptySet(), emptyList(), 0)
+            }
+        }
         adChangedTs.subscribe {
             val billboardId = it.header.source
-            val billboard = billboards.getOrPut(billboardId) {Billboard(emptySet(), emptyList(), 0) }
+            val billboard = billboards.getOrPut(billboardId) { Billboard(emptySet(), emptyList(), 0) }
             val adId = it.payload.ad.id
             val qr = repositoryServiceQR.find { qr ->
                 qr.billboardId == billboardId &&
-                qr.adId == adId
+                        qr.adId == adId
             }
             val adStartTime = it.header.createdAt - it.payload.durationMs
             val adEndTime = it.header.createdAt
@@ -73,7 +80,7 @@ class PoolManager(config: Config) {
     fun calcNewInterest(adId: String, billboard: Billboard, detectionsLength: Int, countQR: Int): List<Float> {
         return when (mode) {
             Mode.SIM -> {
-                val ad = repositoryServiceAd.find {adWithFeature ->  adWithFeature.id == adId}
+                val ad = repositoryServiceAd.find { adWithFeature -> adWithFeature.id == adId }
                 if (ad == null) {
                     logger.atWarning().log("AdWithFeature not found")
                     return emptyList()
@@ -89,7 +96,7 @@ class PoolManager(config: Config) {
                 newInterest
             }
             Mode.REAL -> {
-                val ad = repositoryServiceAd.find {adWithFeature ->  adWithFeature.id == adId}
+                val ad = repositoryServiceAd.find { adWithFeature -> adWithFeature.id == adId }
                 if (ad == null) {
                     logger.atWarning().log("AdWithFeature not found")
                     return emptyList()

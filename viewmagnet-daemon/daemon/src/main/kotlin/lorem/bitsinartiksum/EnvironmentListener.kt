@@ -80,8 +80,8 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
                 )
                 println(envRef.toString())
                 when {
-                    envRef.weather > Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
-                    envRef.weather > Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
+                    envRef.weather == Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
+                    envRef.weather == Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
                     envRef.soundDb > 80 -> cmdHandler.showRelatedAd(Detection.NOISE)
                     envRef.tempC > 35 -> cmdHandler.showRelatedAd(Detection.HOT)
                     envRef.tempC < -5 -> cmdHandler.showRelatedAd(Detection.COLD)

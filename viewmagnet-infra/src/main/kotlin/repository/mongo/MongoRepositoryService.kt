@@ -119,6 +119,6 @@ internal class MongoRepositoryService<T : Persistable>(override val activeMode: 
     companion object {
         // TODO: Use cfg for address
         // Single client manages pooling itself
-        private val client = MongoClient()
+        private val client = MongoClient("localhost", 27017)
     }
 }

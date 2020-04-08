@@ -5,12 +5,18 @@ import model.BillboardStatus
 import model.Health
 import topic.TopicContext
 import topic.TopicService
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-typealias StatusHandler = (BillboardStatus) -> Unit
+typealias StatusHandler = (String, BillboardStatus) -> Unit
+
 
 class HealthChecker {
+
+    companion object{
+        val billboard = ConcurrentHashMap<String, BillboardStatus>()
+    }
 
     private val lastReceived = mutableMapOf<String, Pair<Long, BillboardStatus>>()
     private val ts = TopicService.createFor(BillboardStatus::class.java, "ad-manager", TopicContext())
@@ -22,7 +28,7 @@ class HealthChecker {
             if (topic.header.source == "ad-manager") return@subscribe
             val status = topic.payload
             lastReceived[topic.header.source] = System.currentTimeMillis() to status
-            subbers.forEach { handler -> handler(status) }
+            subbers.forEach { handler -> handler(topic.header.source, status) }
         }
         startChecker()
     }
@@ -42,7 +48,8 @@ class HealthChecker {
                 .forEach {
                     val newStatus = it.value.second.copy(health = Health.DOWN)
                     ts.publish(newStatus)
-                    subbers.forEach { handler -> handler(newStatus) }
+                    billboard[it.key] = newStatus
+                    subbers.forEach { handler -> handler(it.key, newStatus) }
                 }
         }, 0, 5, TimeUnit.SECONDS)
     }

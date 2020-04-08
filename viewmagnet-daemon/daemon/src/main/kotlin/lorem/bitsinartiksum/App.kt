@@ -33,7 +33,7 @@ fun main() = runBlocking<Unit> {
 //                )
 //            )
 //        )
-        d.adManager.showRelatedAd(Detection.DOG)
+//        d.adManager.showRelatedAd(Detection.DOG)
     }
     d.start()
 //    val cfg = Config()
