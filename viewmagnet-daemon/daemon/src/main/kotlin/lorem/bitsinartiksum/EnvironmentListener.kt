@@ -1,6 +1,7 @@
 package lorem.bitsinartiksum
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import lorem.bitsinartiksum.ad.Detection
 import model.BillboardEnvironment
 import model.Weather
 import java.io.BufferedReader
@@ -21,17 +22,6 @@ data class weatherInfo(
     val country: String
 )
 
-enum class Detection {
-    DOG,
-    CAT,
-    RAIN,
-    BICYCLE,
-    TORNADO,
-    COLD,
-    NOISE,
-    HOT,
-    BABY,
-}
 
 class EnvironmentListener(private val cmdHandler: CommandHandler) {
 

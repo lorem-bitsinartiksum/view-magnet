@@ -1,6 +1,7 @@
 package lorem.bitsinartiksum
 
 import lorem.bitsinartiksum.ad.AdPool
+import lorem.bitsinartiksum.ad.Detection
 import model.Ad
 
 interface CommandHandler {

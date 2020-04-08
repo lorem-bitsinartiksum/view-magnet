@@ -15,9 +15,9 @@ data class Daemon(
         AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
         650, 1000
     ),
-    val adManager: AdManager = AdManager({ ad, duration ->
+    val adManager: AdManager = AdManager({ ad ->
         val img = AdDisplay.loadImg(ad.content) ?: return@AdManager
-        adDisplay.changeAd(img, duration)
+        adDisplay.changeAd(img)
     }, cfg),
     val cmdListener: CommandListener = CommandListener(
         cfg,

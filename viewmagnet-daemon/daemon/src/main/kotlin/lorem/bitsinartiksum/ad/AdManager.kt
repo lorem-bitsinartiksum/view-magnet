@@ -3,14 +3,14 @@ package lorem.bitsinartiksum.ad
 import com.google.common.flogger.FluentLogger
 import lorem.bitsinartiksum.CommandHandler
 import lorem.bitsinartiksum.Config
-import lorem.bitsinartiksum.Detection
 import model.Ad
 import model.AdChanged
 import model.Similarity
 import topic.TopicContext
 import topic.TopicService
-import java.time.Duration
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.timer
@@ -19,11 +19,14 @@ import kotlin.concurrent.write
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
 
-class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Config) : CommandHandler {
+class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : CommandHandler {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
     private val rwLock = ReentrantReadWriteLock()
+    private val specialAds = Detection.extractAdsFromFolder()
+    private var showingRelatedAd = false
+
     var pool: AdPool = setOf()
         private set
 
@@ -37,11 +40,21 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
             rollStartTime = System.currentTimeMillis()
             adChangedTs.publish(AdChanged(field, durationMs, listOf()))
             field = newAd
-            updateDisplay(newAd, Duration.ofMillis(durationMs))
+            updateDisplay(newAd)
         }
 
     override fun showRelatedAd(detection: Detection) {
-        TODO("Not yet implemented")
+        rwLock.write {
+            // Billboard is already showing a related ad. So we should skip this one.
+            if (showingRelatedAd) return@write
+            currentAd = specialAds[detection]?.random() ?: currentAd
+            showingRelatedAd = true
+            // Stop blocking regular scheduler after showing it for half of the regular period
+            CompletableFuture.delayedExecutor(cfg.period.toMillis() / 2, TimeUnit.MILLISECONDS).execute {
+                showingRelatedAd = false
+            }
+        }
+
     }
 
     override fun showAd(ad: Ad) {
@@ -62,6 +75,7 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
 
     fun start() {
         timer("ad-scheduler", false, 0, cfg.period.toMillis()) {
+            if (showingRelatedAd) return@timer
             rwLock.read {
                 currentAd = if (highPriorityAds.isNotEmpty())
                     highPriorityAds.poll()
