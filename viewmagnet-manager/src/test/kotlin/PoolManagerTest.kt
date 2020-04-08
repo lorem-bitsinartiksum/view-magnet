@@ -18,7 +18,7 @@ class PoolManagerTest {
         repositoryService.save(ad1)
         repositoryService.save(ad2)
         repositoryService.save(ad3)
-        val config = Config(Mode.SIM, 0.0f, 10)
+        val config = Config()
         val poolManager = PoolManager(config)
         val billboard = Billboard(emptySet(), listOf(0.9f, 0.2f, 0.5f), 1)
         poolManager.updateBillboardPool(billboard)
@@ -30,9 +30,9 @@ class PoolManagerTest {
     @Test
     fun `test2 calcNewInterest`() {
         repositoryService.save(AdWithFeature("4", "asd", listOf(0.7f, 0.7f, 0.7f)))
-        val config = Config(Mode.SIM, 0.2f, 10)
+        val config = Config()
         val poolManager = PoolManager(config)
-        val newInterest = poolManager.calcNewInterest("4", Billboard(emptySet(), listOf(0.3f, 0.2f, 0.4f), 1), 2, 1)
-        assertEquals(listOf(0.35f, 0.35f, 0.35f), newInterest)
+        val newInterest = poolManager.calcNewInterest("4", Billboard(emptySet(), listOf(0.3f, 0.2f, 0.4f), 2), 2, 1)
+        assertEquals(listOf(0.5f, 0.45f, 0.55f), newInterest)
     }
 }

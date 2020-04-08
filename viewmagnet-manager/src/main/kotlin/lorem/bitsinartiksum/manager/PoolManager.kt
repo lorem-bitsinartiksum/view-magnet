@@ -50,7 +50,7 @@ class PoolManager(config: Config) {
             val adEndTime = it.header.createdAt
             var countQR = 0
             qr?.interactionTimes?.forEach { time ->
-                if (time in adStartTime..adEndTime) {
+                if (time.toLong() in adStartTime..adEndTime) {
                     countQR++
                 }
             }
@@ -67,7 +67,7 @@ class PoolManager(config: Config) {
                 updateBillboardPool(it.value)
                 adPoolChangedTs.publish(AdPoolChanged(it.value.pool), TopicContext(individual = it.key))
             }
-        }, 0, 1, TimeUnit.SECONDS)
+        }, 0, 5, TimeUnit.SECONDS)
     }
 
     fun calcNewInterest(adId: String, billboard: Billboard, detectionsLength: Int, countQR: Int): List<Float> {
@@ -89,7 +89,6 @@ class PoolManager(config: Config) {
                 newInterest
             }
             Mode.REAL -> {
-                //TODO: Changes may be required for Real mode
                 val ad = repositoryServiceAd.find {adWithFeature ->  adWithFeature.id == adId}
                 if (ad == null) {
                     logger.atWarning().log("AdWithFeature not found")
