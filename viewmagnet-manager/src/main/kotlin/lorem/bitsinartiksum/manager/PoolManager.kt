@@ -25,9 +25,9 @@ class PoolManager(config: Config) {
 
     private val adPoolChangedTs = TopicService.createFor(AdPoolChanged::class.java, "pool-manager", TopicContext())
 
-    private val repositoryServiceAd = RepositoryService.createFor(AdWithFeature::class.java)
+    private val repositoryServiceAd = RepositoryService.createFor(Mode.SIM, AdWithFeature::class.java)
 
-    private val repositoryServiceQR = RepositoryService.createFor(QR::class.java)
+    private val repositoryServiceQR = RepositoryService.createFor(Mode.SIM, QR::class.java)
 
     private val logger = FluentLogger.forEnclosingClass()
 
