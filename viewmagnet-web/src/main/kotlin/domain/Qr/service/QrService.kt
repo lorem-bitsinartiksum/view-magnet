@@ -9,7 +9,7 @@ import java.util.*
 
 class QrService(val adRepository: AdRepository)  {
     fun increaseInteraction(mode : Mode, billboardId: String?, adId: String?) : String? {
-        val repositoryService = createFor(mode, QR::class.java)
+        val repositoryService = createFor(QR::class.java, mode = mode)
         if (billboardId.isNullOrEmpty()){
             throw BadRequestResponse("invalid billboardId") as Throwable
         }
