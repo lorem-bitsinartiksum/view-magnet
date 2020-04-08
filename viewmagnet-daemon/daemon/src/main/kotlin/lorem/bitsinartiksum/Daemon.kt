@@ -25,13 +25,15 @@ data class Daemon(
     ),
     val statusReporter: StatusReporter = StatusReporter(
         cfg
-    )
+    ),
+    val envListener: EnvironmentListener= EnvironmentListener()
 ) {
 
     fun start() = runBlocking {
         adDisplay.show()
         adManager.start()
         cmdListener.start()
+        envListener.start()
 
         StatusReporter(cfg).start(envUpdate(), adUpdate(adManager))
 
