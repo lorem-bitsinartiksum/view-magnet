@@ -30,7 +30,7 @@ interface RepositoryService<T : Persistable> {
     fun filter(predicate: Predicate<T>): Iterator<T>
 
     companion object {
-        fun <T : Persistable> createFor(mode : Mode ,clazz: Class<T>): RepositoryService<T> {
+        fun <T : Persistable> createFor(clazz: Class<T>, mode: Mode = Mode.valueOf(System.getProperty("mode", "real").toUpperCase())): RepositoryService<T> {
             return MongoRepositoryService(mode, clazz)
         }
     }
