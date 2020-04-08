@@ -25,10 +25,6 @@ class PoolManager(config: Config) {
 
     private val adPoolChangedTs = TopicService.createFor(AdPoolChanged::class.java, "pool-manager", TopicContext())
 
-    private val repositoryServiceAd = RepositoryService.createFor(Mode.SIM, AdWithFeature::class.java)
-
-    private val repositoryServiceQR = RepositoryService.createFor(Mode.SIM, QR::class.java)
-
     private val logger = FluentLogger.forEnclosingClass()
 
     private val mode = config.mode
@@ -36,6 +32,10 @@ class PoolManager(config: Config) {
     private val maxPoolSize = config.maxPoolSize
 
     private val threshold = config.similarityThreshold
+
+    private val repositoryServiceAd = RepositoryService.createFor(AdWithFeature::class.java, mode)
+
+    private val repositoryServiceQR = RepositoryService.createFor(QR::class.java, mode)
 
     init {
         adChangedTs.subscribe {
