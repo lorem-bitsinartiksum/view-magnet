@@ -6,10 +6,10 @@ import model.*
 import repository.RepositoryService.Companion.createFor
 import java.util.*
 
-private val repositoryService = createFor(QR::class.java)
 
-class QrService(private val adRepository: AdRepository)  {
-    fun increaseInteraction(billboardId: String?, adId: String?) : String? {
+class QrService(val adRepository: AdRepository)  {
+    fun increaseInteraction(mode : Mode, billboardId: String?, adId: String?) : String? {
+        val repositoryService = createFor(mode, QR::class.java)
         if (billboardId.isNullOrEmpty()){
             throw BadRequestResponse("invalid billboardId") as Throwable
         }
