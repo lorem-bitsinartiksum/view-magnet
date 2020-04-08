@@ -29,8 +29,8 @@ class AdService(private val adRepository: AdRepository,
         var targetHighTemp: Int = 0
         var targetLowSoundLevel: Int = 0
         var targetHighSoundLevel: Int = 0
-        var createdAt: Date = Date()
-        var updatedAt: Date = Date()
+        var createdAt: String = ""
+        var updatedAt: String = ""
         var feature: List<Float> = emptyList()
 
         if (ad.description != null){

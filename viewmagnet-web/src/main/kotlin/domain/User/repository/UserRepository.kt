@@ -49,13 +49,13 @@ class UserRepository() {
         }
         if (user.email != null){
             val now = Date()
-            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now))
+            colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now.toString()))
             colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::user / User::email, user.email))
             col.updateMany(Filters.eq("email", email), SetTo(User::email, user.email))
             return findByEmail(user.email)
         }
         val now = Date()
-        colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now))
+        colAd.updateMany(Filters.eq("user.email", email), setValue(Ad::updatedAt, now.toString()))
         return findByEmail(email)
     }
 
