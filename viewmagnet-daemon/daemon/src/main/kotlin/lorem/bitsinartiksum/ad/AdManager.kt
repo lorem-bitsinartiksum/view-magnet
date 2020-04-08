@@ -1,8 +1,12 @@
 package lorem.bitsinartiksum.ad
 
 import com.google.common.flogger.FluentLogger
+import lorem.bitsinartiksum.CommandHandler
 import lorem.bitsinartiksum.Config
-import model.*
+import lorem.bitsinartiksum.Detection
+import model.Ad
+import model.AdChanged
+import model.Similarity
 import topic.TopicContext
 import topic.TopicService
 import java.time.Duration
@@ -15,7 +19,7 @@ import kotlin.concurrent.write
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
 
-class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Config) {
+class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Config) : CommandHandler {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
     private var rollStartTime = System.currentTimeMillis()
@@ -24,7 +28,7 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
         private set
 
     private var schedule = Schedule(pool.toList(), cfg.window)
-    val highPriorityAds: Queue<Ad> = LinkedList()
+    private val highPriorityAds: Queue<Ad> = LinkedList()
 
     var currentAd: Ad = Ad("0,0,0", "0,0,0")
         private set(newAd) {
@@ -36,8 +40,15 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
             updateDisplay(newAd, Duration.ofMillis(durationMs))
         }
 
+    override fun showRelatedAd(detection: Detection) {
+        TODO("Not yet implemented")
+    }
 
-    fun refreshPool(newPool: Set<Pair<Ad, Similarity>>) {
+    override fun showAd(ad: Ad) {
+        highPriorityAds.add(ad)
+    }
+
+    override fun changePool(newPool: AdPool) {
         rwLock.write {
             pool = newPool
             schedule = Schedule(pool.toList(), cfg.window)
@@ -45,16 +56,8 @@ class AdManager(private val updateDisplay: (Ad, Duration) -> Unit, val cfg: Conf
         }
     }
 
-    inline fun <reified T> handleCommand(cmd: T) {
-        when (T::class.java) {
-            AdPoolChanged::class.java -> {
-                refreshPool((cmd as AdPoolChanged).newPool)
-            }
-            ShowAd::class.java -> {
-                val ad = (cmd as ShowAd).ad
-                highPriorityAds.add(ad)
-            }
-        }
+    override fun shutdown() {
+        TODO("Not yet implemented")
     }
 
     fun start() {

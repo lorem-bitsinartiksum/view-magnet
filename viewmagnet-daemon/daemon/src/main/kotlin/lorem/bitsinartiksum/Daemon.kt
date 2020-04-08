@@ -26,7 +26,7 @@ data class Daemon(
     val statusReporter: StatusReporter = StatusReporter(
         cfg
     ),
-    val envListener: EnvironmentListener= EnvironmentListener()
+    val envListener: EnvironmentListener = EnvironmentListener(adManager)
 ) {
 
     fun start() = runBlocking {
