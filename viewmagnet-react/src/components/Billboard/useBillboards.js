@@ -32,6 +32,17 @@ export default function useBillboards() {
         req("api/qr", { billboard: data.bid, ad: data.adid, mode: data.mode }, null, "POST")
     }, []);
 
+    // const url = 'https://api.github.com/users/barbier'
+    // const req = []
+    // for(var i = 0; i < 10; i++)
+    //   req.push(axios.get(url))
+    // 
+    // axios.all(req)
+    //   .then(axios.spread( 
+    //   (...responses) => {
+    //   responses.forEach(e => console.log(e));
+    // }));
+
     useEffect(() => {
         let eventSrc = new EventSource("http://localhost:8000/billboard/status");
 
