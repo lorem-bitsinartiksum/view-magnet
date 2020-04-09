@@ -12,7 +12,7 @@ class BillboardController(private val jackson: ObjectMapper) {
     }
 
     init {
-        healthChecker.subscribe { status -> sessions.forEach { it.send(jackson.writeValueAsString(status)) } }
+        healthChecker.subscribe {billboardId, status -> sessions.forEach { it.send(jackson.writeValueAsString(status)) } }
     }
 
     fun subscribe(session: WsSession) {
