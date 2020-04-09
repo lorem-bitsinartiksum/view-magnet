@@ -1,10 +1,10 @@
 package controllers
 
 import com.mongodb.MongoClient
-import io.javalin.Javalin
-import io.javalin.util.HttpUtil
 import config.AppConfig
+import io.javalin.Javalin
 import io.javalin.util.AdReqDTO
+import io.javalin.util.HttpUtil
 import model.*
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After
@@ -44,12 +44,12 @@ class AdControllerTest {
         val adDTO = AdReqDTO(
             AdReq(
                 title = "valid_title",
-                content = "valid_content",
+                content = "https://images.unsplash.com/photo-1586338445751-05dce666cc3d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
                 targetAge = listOf(Age.BABY, Age.CHILD, Age.YOUNG, Age.ADULT, Age.ELDERLY),
                 targetWeather = listOf(Weather.RAIN),
                 targetLowTemp = 10,
-                feature = listOf(0.5f, 0.6f, 0.4f)
+                feature = generateSequence { 0.5f }.take(11).toList()
             )
         )
         val response = http.post<AdReqDTO>("/api/ads", adDTO)
