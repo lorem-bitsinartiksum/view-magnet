@@ -23,7 +23,7 @@ class Advert extends React.Component {
     }
 
     onClickUpdate = () => axios.put(
-        'http://localhost:7000/api/ads/' + this.props.slug,
+        'http://localhost:7000/api/ads/' + this.props.id,
         {
             ad: {
                 title: this.state.title, description: this.state.description,
@@ -41,7 +41,7 @@ class Advert extends React.Component {
     });
     onClickEdit = () => this.setState({ modalVisible: true })
     onClickDelete = () => axios.delete(
-        'http://localhost:7000/api/ads/' + this.props.slug,
+        'http://localhost:7000/api/ads/' + this.props.id,
         { headers: { 'Authorization': this.props.token } }).then(() => message.success("Advert deleted successfully!")).catch((err) => console.log(err))
     onChangeTitle = str => this.setState({ title: str.target.value });
     onChangeDesc = str => this.setState({ description: str.target.value });

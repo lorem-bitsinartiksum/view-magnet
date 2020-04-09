@@ -60,7 +60,13 @@ class CreateAdvert extends React.Component {
                         <Upload listType="picture" beforeUpload={(f) => { // TODO USE YOUR OWN FILELIST
                             let reader = new FileReader();
                             reader.readAsDataURL(f);
-                            reader.onloadend = () => { this.setState({ content: reader.result }); return false; };
+                            reader.onloadend = () => {
+                                axios.post("https://api.imgur.com/3/image", {
+                                    type: 'base64',
+                                    image: reader.result.substring(reader.result.indexOf('64') + 3)
+                                }, { headers: { 'Authorization': 'Client-ID 97e091e65babfb1' } }).then(e => this.setState({ content: e.data.data.link })).catch(e => console.log(e))
+                                return false;
+                            };
                         }}>
                             <Button>
                                 <Icon type="upload" />Click to upload

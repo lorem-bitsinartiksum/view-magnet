@@ -31,8 +31,8 @@ class Adverts extends React.Component {
         if (this.state.ads)
             ads = this.state.ads.map(ad => (
                 <Advert
-                    key={ad.slug}
-                    slug={ad.slug}
+                    key={ad.isAdmin}
+                    id={ad.id}
                     title={ad.title}
                     description={ad.description}
                     targetAge={ad.targetAge}
