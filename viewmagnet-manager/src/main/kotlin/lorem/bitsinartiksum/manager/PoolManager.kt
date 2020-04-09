@@ -5,6 +5,7 @@ import model.*
 import repository.RepositoryService
 import topic.TopicContext
 import topic.TopicService
+import java.lang.Math.pow
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -17,7 +18,7 @@ private val Double.isZero: Boolean
 
 data class Billboard(
     var pool: Set<Pair<Ad, Similarity>> = emptySet(),
-    var interest: List<Float> = generateSequence { 0.5f }.take(11).toList(),
+    var interest: List<Float> = listOf(1f, 0f, 0f, 0f, 1f, 1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f),
     var counter: Int = 0
 )
 
@@ -119,7 +120,7 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
                     )
                 0f
             }()
-
+            logger.atSevere().log("Sim between ${ad.title}  -> ${sim}")
             if (sim >= cfg.similarityThreshold) {
                 similarities.add(ad to sim)
             }
@@ -138,10 +139,13 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
         var dotProduct = 0.0
         var normA = 0.0
         var normB = 0.0
-        for (i in vec1.indices) {
-            dotProduct += vec1[i] * vec2[i]
-            normA += Math.pow(vec1[i].toDouble(), 2.0)
-            normB += Math.pow(vec2[i].toDouble(), 2.0)
+        // TODO FIX THIS COEFF SHIT
+        vec1.zip(vec2).forEachIndexed { i, (e1, e2) ->
+            val ee1 = (if (i == 0) 0.6 else 0.4) * e1
+            val ee2 = (if (i == 0) 0.6 else 0.4) * e2
+            dotProduct += ee1 * ee2
+            normA += pow(ee1.toDouble(), 2.0)
+            normB += pow(ee2.toDouble(), 2.0)
         }
         val divider = (Math.sqrt(normA) * Math.sqrt(normB))
         return if (divider.isZero) 0f else (dotProduct / divider).toFloat()
