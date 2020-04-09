@@ -24,7 +24,13 @@ data class weatherInfo(
 
 
 class EnvironmentListener(private val cmdHandler: CommandHandler) {
+    companion object {
+        private var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0F, 0F,0,0,0,"",0f )
 
+        fun getEnvRef(): BillboardEnvironment {
+            return envRef
+        }
+    }
 
     fun start() {
         startWatching()
@@ -40,7 +46,6 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
             timezone = 0,
             country = "country"
         )
-        var envRef: BillboardEnvironment
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)

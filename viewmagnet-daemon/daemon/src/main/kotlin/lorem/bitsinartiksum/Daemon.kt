@@ -43,18 +43,8 @@ data class Daemon(
 
 fun CoroutineScope.envUpdate() = produce {
     while (true) {
-        var t = 1
         send(
-            BillboardEnvironment(
-                Weather.FOG,
-                t++.toFloat(),
-                (t * 10).toFloat(),
-                t.toLong(),
-                (t + 20).toLong(),
-                t,
-                "country",
-                t.toFloat()
-            )
+            EnvironmentListener.getEnvRef()
         )
         delay(2000)
     }
