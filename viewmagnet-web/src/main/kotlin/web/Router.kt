@@ -65,7 +65,7 @@ class Router(
                 }
             }
             path("qr") {
-                post(qrController::increaseInteraction, roles(Roles.ANYONE))
+                get(qrController::increaseInteraction, roles(Roles.ANYONE))
             }
         }
     }

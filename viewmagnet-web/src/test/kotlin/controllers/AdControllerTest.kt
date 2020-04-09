@@ -44,6 +44,7 @@ class AdControllerTest {
         val adDTO1 = AdReqDTO(
             AdReq(
                 title = "Yacht",
+                description = "https://images.unsplash.com/photo-1545566239-0b2fb5c50bc6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 content = "https://images.unsplash.com/photo-1545566239-0b2fb5c50bc6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
                 targetAge = listOf(Age.ADULT, Age.ELDERLY),
@@ -54,6 +55,7 @@ class AdControllerTest {
         val adDTO2 = AdReqDTO(
             AdReq(
                 title = "Audi R8",
+                description = "https://images.unsplash.com/photo-1541348263662-e068662d82af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80",
                 content = "https://images.unsplash.com/photo-1541348263662-e068662d82af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
                 targetAge = listOf(Age.YOUNG, Age.ADULT),
@@ -64,6 +66,7 @@ class AdControllerTest {
         val adDTO3 = AdReqDTO(
             AdReq(
                 title = "Fiat",
+                description = "https://images.unsplash.com/photo-1555598508-f54090d38d59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 content = "https://images.unsplash.com/photo-1555598508-f54090d38d59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
                 targetAge = listOf(Age.YOUNG, Age.ADULT, Age.ELDERLY),
@@ -74,6 +77,7 @@ class AdControllerTest {
         val adDTO4 = AdReqDTO(
             AdReq(
                 title = "Laptop",
+                description = "https://images.unsplash.com/photo-1527434171365-3d9f55f5fb78?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2550&q=80",
                 content = "https://images.unsplash.com/photo-1527434171365-3d9f55f5fb78?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2550&q=80",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
                 targetAge = listOf(Age.CHILD, Age.YOUNG, Age.ADULT, Age.ELDERLY),
@@ -84,6 +88,7 @@ class AdControllerTest {
         val adDTO5 = AdReqDTO(
             AdReq(
                 title = "Beetle",
+                description = "https://images.unsplash.com/photo-1566170177760-03f6f5b4a532?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 content = "https://images.unsplash.com/photo-1566170177760-03f6f5b4a532?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 targetGender = listOf(Gender.MAN),
                 targetAge = listOf(Age.YOUNG, Age.ADULT, Age.ELDERLY),

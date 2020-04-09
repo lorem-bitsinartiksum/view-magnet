@@ -1,5 +1,6 @@
 package controllers
 
+import com.mongodb.MongoClient
 import io.javalin.Javalin
 import io.javalin.util.HttpUtil
 import config.AppConfig
@@ -20,6 +21,8 @@ class UserControllerTest {
 
     @Before
     fun start() {
+        val mongo = MongoClient()
+        mongo.dropDatabase("viewmagnet-REAL")
         app = AppConfig().setup().start()
         http = HttpUtil(app.port())
     }
