@@ -27,6 +27,11 @@ export default function useBillboards() {
     let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/billboard/${id}`, { method: "DELETE" }),
         []);
 
+    let interactWithQR = useCallback((data, freq) => {
+        console.log(freq.target.value)
+        req("api/qr", { billboard: data.bid, ad: data.adid, mode: data.mode }, null, "POST")
+    }, []);
+
     useEffect(() => {
         let eventSrc = new EventSource("http://localhost:8000/billboard/status");
 
@@ -36,7 +41,6 @@ export default function useBillboards() {
                 id: status.billboardId, position: Object.values(status.billboardLocation), status: status.health,
                 interest: status.interest, ad: { id: status.adId, content: [Math.random().toFixed(1), Math.random().toFixed(1), Math.random().toFixed(1)] }//convertToColor(status.adId, "-") }
             };
-            console.log(formatted)
             setBillboards(bs => {
                 let i = bs.findIndex(b => b.id === formatted.id);
                 return i < 0 ? [...bs, formatted] : [...bs.slice(0, i), formatted, ...bs.slice(i + 1)]
@@ -46,7 +50,7 @@ export default function useBillboards() {
         return () => eventSrc.close();
     }, []);
 
-    return { billboards, addBillboard, shutdownBillboard, changeInterest }
+    return { billboards, addBillboard, shutdownBillboard, changeInterest, interactWithQR }
 }
 
 function convertToColor(id, delimiter) {

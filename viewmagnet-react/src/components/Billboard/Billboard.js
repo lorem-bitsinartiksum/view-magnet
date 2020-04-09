@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Dropdown, Row, Col } from "antd";
+import { Button, Dropdown, Row, Input } from "antd";
 import "./Billboard.css"
 import useBillboards from "./useBillboards";
 import { CompactPicker } from "react-color"
@@ -8,7 +8,7 @@ import ButtonGroup from "antd/lib/button/button-group";
 export default function Billboard({ id, position, status, interest, ad }) {
 
     let [adColor, setAdColor] = useState(mapValToColor(ad.content));
-    let { shutdownBillboard } = useBillboards();
+    let { shutdownBillboard, interactWithQR } = useBillboards();
 
     return (
         <div className="billboard">
@@ -49,6 +49,10 @@ export default function Billboard({ id, position, status, interest, ad }) {
                     </Row>
                     <Row>
                         <br></br>
+                        <Input addonBefore="QR/sec:" defaultValue={0} onChange={(e) => interactWithQR({ bid: id, adid: ad.id, mode: "sim" }, e)} />
+                    </Row>
+                    <Row>
+                        <br></br>
                         <Button type={"danger"} style={{ width: "100%" }} onClick={() => shutdownBillboard(id)}>SHUTDOWN</Button>
                     </Row>
                 </div>
@@ -69,3 +73,4 @@ export function mapColorToVal(hex) {
     let val = [(rgb.r / 255).toFixed(1), (rgb.g / 255).toFixed(1), (rgb.b / 255).toFixed(1)]
     return { rgb, val };
 }
+
