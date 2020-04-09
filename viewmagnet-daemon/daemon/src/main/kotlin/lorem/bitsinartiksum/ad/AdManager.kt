@@ -22,7 +22,7 @@ typealias AdPool = Set<Pair<Ad, Similarity>>
 
 class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : CommandHandler {
     private val logger = FluentLogger.forEnclosingClass()
-    private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext())
+    private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext(mode = cfg.mode))
     private var rollStartTime = System.currentTimeMillis()
     private val rwLock = ReentrantReadWriteLock()
     private val specialAds = Detection.extractAdsFromFolder()
@@ -34,7 +34,7 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : Comm
     private var schedule = Schedule(pool.toList(), cfg.window)
     private val highPriorityAds: Queue<Ad> = LinkedList()
 
-    var currentAd: Ad = Ad("0,0,0", "0,0,0")
+    var currentAd: Ad = Ad("default-ad", "")
         private set(newAd) {
             if (newAd == field) return
             val durationMs = System.currentTimeMillis() - rollStartTime

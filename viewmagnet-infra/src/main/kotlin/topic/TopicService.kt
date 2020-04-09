@@ -24,9 +24,12 @@ class TopicService<TopicType> private constructor(
 
     fun publish(topic: TopicType, context: TopicContext = activeCtx) {
 
+        val realCtx = if (context.individual == activeCtx.individual)
+            context.copy(individual = "ALL") else context
+
         val toPublish = Topic(topic, TopicHeader(serviceName))
         val serialized = serde.serialize(toPublish)
-        ts.publish(topicClass.name, context, serialized)
+        ts.publish(topicClass.name, realCtx, serialized)
         logger.atInfo().log("Publishing: $topic")
     }
 
@@ -61,7 +64,10 @@ class TopicService<TopicType> private constructor(
                 JsonSerde(topicClass),
                 topicClass,
                 serviceName,
-                activeCtx.copy(mode = Mode.valueOf(System.getProperty("mode", activeCtx.mode.toString()).toUpperCase()))
+                activeCtx.copy(
+                    individual = serviceName,
+                    mode = Mode.valueOf(System.getProperty("mode", activeCtx.mode.toString()).toUpperCase())
+                )
             )
         }
     }

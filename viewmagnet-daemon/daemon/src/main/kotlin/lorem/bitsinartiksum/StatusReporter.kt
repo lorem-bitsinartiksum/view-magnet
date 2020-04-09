@@ -15,7 +15,7 @@ import kotlin.concurrent.scheduleAtFixedRate
 class StatusReporter(val cfg: Config) {
 
     private val ts = TopicService.createFor(
-        BillboardStatus::class.java, "billboard-${cfg.id}",
+        BillboardStatus::class.java, cfg.id,
         TopicContext()
     )
 

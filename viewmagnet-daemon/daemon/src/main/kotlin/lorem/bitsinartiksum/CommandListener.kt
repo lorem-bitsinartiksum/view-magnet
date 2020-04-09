@@ -18,7 +18,7 @@ class CommandListener(private val cfg: Config, private val handler: CommandHandl
     }
 
     private fun <T> subscribe(clazz: Class<T>): TopicService<T> {
-        return TopicService.createFor(clazz, "billboard-${cfg.id}", TopicContext(mode = cfg.mode))
+        return TopicService.createFor(clazz, cfg.id, TopicContext(mode = cfg.mode))
     }
 }
 

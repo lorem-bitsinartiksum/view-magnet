@@ -1,10 +1,10 @@
 package controllers
 
 import com.mongodb.MongoClient
-import io.javalin.Javalin
-import io.javalin.util.HttpUtil
 import config.AppConfig
+import io.javalin.Javalin
 import io.javalin.util.AdReqDTO
+import io.javalin.util.HttpUtil
 import model.*
 import org.eclipse.jetty.http.HttpStatus
 import org.junit.After
@@ -41,27 +41,70 @@ class AdControllerTest {
         http.registerUser(email, password, "username_Test")
         http.loginAndSetTokenHeader(email, password)
 
-        val adDTO = AdReqDTO(
+        val adDTO1 = AdReqDTO(
             AdReq(
-                title = "valid_title",
-                content = "valid_content",
+                title = "Yacht",
+                description = "https://images.unsplash.com/photo-1545566239-0b2fb5c50bc6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+                content = "https://images.unsplash.com/photo-1545566239-0b2fb5c50bc6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
                 targetGender = listOf(Gender.WOMAN, Gender.MAN),
-                targetAge = listOf(Age.BABY, Age.CHILD, Age.YOUNG, Age.ADULT, Age.ELDERLY),
-                targetWeather = listOf(Weather.RAIN),
-                targetLowTemp = 10,
-                feature = listOf(0.5f, 0.6f, 0.4f)
+                targetAge = listOf(Age.ADULT, Age.ELDERLY),
+                feature = listOf(0.97f, 0f, 0f, 0.6f, 0.98f, 0.98f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
-        val response = http.post<AdReqDTO>("/api/ads", adDTO)
 
-        assertEquals(HttpStatus.OK_200, response.status)
-        assertEquals(adDTO.ad?.title, response.body.ad?.title)
-        assertEquals(adDTO.ad?.content, response.body.ad?.content)
-        assertEquals(adDTO.ad?.targetGender, response.body.ad?.targetGender)
-        assertEquals(adDTO.ad?.targetAge, response.body.ad?.targetAge)
-        assertEquals(adDTO.ad?.targetWeather, response.body.ad?.targetWeather)
-        assertEquals(adDTO.ad?.targetLowTemp, response.body.ad?.targetLowTemp)
+        val adDTO2 = AdReqDTO(
+            AdReq(
+                title = "Audi R8",
+                description = "https://images.unsplash.com/photo-1541348263662-e068662d82af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80",
+                content = "https://images.unsplash.com/photo-1541348263662-e068662d82af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80",
+                targetGender = listOf(Gender.WOMAN, Gender.MAN),
+                targetAge = listOf(Age.YOUNG, Age.ADULT),
+                feature = listOf(0.94f, 0f, 0f, 1f, 1f, 0f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+            )
+        )
+        // rich, babby, child, teen, adult, elder, rainy, sunny, cold, hot, politics
+        val adDTO3 = AdReqDTO(
+            AdReq(
+                title = "Fiat",
+                description = "https://images.unsplash.com/photo-1555598508-f54090d38d59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+                content = "https://images.unsplash.com/photo-1555598508-f54090d38d59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+                targetGender = listOf(Gender.WOMAN, Gender.MAN),
+                targetAge = listOf(Age.YOUNG, Age.ADULT, Age.ELDERLY),
+                feature = listOf(0.3f, 0f, 0f, 0.6f, 0.4f, 0.3f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+            )
+        )
 
+        val adDTO4 = AdReqDTO(
+            AdReq(
+                title = "Laptop",
+                description = "https://images.unsplash.com/photo-1527434171365-3d9f55f5fb78?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2550&q=80",
+                content = "https://images.unsplash.com/photo-1527434171365-3d9f55f5fb78?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2550&q=80",
+                targetGender = listOf(Gender.WOMAN, Gender.MAN),
+                targetAge = listOf(Age.CHILD, Age.YOUNG, Age.ADULT, Age.ELDERLY),
+                feature = listOf(0.18f, 0f, 0.7f, 0.8f, 0.6f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+            )
+        )
+
+        val adDTO5 = AdReqDTO(
+            AdReq(
+                title = "Beetle",
+                description = "https://images.unsplash.com/photo-1566170177760-03f6f5b4a532?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+                content = "https://images.unsplash.com/photo-1566170177760-03f6f5b4a532?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+                targetGender = listOf(Gender.MAN),
+                targetAge = listOf(Age.YOUNG, Age.ADULT, Age.ELDERLY),
+                feature = listOf(0.01f, 0f, 0f, 0.4f, 0.6f, 0.3f, 0.5f, 0.2f, 0.5f, 0.5f, 0.5f)
+            )
+        )
+
+        var response = http.post<AdReqDTO>("/api/ads", adDTO1)
+        response = http.post<AdReqDTO>("/api/ads", adDTO2)
+        assert(response.status == 200)
+        response = http.post<AdReqDTO>("/api/ads", adDTO3)
+        assert(response.status == 200)
+        response = http.post<AdReqDTO>("/api/ads", adDTO4)
+        assert(response.status == 200)
+        response = http.post<AdReqDTO>("/api/ads", adDTO5)
+        assert(response.status == 200)
     }
 
     @Test
