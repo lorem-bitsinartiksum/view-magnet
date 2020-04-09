@@ -2,106 +2,89 @@ package domain.Ad.repository
 
 import com.github.slugify.Slugify
 import com.mongodb.client.model.Filters
-import model.Ad
-import model.AdReq
-import model.AdWithFeature
-import model.Mode
+import model.*
 import org.litote.kmongo.*
+import repository.RepositoryService
 import java.util.*
 
 
 class AdRepository() {
-    val client = KMongo.createClient() //get com.mongodb.MongoClient new instance
-    val database = client.getDatabase("viewmagnet-${Mode.REAL}") //normal java driver usage
-        val col = database.getCollection<AdWithFeature>(AdWithFeature::class.java.name) //KMongo extension method
+    val rs = RepositoryService.createFor(AdWithFeature::class.java)
 
     fun create(ad: AdWithFeature): AdWithFeature? {
         val now = Date()
-        col.insertOne(AdWithFeature(id = ad.id, user = ad.user, title = ad.title, description = ad.description, content = ad.content, targetGender = ad.targetGender, targetAge = ad.targetAge, targetWeather = ad.targetWeather, targetLowTemp = ad.targetLowTemp, targetHighTemp = ad.targetHighTemp, targetLowSoundLevel = ad.targetLowSoundLevel, targetHighSoundLevel = ad.targetHighSoundLevel, createdAt = now.toString(), updatedAt = now.toString(), feature = ad.feature))
-        return findById(ad.id!!)
+        rs.save(
+            AdWithFeature(
+                id = ad.id,
+                user = ad.user,
+                title = ad.title,
+                description = ad.description,
+                content = ad.content,
+                targetGender = ad.targetGender,
+                targetAge = ad.targetAge,
+                targetWeather = ad.targetWeather,
+                targetLowTemp = ad.targetLowTemp,
+                targetHighTemp = ad.targetHighTemp,
+                targetLowSoundLevel = ad.targetLowSoundLevel,
+                targetHighSoundLevel = ad.targetHighSoundLevel,
+                createdAt = now.toString(),
+                updatedAt = now.toString(),
+                feature = ad.feature
+            )
+        )
+        return findById(ad.id)
     }
 
     fun delete(id: String) {
-        col.deleteOne(Filters.eq("id", id))
+        rs.deleteById(id)
     }
 
     fun update(id: String, ad: AdReq): AdWithFeature? {
-        if (ad.description != null)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::description, ad.description))
-        if (ad.content != null)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::content, ad.content))
-        if (ad.targetGender != null)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetGender, ad.targetGender))
-        if (ad.targetAge != null)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetAge, ad.targetAge))
-        if (ad.targetWeather != null)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::targetWeather, ad.targetWeather))
-        if (ad.title != null){
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::title, ad.title))
-            val now = Date()
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::updatedAt, now.toString()))
-            val newId = Slugify().slugify(ad.title)
-            col.updateMany(Filters.eq("id", id), SetTo(Ad::id, newId))
-            return newId?.let { findById(it) }
-        }
-        val now = Date()
-        col.updateMany(Filters.eq("id", id), SetTo(Ad::updatedAt, now.toString()))
-        return findById(id)
-
+        val oldAd = rs.findById(id) ?: return null
+        var newAd = oldAd?.copy(
+            id = ad.id ?: oldAd.id,
+            title = ad.title ?: oldAd.title,
+            description = ad.description ?: oldAd.description,
+            content = ad.content ?: oldAd.content,
+            targetGender = ad.targetGender ?: oldAd.targetGender,
+            targetAge = ad.targetAge ?: oldAd.targetAge,
+            targetWeather = ad.targetWeather ?: oldAd.targetWeather,
+            updatedAt = Date().toString(),
+            targetHighSoundLevel = ad.targetHighSoundLevel ?: oldAd.targetHighSoundLevel,
+            targetLowSoundLevel = ad.targetLowSoundLevel ?: oldAd.targetLowSoundLevel,
+            targetHighTemp = ad.targetHighTemp ?: oldAd.targetHighTemp,
+            targetLowTemp = ad.targetLowTemp ?: oldAd.targetLowTemp,
+            feature = ad.feature ?: oldAd.feature
+        )
+        rs.deleteById(oldAd?.id)
+        rs.save(newAd)
+        return findById(newAd.id)
     }
 
     fun findById(id: String): AdWithFeature? {
-        return col.findOne("{id:'$id'}")
+        return rs.findById(id)
     }
 
-    fun findByEmail(email: String): List<AdWithFeature> {
-        return col.find("{'user.email':'$email'}").toList()
-    }
 
-    fun findByTitle(title: String): List<AdWithFeature> {
-        return col.find("{title:'$title'}").toList()
-    }
+    fun findByFilters(
+        title: String?,
+        email: String?,
+        targetAge: String?,
+        targetGender: String?,
+        targetWeather: String?
+    ): List<AdWithFeature> {
 
-    fun findAll(): List<AdWithFeature> {
-        return col.find().toList()
-    }
-
-    fun findByAge(targetAge: String): List<AdWithFeature> {
-        return col.find("{targetAge:'$targetAge'}").toList()
-    }
-
-    fun findByGender(targetGender: String): List<AdWithFeature> {
-        return col.find("{targetGender:'$targetGender'}").toList()
-    }
-
-    fun findByWeather(targetWeather: String): List<AdWithFeature> {
-        return col.find("{targetWeather:'$targetWeather'}").toList()
-    }
-
-    fun findByFilters(title: String?, email: String?, targetAge: String?, targetGender: String?, targetWeather: String?): List<AdWithFeature> {
-
-        var filteredList = col.find().toList()
-        if(!title.isNullOrBlank()){
-            var titleFilter = "{title:'$title'}"
-            filteredList = filteredList.intersect(col.find(titleFilter).toList()).toList()
-        }
-        if(!email.isNullOrBlank()){
-            var emailFilter = "{'user.email':'$email'}"
-            filteredList = filteredList.intersect(col.find(emailFilter).toList()).toList()
-        }
-        if(!targetAge.isNullOrBlank()){
-            var targetAgeFilter = "{targetAge:'$targetAge'}"
-            filteredList = filteredList.intersect(col.find(targetAgeFilter).toList()).toList()
-        }
-        if(!targetGender.isNullOrBlank()){
-            var targetGenderFilter = "{targetGender:'$targetGender'}"
-            filteredList = filteredList.intersect(col.find(targetGenderFilter).toList()).toList()
-        }
-        if(!targetWeather.isNullOrBlank()){
-            var targetWeatherFilter = "{targetWeather:'$targetWeather'}"
-            filteredList = filteredList.intersect(col.find(targetWeatherFilter).toList()).toList()
-        }
-        return filteredList
+        return rs.filter {
+            var passes = true
+            passes = title?.equals(it.title) ?: passes
+            passes = email?.equals(it.user.email) ?: passes
+            passes = if (targetAge != null) it.targetAge.contains(Age.valueOf(targetAge.toUpperCase())) else passes
+            passes =
+                if (targetGender != null) it.targetGender.contains(Gender.valueOf(targetGender.toUpperCase())) else passes
+            passes =
+                if (targetWeather != null) it.targetWeather.contains(Weather.valueOf(targetWeather.toUpperCase())) else passes
+            passes
+        }.asSequence().toList()
     }
 
 }
