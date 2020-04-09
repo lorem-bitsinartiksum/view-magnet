@@ -17,7 +17,9 @@ data class Daemon(
     ),
     val adManager: AdManager = AdManager({ ad ->
         val img = AdDisplay.loadImg(ad.content) ?: return@AdManager
-        adDisplay.changeAd(img)
+        val qrUrl =
+            "http://192.168.1.102:7000/api/qr?mod=${cfg.mode.toString().toLowerCase()}&billboard=${cfg.id}&ad=${ad.id}"
+        adDisplay.changeAd(img, qrUrl)
     }, cfg),
     val cmdListener: CommandListener = CommandListener(
         cfg,
