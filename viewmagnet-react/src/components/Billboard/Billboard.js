@@ -1,14 +1,32 @@
-import React, { useState } from "react";
-import { Button, Dropdown, Row, Input } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Dropdown, Row, Input, Select } from "antd";
 import "./Billboard.css"
+import axios from 'axios'
 import useBillboards from "./useBillboards";
 import { CompactPicker } from "react-color"
 import ButtonGroup from "antd/lib/button/button-group";
 
+const { Option } = Select;
+
 export default function Billboard({ id, position, status, interest, ad }) {
 
     let [adColor, setAdColor] = useState(mapValToColor(ad.content));
+    let [ads, setAds] = useState([]);
     let { shutdownBillboard, interactWithQR } = useBillboards();
+
+    useEffect(() => {
+        let url = 'http://localhost:7000/api/ads';
+        axios.get(url, { headers: { 'Authorization': localStorage.getItem('token') } })
+            .then((res) => {
+                setAds({
+                    data: res.data.ads,
+                    options: res.data.ads.map(ad => (
+                        <Option key={ad.id} value={ad.id}>{ad.title}</Option>
+                    ))
+                });
+            })
+            .catch((err) => console.log(err))
+    }, []);
 
     return (
         <div className="billboard">
@@ -53,7 +71,14 @@ export default function Billboard({ id, position, status, interest, ad }) {
                     </Row>
                     <Row>
                         <br></br>
-                        <Button type={"danger"} style={{ width: "100%" }} onClick={() => shutdownBillboard(id)}>SHUTDOWN</Button>
+                        <Select style={{ width: 120 }}>
+                            {ads.options}
+                        </Select>
+                        <Button type="primary">Show</Button>
+                    </Row>
+                    <Row>
+                        <br></br>
+                        <Button type="danger" style={{ width: "100%" }} onClick={() => shutdownBillboard(id)}>Shutdown Billboard</Button>
                     </Row>
                 </div>
             </div>
@@ -73,4 +98,3 @@ export function mapColorToVal(hex) {
     let val = [(rgb.r / 255).toFixed(1), (rgb.g / 255).toFixed(1), (rgb.b / 255).toFixed(1)]
     return { rgb, val };
 }
-
