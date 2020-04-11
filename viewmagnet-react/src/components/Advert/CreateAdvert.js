@@ -11,26 +11,25 @@ const InputGroup = Input.Group;
 
 class CreateAdvert extends React.Component {
     state = {
-        title: '',
-        category: '',
-        price: 0,
-        description: '',
-        targetAge: [],
-        targetGender: [],
-        targetWorldView: 2,
-        targetWeather: [],
         content: '',
+        title: '',
+        description: '',
+        targetGender: [],
+        targetAge: [],
+        targetWeather: [],
         targetLowTemp: '',
         targetHighTemp: '',
         targetLowSoundLevel: '',
         targetHighSoundLevel: '',
+        feature: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .5]
+        // category: '',
     }
 
     onChangeTitle = str => this.setState({ title: str.target.value });
-    onChangeCategory = str => this.setState({ category: str.target.value });
-    onChangePrice = str => this.setState({ price: str });
+    // onChangeCategory = str => this.setState({ category: str.target.value });
+    onChangePrice = str => { let features = [...this.state.feature]; features[0] = parseFloat(str); this.setState({ feature: features }); }
     onChangeDesc = str => this.setState({ description: str.target.value });
-    onChangeWorldView = str => this.setState({ targetWorldView: str });
+    onChangeWorldView = str => { let features = [...this.state.feature]; features[10] = parseFloat(str); this.setState({ feature: features }); }
     onChangeAgeRange = rangeSet => this.setState({ targetAge: rangeSet });
     onChangeGender = genderSet => this.setState({ targetGender: genderSet });
     onChangeWeather = weatherSet => this.setState({ targetWeather: weatherSet });
@@ -52,11 +51,11 @@ class CreateAdvert extends React.Component {
                             <Form.Item label="Advert Title">
                                 <Input value={this.state.title} placeholder="Please enter title" onChange={this.onChangeTitle} />
                             </Form.Item>
-                            <Form.Item label="Advert Category">
+                            {/* <Form.Item label="Advert Category">
                                 <Input value={this.state.category} placeholder="Please enter category" onChange={this.onChangeCategory} />
-                            </Form.Item>
+                            </Form.Item> */}
                             <Form.Item label="Price">
-                                <InputNumber value={this.state.price} onChange={this.onChangePrice} />
+                                <InputNumber value={this.state.feature[0]} onChange={this.onChangePrice} />
                             </Form.Item>
                             <Form.Item label="Target Age Range">
                                 <Checkbox.Group value={this.state.targetAge} options={ageOptions} onChange={this.onChangeAgeRange} />
@@ -65,7 +64,7 @@ class CreateAdvert extends React.Component {
                                 <Checkbox.Group value={this.state.targetGender} options={genderOptions} onChange={this.onChangeGender} />
                             </Form.Item>
                             <Form.Item label="Target World View">
-                                <Slider min={0} value={this.state.targetWorldView} max={4} tooltipVisible tooltipPlacement="bottom" onChange={this.onChangeWorldView} />
+                                <Slider min={0} value={this.state.feature[10]} max={1} tooltipVisible tooltipPlacement="bottom" step="0.25" onChange={this.onChangeWorldView} />
                             </Form.Item>
                         </Col>
                         <Col span={2}>
@@ -81,7 +80,13 @@ class CreateAdvert extends React.Component {
                                 <Upload listType="picture" beforeUpload={(f) => { // TODO USE YOUR OWN FILELIST
                                     let reader = new FileReader();
                                     reader.readAsDataURL(f);
-                                    reader.onloadend = () => { this.setState({ content: reader.result }); return false; };
+                                    reader.onloadend = () => {
+                                        axios.post("https://api.imgur.com/3/image", {
+                                            type: 'base64',
+                                            image: reader.result.substring(reader.result.indexOf('64') + 3)
+                                        }, { headers: { 'Authorization': 'Client-ID 97e091e65babfb1' } }).then(e => this.setState({ content: e.data.data.link })).catch(e => console.log(e))
+                                        return false;
+                                    };
                                 }}>
                                     <Button>
                                         <Icon type="upload" />Click to upload
@@ -108,18 +113,18 @@ class CreateAdvert extends React.Component {
                             <Form.Item>
                                 <Button type="primary" onClick={() => {
                                     this.setState({
+                                        content: '',
                                         title: '',
-                                        category: '',
-                                        price: 0,
                                         description: '',
-                                        targetAge: [],
                                         targetGender: [],
+                                        targetAge: [],
                                         targetWeather: [],
-                                        targetWorldView: 2,
                                         targetLowTemp: '',
                                         targetHighTemp: '',
                                         targetLowSoundLevel: '',
                                         targetHighSoundLevel: '',
+                                        feature: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .5]
+                                        // category: '',
                                     }); axios.post("http://localhost:7000/api/ads", { ad: this.state }, { headers: { 'Authorization': this.props.token } }).then(() => message.success("Advert created succesfully!")).catch(() => message.warning("Something went wrong!"))
                                 }}>Create Advert</Button>
                             </Form.Item>
