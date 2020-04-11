@@ -65,7 +65,7 @@ class CreateAdvert extends React.Component {
                                 <Checkbox.Group value={this.state.targetGender} options={genderOptions} onChange={this.onChangeGender} />
                             </Form.Item>
                             <Form.Item label="Target World View">
-                                <Slider min={0} defaultValue={this.state.targetWorldView} max={4} tooltipVisible tooltipPlacement="bottom" onChange={this.onChangeWorldView} />
+                                <Slider min={0} value={this.state.targetWorldView} max={4} tooltipVisible tooltipPlacement="bottom" onChange={this.onChangeWorldView} />
                             </Form.Item>
                         </Col>
                         <Col span={2}>
