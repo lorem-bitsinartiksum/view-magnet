@@ -20,8 +20,8 @@ export default function Billboard({ id, position, status, interest, ad }) {
             .then((res) => {
                 setAds({
                     data: res.data.ads,
-                    options: res.data.ads.map(ad => (
-                        <Option key={ad.id} value={ad.id}>{ad.title}</Option>
+                    options: res.data.ads.map((ad, index) => (
+                        <Option key={index} value={index}>{ad.title}</Option>
                     ))
                 });
             })
@@ -67,7 +67,7 @@ export default function Billboard({ id, position, status, interest, ad }) {
                     </Row>
                     <Row>
                         <br></br>
-                        <Input addonBefore="QR/sec:" defaultValue={0} onChange={(e) => interactWithQR({ bid: id, adid: ad.id, mode: "sim" }, e)} />
+                        <Input addonBefore="QR/sec:" defaultValue={0} onChange={(e) => interactWithQR({ bid: id, adid: ad.id, mode: "sim" }, e.target.value)} />
                     </Row>
                     <Row>
                         <br></br>

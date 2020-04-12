@@ -30,9 +30,22 @@ class CreateAdvert extends React.Component {
     onChangePrice = str => { let features = [...this.state.feature]; features[0] = parseFloat(str); this.setState({ feature: features }); }
     onChangeDesc = str => this.setState({ description: str.target.value });
     onChangeWorldView = str => { let features = [...this.state.feature]; features[10] = parseFloat(str); this.setState({ feature: features }); }
-    onChangeAgeRange = rangeSet => this.setState({ targetAge: rangeSet });
+    onChangeAgeRange = rangeSet => {
+        this.setState({ targetAge: rangeSet });
+        let features = [...this.state.feature];
+        rangeSet.map(age => features[parseInt(age) + 1] = 1)
+        this.setState({ feature: features })
+    };
     onChangeGender = genderSet => this.setState({ targetGender: genderSet });
-    onChangeWeather = weatherSet => this.setState({ targetWeather: weatherSet });
+    onChangeWeather = weatherSet => {
+        this.setState({ targetWeather: weatherSet });
+        let features = [...this.state.feature];
+        weatherSet.map(weather => {
+            if (["1", "2", "3", "12", "13", "15"].includes(weather)) features[6] = 1;
+            else if (weather === "14") features[7] = 1;
+        })
+        this.setState({ feature: features })
+    };
     weatherFilterOption = (input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
     render() {
@@ -98,9 +111,17 @@ class CreateAdvert extends React.Component {
                             </Form.Item>
                             <Form.Item label="Target Temp Range">
                                 <InputGroup compact onChange={f => console.log(f)}>
-                                    <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowTemp} type="number" placeholder="Minimum" onChange={val => this.setState({ targetLowTemp: val.target.value })} />
+                                    <Input style={{ width: 100, textAlign: 'center' }} value={this.state.targetLowTemp} type="number" placeholder="Minimum"
+                                        onChange={val => {
+                                            this.setState({ targetLowTemp: val.target.value });
+                                            if (parseFloat(val.target.value) < 0) { let features = [...this.state.feature]; features[8] = 1; this.setState({ feature: features }); };
+                                        }} />
                                     <Input style={{ width: 30, borderLeft: 0, pointerEvents: 'none', backgroundColor: '#fff', }} placeholder="-" disabled />
-                                    <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighTemp} placeholder="Maximum" onChange={val => this.setState({ targetHighTemp: val.target.value })} />
+                                    <Input style={{ width: 100, textAlign: 'center', borderLeft: 0 }} value={this.state.targetHighTemp} placeholder="Maximum"
+                                        onChange={val => {
+                                            this.setState({ targetHighTemp: val.target.value });
+                                            if (parseFloat(val.target.value) > 30) { let features = [...this.state.feature]; features[9] = 1; this.setState({ feature: features }); };
+                                        }} />
                                 </InputGroup>
                             </Form.Item>
                             <Form.Item label="Target Sound Level Range">

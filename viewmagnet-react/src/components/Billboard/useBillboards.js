@@ -28,20 +28,9 @@ export default function useBillboards() {
         []);
 
     let interactWithQR = useCallback((data, freq) => {
-        console.log(freq.target.value)
-        req("api/qr", { billboard: data.bid, ad: data.adid, mode: data.mode }, null, "POST")
+        for (var i = 0; i < freq; i++)
+            fetch(`http://localhost:8000/api/qr?billboard=${data.bid}&ad=${data.adid}&mode=${data.mode}&`, { method: "GET" })
     }, []);
-
-    // const url = 'https://api.github.com/users/barbier'
-    // const req = []
-    // for(var i = 0; i < 10; i++)
-    //   req.push(axios.get(url))
-    // 
-    // axios.all(req)
-    //   .then(axios.spread( 
-    //   (...responses) => {
-    //   responses.forEach(e => console.log(e));
-    // }));
 
     useEffect(() => {
         let eventSrc = new EventSource("http://localhost:8000/billboard/status");
