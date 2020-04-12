@@ -12,7 +12,8 @@ export default function Billboard({ id, position, status, interest, ad }) {
 
     let [adColor, setAdColor] = useState(mapValToColor(ad.content));
     let [ads, setAds] = useState([]);
-    let { shutdownBillboard, interactWithQR } = useBillboards();
+    let [selectedAd, setSelectedAd] = useState(null);
+    let { shutdownBillboard, interactWithQR, showAd } = useBillboards();
 
     useEffect(() => {
         let url = 'http://localhost:7000/api/ads';
@@ -50,19 +51,7 @@ export default function Billboard({ id, position, status, interest, ad }) {
                         <br></br>
                         <ButtonGroup>
                             <Button>Ad:</Button>
-                            <Dropdown
-                                overlay={<CompactPicker
-                                    color={adColor.rgb}
-                                    onChangeComplete={(clr, _) => {
-                                        clr.rgb.a = null;
-                                        setAdColor(clr);
-                                    }} />}
-                                trigger={['click']}>
-                                <Button type={"dashed"} className="ant-dropdown-link" onClick={e => e.preventDefault()}
-                                    style={{ color: adColor.hex }}>
-                                    {Object.values(adColor.rgb).join(" ")}
-                                </Button>
-                            </Dropdown>
+                            <Button>{ad.id.substring(0, 12)}...</Button>
                         </ButtonGroup>
                     </Row>
                     <Row>
@@ -71,10 +60,10 @@ export default function Billboard({ id, position, status, interest, ad }) {
                     </Row>
                     <Row>
                         <br></br>
-                        <Select style={{ width: 120 }}>
+                        <Select style={{ width: 120 }} onChange={(e) => setSelectedAd(ads.data[e])}>
                             {ads.options}
                         </Select>
-                        <Button type="primary">Show</Button>
+                        <Button type="primary" onClick={() => showAd(id, selectedAd)}>Show</Button>
                     </Row>
                     <Row>
                         <br></br>

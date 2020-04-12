@@ -1,29 +1,50 @@
-import React, { useCallback, useEffect, useRef, useState, Fragment } from 'react'
+import React, { useRef, useState, Fragment } from 'react'
 import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
 import useBillboards from "../Billboard/useBillboards";
-import Billboard, { mapValToColor, mapColorToVal } from "../Billboard/Billboard";
-import { Modal, Button, Row, Col, Dropdown } from "antd";
-import { CompactPicker } from "react-color"
+import Billboard from "../Billboard/Billboard";
+import { Modal, Button, Row, Col, InputNumber, Input } from "antd";
 
 const { confirm } = Modal;
 
 function Map() {
     let mapRef = useRef();
-    let { billboards, addBillboard, shutdownBillboard, changeInterest } = useBillboards();
+    let { billboards, addBillboard, changeInterest } = useBillboards();
     const [canAdd, setCanAdd] = useState(false)
-    const [tempColor, setTempColor] = useState(null)
-    const [colorShouldUpdate, setColorShouldUpdate] = useState(false)
 
     let handleClick = (e) => {
+        let features = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5]
         if (canAdd)
             confirm({
                 title: 'Add a new billboard?',
-                content: 'Construct a new billboard on given location.',
+                content: <Fragment>Construct a new billboard on given location with following interest values.
+                    <br />
+                    <br />
+                    <InputNumber placeholder="price" onChange={(str) => features[0] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <Input.Group>
+                        <InputNumber placeholder="baby" onChange={(str) => features[1] = parseFloat(str)} />
+                        <InputNumber placeholder="child" onChange={(str) => features[2] = parseFloat(str)} />
+                        <InputNumber placeholder="young" onChange={(str) => features[3] = parseFloat(str)} />
+                        <InputNumber placeholder="adult" onChange={(str) => features[4] = parseFloat(str)} />
+                        <InputNumber placeholder="elder" onChange={(str) => features[5] = parseFloat(str)} />
+                    </Input.Group>
+                    <br />
+                    <InputNumber placeholder="rainy" onChange={(str) => features[6] = parseFloat(str)} />
+                    <InputNumber placeholder="sunny" onChange={(str) => features[7] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <InputNumber placeholder="cold" onChange={(str) => features[8] = parseFloat(str)} />
+                    <InputNumber placeholder="hot" onChange={(str) => features[9] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <InputNumber placeholder="wview" onChange={(str) => features[10] = parseFloat(str)} />
+                </Fragment>,
                 onOk() {
                     return new Promise((resolve, reject) => {
                         let { lat, lng } = e.latlng;
-                        addBillboard({ pos: [lat, lng], interest: [0, 0, 0] });
+                        addBillboard({ pos: [lat, lng], interest: features });
                         resolve()
                         setCanAdd(false)
                     }).catch(() => console.error("Sth went wrong"));
@@ -32,13 +53,6 @@ function Map() {
                 },
             });
     }
-    useEffect(() => {
-        if (colorShouldUpdate) {
-            changeInterest(tempColor.billId, mapColorToVal(tempColor.colrHex).val)
-            setColorShouldUpdate(false)
-            console.log(mapColorToVal(tempColor.colrHex).val)
-        }
-    }, [colorShouldUpdate])
 
     return (
         <Fragment>
@@ -55,19 +69,38 @@ function Map() {
                                         <Billboard {...billboard} />
                                     </Popup>
                                 </Marker>
-                                <Circle center={billboard.position} color={mapValToColor(billboard.interest).hex} radius={5000}
+                                <Circle center={billboard.position} radius={5000}
                                     onClick={() => {
+                                        let features = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5]
                                         confirm({
                                             title: "You are about to change the interests of the people nearby.",
-                                            content: <CompactPicker
-                                                color={tempColor === null ? "#ffffff" : tempColor.colrHex}
-                                                onChangeComplete={(clr, _) => {
-                                                    clr.rgb.a = null;
-                                                    setTempColor({ billId: billboard.id, colrHex: clr.hex })
-                                                }} />,
+                                            content: <Fragment>
+                                                <br />
+                                                <InputNumber placeholder="price" onChange={(str) => features[0] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <Input.Group>
+                                                    <InputNumber placeholder="baby" onChange={(str) => features[1] = parseFloat(str)} />
+                                                    <InputNumber placeholder="child" onChange={(str) => features[2] = parseFloat(str)} />
+                                                    <InputNumber placeholder="young" onChange={(str) => features[3] = parseFloat(str)} />
+                                                    <InputNumber placeholder="adult" onChange={(str) => features[4] = parseFloat(str)} />
+                                                    <InputNumber placeholder="elder" onChange={(str) => features[5] = parseFloat(str)} />
+                                                </Input.Group>
+                                                <br />
+                                                <InputNumber placeholder="rainy" onChange={(str) => features[6] = parseFloat(str)} />
+                                                <InputNumber placeholder="sunny" onChange={(str) => features[7] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <InputNumber placeholder="cold" onChange={(str) => features[8] = parseFloat(str)} />
+                                                <InputNumber placeholder="hot" onChange={(str) => features[9] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <InputNumber placeholder="wview" onChange={(str) => features[10] = parseFloat(str)} />
+                                            </Fragment>,
                                             okType: "danger",
                                             okText: "Save Changes",
-                                            onOk: () => setColorShouldUpdate(true)
+                                            onOk: () => changeInterest(billboard.id, features)
+
                                         });
                                     }} />
                             </Fragment>))}

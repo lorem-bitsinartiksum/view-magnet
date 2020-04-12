@@ -16,6 +16,10 @@ export default function useBillboards() {
             .catch(err => console.error(`Post to ${endpoint} went wrong, err: ${err}`))
     };
 
+    let showAd = useCallback((id, ad) => {
+        req(`billboard/${id}/show-ad`, ad, null, "POST")
+    }, []);
+
     let addBillboard = useCallback((data) => {
         req("billboard", { pos: data.pos, interest: data.interest }, null, "POST")
     }, []);
@@ -50,7 +54,7 @@ export default function useBillboards() {
         return () => eventSrc.close();
     }, []);
 
-    return { billboards, addBillboard, shutdownBillboard, changeInterest, interactWithQR }
+    return { billboards, addBillboard, shutdownBillboard, changeInterest, interactWithQR, showAd }
 }
 
 function convertToColor(id, delimiter) {
