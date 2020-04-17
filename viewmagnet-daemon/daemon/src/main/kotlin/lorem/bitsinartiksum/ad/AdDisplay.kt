@@ -119,7 +119,7 @@ class AdDisplay(
         val g: Graphics2D = combinedImage.createGraphics()
         val QRimg = QRGenerator.generateQRCodeImage(url, 200, 200)
         g.drawImage(img, 0, 0, null)
-        g.drawImage(QRimg, width - 300, height - 350, null)
+        g.drawImage(QRimg, width - 500, height - 250, null)
         g.dispose()
         poster.icon = ImageIcon(combinedImage)
 
