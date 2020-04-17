@@ -1,7 +1,5 @@
 package model
 
-import java.util.*
-
 typealias Similarity = Float
 
 data class AdPoolChanged(val newPool: Set<Pair<Ad, Similarity>>)
@@ -76,5 +74,18 @@ enum class Age {
     CHILD,
     YOUNG,
     ADULT,
-    ELDERLY
+    ELDERLY;
+
+    companion object {
+        fun of(age: Int): Age {
+            return when (age) {
+                in 0..4 -> BABY
+                in 5..12 -> CHILD
+                in 13..22 -> YOUNG
+                in 23..55 -> ADULT
+                else -> ELDERLY
+            }
+        }
+    }
+
 }

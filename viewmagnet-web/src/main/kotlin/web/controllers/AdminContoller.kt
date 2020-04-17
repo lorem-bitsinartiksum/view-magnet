@@ -1,9 +1,8 @@
 package web.controllers
 
-import model.AdminDTO
 import domain.Admin.service.AdminService
 import io.javalin.Context
-import model.Ad
+import model.AdminDTO
 import model.BillboardStatus
 
 data class BillboardStatusDTO(val billboardStatus: BillboardStatus)
@@ -56,13 +55,4 @@ class AdminController(private val adminService: AdminService) {
     }
 
     fun String.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(MAIL_REGEX).matches(this)
-
-
-    fun issueShowAdCommand(ctx: Context) {
-        adminService.issueShowAdCommand(ctx.bodyAsClass(Ad::class.java))
-    }
-
-    fun issueShutDownCommand(ctx: Context) {
-        adminService.issueShutDownCommand(ctx.pathParam("billboard_id"))
-    }
 }

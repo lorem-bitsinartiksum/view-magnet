@@ -2,13 +2,14 @@ package lorem.bitsinartiksum
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import lorem.bitsinartiksum.ad.Detection
-import model.BillboardEnvironment
-import model.Weather
+import model.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.ArrayList
 
 
 data class WeatherInfo(
@@ -22,6 +23,10 @@ data class WeatherInfo(
 )
 
 class EnvironmentListener(private val cmdHandler: CommandHandler, private val isOverridden: AtomicBoolean) {
+
+    companion object {
+        var detectedPersons = Collections.synchronizedList<Person>(mutableListOf())
+    }
 
     private val jackson = jacksonObjectMapper()
     var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f)
@@ -89,7 +94,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
 
             if (isOverridden.get())
                 return@runPythonScriptWithBatch
-
+            val regex = "\\d+,\\d+".toRegex()
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
                 val values = it
@@ -103,6 +108,15 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
 
                 val arrayListAge = ArrayList<Int>()
                 val arrayListGender = ArrayList<String>()
+
+                val passingPpl = regex
+                    .findAll(values)
+                    .map { it.value.split(",") }
+                    .map { (age, gender) -> Person(Gender.valueOf(gender.toUpperCase()), Age.of(age.toInt())) }
+                    .toList()
+
+                detectedPersons.addAll(passingPpl)
+
 
                 for ((index, i) in parts.withIndex()) {
                     if (index % 2 == 0) {

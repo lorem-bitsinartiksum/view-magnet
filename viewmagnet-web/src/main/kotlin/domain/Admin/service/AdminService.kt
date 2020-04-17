@@ -1,14 +1,12 @@
 package domain.Admin.service
 
 import config.Roles
-import model.Admin
 import domain.Admin.repository.AdminRepository
 import io.javalin.BadRequestResponse
 import io.javalin.HttpResponseException
 import io.javalin.NotFoundResponse
 import io.javalin.UnauthorizedResponse
-import lorem.bitsinartiksum.manager.CommandIssuer
-import model.Ad
+import model.Admin
 import org.eclipse.jetty.http.HttpStatus
 import utils.Cipher
 import utils.JwtProvider
@@ -60,15 +58,5 @@ class AdminService(private val jwtProvider: JwtProvider, private val adminReposi
 
     private fun generateJwtToken(admin: Admin): String? {
         return jwtProvider.createJWT(admin, Roles.ADMIN)
-    }
-
-    fun issueShowAdCommand(ad: Ad) {
-        val commandIssuer = CommandIssuer()
-        commandIssuer.showAd(ad)
-    }
-
-    fun issueShutDownCommand(billboardId: String) {
-        val commandIssuer = CommandIssuer()
-        commandIssuer.shutDown(billboardId)
     }
 }

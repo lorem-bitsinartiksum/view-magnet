@@ -3,6 +3,7 @@ package lorem.bitsinartiksum.ad
 import com.google.common.flogger.FluentLogger
 import lorem.bitsinartiksum.CommandHandler
 import lorem.bitsinartiksum.Config
+import lorem.bitsinartiksum.EnvironmentListener
 import model.Ad
 import model.AdChanged
 import model.Similarity
@@ -39,8 +40,9 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : Comm
             if (newAd == field) return
             val durationMs = System.currentTimeMillis() - rollStartTime
             rollStartTime = System.currentTimeMillis()
-            adChangedTs.publish(AdChanged(field, durationMs, listOf()))
+            adChangedTs.publish(AdChanged(field, durationMs, EnvironmentListener.detectedPersons))
             field = newAd
+            EnvironmentListener.detectedPersons.clear()
             updateDisplay(newAd)
         }
 

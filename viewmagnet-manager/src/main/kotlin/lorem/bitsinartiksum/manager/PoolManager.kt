@@ -71,6 +71,18 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
         startPoolUpdater()
     }
 
+    fun changeInterest(billboardId: String, newInterest: List<Float>) {
+        billboards[billboardId]?.interest = newInterest
+    }
+
+    fun saveBillboard(billboardId: String, interest: List<Float>): Billboard? {
+        if (billboards.containsKey(billboardId))
+            return null
+        val bb = Billboard(interest = interest)
+        billboards[billboardId] = bb
+        return bb
+    }
+
     private fun startPoolUpdater() {
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({
             billboards.forEach {
@@ -151,7 +163,4 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
         return if (divider.isZero) 0f else (dotProduct / divider).toFloat()
     }
 
-    fun get(billboardId: String): Billboard? {
-        return billboards[billboardId]
-    }
 }
