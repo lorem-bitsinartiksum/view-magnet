@@ -1,4 +1,4 @@
-package lorem.bitsinartiksum.manager.sim
+package lorem.bitsinartiksum.manager
 
 import com.google.common.flogger.FluentLogger
 import model.Mode
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
-class BillboardService {
+class BillboardService(private val poolMgr: PoolManager) {
 
     private val logger = FluentLogger.forEnclosingClass()
     private val shutdownTs = TopicService.createFor(Shutdown::class.java, "SIM_MGR", TopicContext(mode = Mode.SIM))
@@ -56,10 +56,12 @@ class BillboardService {
             val status = process.waitFor()
             logger.atWarning().log("BB#$id exited with $status")
         }, "BILLBOARD#$id").start()
+        poolMgr.saveBillboard(id, interest)
     }
 
     fun updateInterest(id: String, newInterest: List<Float>) {
         logger.atInfo().log("Changing interest of $id to $newInterest")
+        poolMgr.changeInterest(id, newInterest)
     }
 
     fun shutdownBillboard(id: String) {

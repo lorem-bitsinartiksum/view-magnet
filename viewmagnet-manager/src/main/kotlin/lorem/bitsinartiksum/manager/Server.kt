@@ -1,4 +1,4 @@
-package lorem.bitsinartiksum.manager.sim
+package lorem.bitsinartiksum.manager
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -6,23 +6,14 @@ import com.google.common.flogger.FluentLogger
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.sse.SseClient
-import lorem.bitsinartiksum.manager.HealthChecker
-import model.Ad
 import model.Mode
 import model.ShowAd
 import topic.TopicContext
 import topic.TopicService
-import java.util.*
 
-
-fun main() {
-    Objects.requireNonNull(System.getProperty("daemon")) { "Please set daemon path. -Ddaemon=<jarLocation>" }
-    val server = ApiServer()
-    server.start()
-}
 
 class ApiServer(
-    private val billboardService: BillboardService = BillboardService()
+    private val billboardService: BillboardService
 ) {
     private val app = Javalin.create { it.enableCorsForAllOrigins() }
     private val logger = FluentLogger.forEnclosingClass()
@@ -32,9 +23,7 @@ class ApiServer(
 
 
     data class BillboardReq(val pos: List<Float>, val interest: List<Float>)
-    data class NewAdReq(val color: List<Float> /*[0.2,0.4,0.1]*/)
     data class InterestChangeReq(val interest: List<Float>)
-    data class ShowAdReq(val r: Float, val g: Float, val b: Float)
 
     init {
         registerRoutes()
@@ -63,9 +52,8 @@ class ApiServer(
                     billboardService.shutdownBillboard(id)
                 }
                 post(":id/show-ad") { ctx ->
-                    val color = ctx.bodyAsClass(ShowAdReq::class.java)
-                    val newAd = Ad(UUID.randomUUID().toString(), content = "${color.r},${color.g},${color.b}")
-                    showAdTs.publish(ShowAd(newAd))
+                    val newAd = ctx.bodyAsClass(ShowAd::class.java)
+                    showAdTs.publish(newAd)
                 }
                 sse("status") { client ->
                     client.onClose {
