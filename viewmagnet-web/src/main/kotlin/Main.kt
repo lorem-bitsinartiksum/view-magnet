@@ -8,5 +8,3 @@ fun main(args: Array<String>) {
     val poolManager = PoolManager(config, HealthChecker())
     AppConfig().setup().start()
 }
-
-

@@ -9,10 +9,8 @@ import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.Executors
 
-val jackson = jacksonObjectMapper()
 
-
-data class weatherInfo(
+data class WeatherInfo(
     val weather: Weather,
     val tempC: Float,
     val windSpeed: Float,
@@ -22,16 +20,14 @@ data class weatherInfo(
     val country: String
 )
 
-
 class EnvironmentListener(private val cmdHandler: CommandHandler) {
 
+    private val jackson = jacksonObjectMapper()
+    var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f)
 
     fun start() {
-        startWatching()
-    }
 
-    private fun startWatching() {
-        var weatherInfo = weatherInfo(
+        var weatherInfo = WeatherInfo(
             weather = Weather.UNKNOWN,
             tempC = 0F,
             windSpeed = 0F,
@@ -40,7 +36,6 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
             timezone = 0,
             country = "country"
         )
-        var envRef: BillboardEnvironment
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)
@@ -53,7 +48,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
                 val timezone = (json.get("timezone").asText("0")).toInt()
                 val country = (json.path("sys").get("country").asText("UNKNOWN")).toString()
 
-                weatherInfo = weatherInfo(
+                weatherInfo = WeatherInfo(
                     weather = weather,
                     tempC = temp,
                     windSpeed = wind,
@@ -78,7 +73,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
                     country = weatherInfo.country,
                     soundDb = sound
                 )
-                println(envRef.toString())
+
                 when {
                     envRef.weather == Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
                     envRef.weather == Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
@@ -128,7 +123,6 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
                 }
             }
         }
-
     }
 }
 
@@ -137,7 +131,7 @@ private fun runPythonScript(name: String, handler: (String) -> Unit) {
     val scriptPath = Path.of(System.getProperty("user.dir"), "viewmagnet-daemon", name)
 
     Executors.newSingleThreadExecutor().execute {
-        val command = "python $scriptPath";
+        val command = "python $scriptPath"
         val process = Runtime.getRuntime().exec(command)
         val reader = BufferedReader(InputStreamReader(process.inputStream))
 
@@ -146,7 +140,7 @@ private fun runPythonScript(name: String, handler: (String) -> Unit) {
             handler(line)
             line = reader.readLine()
         }
-        process.waitFor();
+        process.waitFor()
     }
 }
 
@@ -156,13 +150,13 @@ private fun runPythonScriptWithBatch(name: String, handler: (String) -> Unit) {
         val process =
             ProcessBuilder("cmd.exe", "/C", "$scriptPath\\build.bat $scriptPath").redirectErrorStream(true).start()
         val reader = BufferedReader(InputStreamReader(process.inputStream))
-        process.outputStream.close();
+        process.outputStream.close()
 
         var line = reader.readLine()
         while (line != null) {
             handler(line)
             line = reader.readLine()
         }
-        process.waitFor();
+        process.waitFor()
     }
 }

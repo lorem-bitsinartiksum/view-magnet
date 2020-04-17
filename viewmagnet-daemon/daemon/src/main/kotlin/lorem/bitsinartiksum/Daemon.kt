@@ -1,13 +1,12 @@
 package lorem.bitsinartiksum
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
-import model.BillboardEnvironment
-import model.Weather
 
 data class Daemon(
     val cfg: Config = Config(),
@@ -36,33 +35,20 @@ data class Daemon(
         adManager.start()
         cmdListener.start()
         envListener.start()
-
-        StatusReporter(cfg).start(envUpdate(), adUpdate(adManager))
+        StatusReporter(cfg).start(watchEnv(envListener), watchCurrentAd(adManager))
 
     }
 }
 
-
-fun CoroutineScope.envUpdate() = produce {
+fun CoroutineScope.watchEnv(envListener: EnvironmentListener) = produce {
     while (true) {
-        var t = 1
-        send(
-            BillboardEnvironment(
-                Weather.FOG,
-                t++.toFloat(),
-                (t * 10).toFloat(),
-                t.toLong(),
-                (t + 20).toLong(),
-                t,
-                "country",
-                t.toFloat()
-            )
-        )
-        delay(2000)
+        send(envListener.envRef)
+        delay(1000)
     }
 }
 
-fun CoroutineScope.adUpdate(adMgr: AdManager) = produce {
+@ExperimentalCoroutinesApi
+fun CoroutineScope.watchCurrentAd(adMgr: AdManager) = produce {
     while (true) {
         send(adMgr.currentAd.content)
         delay(1000)
