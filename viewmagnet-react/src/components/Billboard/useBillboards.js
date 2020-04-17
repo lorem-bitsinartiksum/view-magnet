@@ -5,7 +5,7 @@ export default function useBillboards() {
     let [billboards, setBillboards] = useState([]);
 
     let req = (endpoint, data, then, method) => {
-        fetch(`http://localhost:8000/${endpoint}`, {
+        fetch(`http://localhost:6232/${endpoint}`, {
             method: method,
             headers: {
                 'Content-Type': "application/json"
@@ -28,16 +28,16 @@ export default function useBillboards() {
         req(`billboard/${id}`, { interest: newInterest }, null, "PATCH")
     }, []);
 
-    let shutdownBillboard = useCallback(id => fetch(`http://localhost:8000/billboard/${id}`, { method: "DELETE" }),
+    let shutdownBillboard = useCallback(id => fetch(`http://localhost:6232/billboard/${id}`, { method: "DELETE" }),
         []);
 
     let interactWithQR = useCallback((data, freq) => {
         for (var i = 0; i < freq; i++)
-            fetch(`http://localhost:8000/api/qr?billboard=${data.bid}&ad=${data.adid}&mode=${data.mode}&`, { method: "GET" })
+            fetch(`http://localhost:6232/api/qr?billboard=${data.bid}&ad=${data.adid}&mode=${data.mode}&`, { method: "GET" })
     }, []);
 
     useEffect(() => {
-        let eventSrc = new EventSource("http://localhost:8000/billboard/status");
+        let eventSrc = new EventSource("http://localhost:6232/billboard/status");
 
         eventSrc.onmessage = e => {
             let status = JSON.parse(e.data);
