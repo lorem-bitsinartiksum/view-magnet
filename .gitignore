@@ -133,4 +133,3 @@ buildNumber.properties
 .vscode
 .env
 /pretrained_models/weights.18-4.06.hdf5
-detections/
