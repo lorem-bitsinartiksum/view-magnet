@@ -136,7 +136,7 @@ class AdControllerTest {
                 title = "Iphone  11",
                 description = "https://www.hepsiburada.com/iphone-11-pro-64-gb-p-HBV00000NSB61",
                 content = "https://www.singtel.com/content/dam/singtel/personal/products-services/mobile/info/iphone11/products/iphone11pro/iphone11pro_18oct2019_mb_01.jpg",
-                feature = listOf(0.83f, 0f, 0.2f, 0.90f, 0.95f, 0.3f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.83f, 0f, 0.5f, 0.90f, 0.95f, 0.3f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -145,7 +145,7 @@ class AdControllerTest {
                 title = "Xiaomi Redmi Note 8",
                 description = "https://www.hepsiburada.com/xiaomi-redmi-note-8-64-gb-xiaomi-turkiye-garantili-pm-HB00000NBYGG",
                 content = "https://netstorage-legit.akamaized.net/images/282a7982871ebd77.jpg?imwidth=900",
-                feature = listOf(0.48f, 0f, 0.2f, 0.85f, 0.95f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.35f, 0f, 0.25f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -154,7 +154,7 @@ class AdControllerTest {
                 title = "Samsung Galaxy S3",
                 description = "https://www.hepsiburada.com/yenilenmis-samsung-galaxy-s3-16-gb-12-ay-garantili-p-HBV000007HBAP",
                 content = "https://4.bp.blogspot.com/-NDzMlthYzes/UUPFOaPh9jI/AAAAAAAAAX8/nSxmItRnmSM/s1600/galaxyAD.jpg",
-                feature = listOf(0.1f, 0f, 0.2f, 0.70f, 0.80f, 0.55f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.02f, 0f, 0.1f, 0.3f, 0.4f, 0.70f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -163,7 +163,7 @@ class AdControllerTest {
                 title = "Bosporus Tours",
                 description = "https://www.teknemania.com/portfolio/yat-9/",
                 content = "https://i.pinimg.com/originals/ba/6e/89/ba6e89d8a5fe125967d3c59e9ef15670.png",
-                feature = listOf(0.8f, 0f, 0f, 0.3f, 0.7f, 0.9f, 0.1f, 0.9f, 0.05f, 1f, 0.5f)
+                feature = listOf(0.8f, 0f, 0f, 0.85f, 0.90f, 0.8f, 0.1f, 0.9f, 0.05f, 1f, 0.15f)
             )
         )
 
@@ -181,7 +181,7 @@ class AdControllerTest {
                 title = "Casio",
                 description = "https://www.hepsiburada.com/casio-f-91w-1dg-digital-erkek-kol-saati-p-SASCK0700141?magaza=%C4%B0svi%C3%A7re%20Saat%C3%A7ilik",
                 content = "https://i.pinimg.com/originals/38/d0/0e/38d00ecd3efb2233576f893ceda00c80.jpg",
-                feature = listOf(0.1f, 0f, 0.2f, 0.5f, 0.2f, 0.05f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.03f, 0f, 0.2f, 0.4f, 0.2f, 0.3f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -190,7 +190,7 @@ class AdControllerTest {
                 title = "Macbook",
                 description = "https://www.apple.com/tr/shop/buy-mac/macbook-pro/13-in%C3%A7",
                 content = "https://i.pinimg.com/originals/15/78/8b/15788b8db54c133186d742fb110bd364.jpg",
-                feature = listOf(0.85f, 0f, 0.25f, 0.95f, 0.95f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.75f, 0f, 0.25f, 0.95f, 0.90f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -199,7 +199,7 @@ class AdControllerTest {
                 title = "Ipad Pro",
                 description = "https://www.apple.com/tr/shop/buy-ipad/ipad-pro",
                 content = "https://www.graphis.com/media/LEGACY-FILES/cfe/35_posterannual2012/3285_c04864d1d241ca077a827ec20bf15c07.jpg",
-                feature = listOf(0.92f, 0f, 0.3f, 0.90f, 0.4f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.82f, 0f, 0.7f, 0.90f, 0.5f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -208,7 +208,7 @@ class AdControllerTest {
                 title = "Apple Watch",
                 description = "https://www.apple.com/tr/shop/buy-watch/apple-watch",
                 content = "https://i.pinimg.com/originals/59/ab/66/59ab6611211b929239db2385fb295af6.jpg",
-                feature = listOf(0.95f, 0f, 0.1f, 0.80f, 0.5f, 0.2f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.78f, 0f, 0.1f, 0.80f, 0.5f, 0.12f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
@@ -217,7 +217,7 @@ class AdControllerTest {
                 title = "Asus X-Series Laptop",
                 description = "https://urun.n11.com/dizustu-bilgisayar/asus-x540ua-go139703-i3-7020u-8gb-256ssd-156-dos-nb-P388395565",
                 content = "https://mir-s3-cdn-cf.behance.net/project_modules/disp/6ed38219266013.562d77742fd2c.jpg",
-                feature = listOf(0.25f, 0f, 0.25f, 0.95f, 0.95f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
+                feature = listOf(0.15f, 0f, 0.25f, 0.95f, 0.95f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)
             )
         )
 
