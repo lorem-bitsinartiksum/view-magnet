@@ -16,8 +16,8 @@ import javax.swing.*
 
 class AdDisplay(
     defaultImg: Image,
-    width: Int,
-    height: Int,
+    private var width: Int,
+    private var height: Int,
     overrideEnv: (BillboardEnvironment) -> Unit,
     toggleOverride: (Boolean) -> Unit,
     var changeToRelatedAd: (Detection) -> Unit
@@ -34,7 +34,9 @@ class AdDisplay(
         frame.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent) {
                 poster.icon =
-                    ImageIcon(img.getScaledInstance(e.component.width, e.component.height, Image.SCALE_SMOOTH))
+                    ImageIcon(img.getScaledInstance(e.component.width - 300, e.component.height, Image.SCALE_SMOOTH))
+                width = e.component.width - 300
+                height = e.component.height
             }
         })
         overlayQr("/home")
@@ -83,8 +85,8 @@ class AdDisplay(
             container
         }()
 
-        frame.add(sidePanel, BorderLayout.WEST)
-        frame.add(poster, BorderLayout.CENTER)
+        frame.add(sidePanel, BorderLayout.EAST)
+        frame.add(poster, BorderLayout.WEST)
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
             EventQueue.invokeLater {
@@ -101,7 +103,7 @@ class AdDisplay(
 
     fun changeAd(newImg: Image, url: String) {
         EventQueue.invokeLater {
-            img = newImg
+            img = newImg.getScaledInstance(width, height, Image.SCALE_SMOOTH)
             duration = Duration.ofMillis(0)
             overlayQr(url)
         }
