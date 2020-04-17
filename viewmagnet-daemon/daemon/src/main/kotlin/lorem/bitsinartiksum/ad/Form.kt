@@ -1,22 +1,27 @@
-package lorem.bitsinartiksum.datagen
+package lorem.bitsinartiksum.ad
 
-import lorem.bitsinartiksum.ad.weatherInfo
+import model.BillboardEnvironment
 import model.Weather
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.awt.GridLayout
-import javax.swing.*
+import javax.swing.JComboBox
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JTextField
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.javaField
 
 
 object Form {
 
-    fun weather(handler: (weatherInfo) -> Unit): JPanel {
+    fun weather(): Pair<JPanel, () -> BillboardEnvironment> {
 
-        val props = weatherInfo::class.declaredMemberProperties
+        val props = BillboardEnvironment::class.declaredMemberProperties
 
-        val fields = formFields(props.filter { !it.javaField!!.type.isEnum }.map { it.name })
+        val fields =
+            formFields(props.filter { !it.javaField!!.type.isEnum }
+                .map { it.name })
         val combos = formCombos(props
             .filter { it.javaField!!.type.isEnum }
             .map { it.name to it.javaField!!.type.enumConstants }
@@ -24,17 +29,19 @@ object Form {
 
         val getText = { name: String -> fields[name]!!.second.text }
 
-        return formView(fields.values.toMap(), combos.values.toMap()) {
-            val topic = weatherInfo(
+        return formView(fields.values.toMap(), combos.values.toMap()) to {
+            val topic = BillboardEnvironment(
                 weather = combos["weather"]?.second?.selectedItem as Weather,
                 country = getText("country") ?: "tr",
                 sunrise = getText("sunrise").toLongOrNull() ?: 5L,
                 sunset = getText("sunset").toLongOrNull() ?: 5L,
                 tempC = getText("tempC").toFloatOrNull() ?: 5f,
                 timezone = getText("timezone").toIntOrNull() ?: 5,
-                windSpeed = getText("windSpeed").toFloatOrNull() ?: 5f
+                windSpeed = getText("windSpeed").toFloatOrNull() ?: 5f,
+                soundDb = getText("soundDb").toFloatOrNull() ?: 5f
             )
-            handler(topic)
+            topic
+
         }
     }
 
@@ -47,8 +54,7 @@ object Form {
 
     private fun formView(
         fields: Map<JLabel, JTextField>,
-        combos: Map<JLabel, JComboBox<*>>,
-        submitHandler: () -> Unit
+        combos: Map<JLabel, JComboBox<*>>
     ): JPanel {
 
         val labelPanel = JPanel(GridLayout(fields.size + combos.size, 1))
@@ -71,9 +77,6 @@ object Form {
             fPanel.add(field)
             fieldPanel.add(fPanel)
         }
-        val submit = JButton("Publish")
-        submit.addActionListener { submitHandler() }
-        panel.add(submit, BorderLayout.SOUTH)
         return panel
     }
 

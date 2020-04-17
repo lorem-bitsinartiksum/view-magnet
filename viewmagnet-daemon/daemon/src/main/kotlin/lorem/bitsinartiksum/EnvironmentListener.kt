@@ -8,6 +8,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 data class WeatherInfo(
@@ -20,7 +21,7 @@ data class WeatherInfo(
     val country: String
 )
 
-class EnvironmentListener(private val cmdHandler: CommandHandler) {
+class EnvironmentListener(private val cmdHandler: CommandHandler, private val isOverridden: AtomicBoolean) {
 
     private val jackson = jacksonObjectMapper()
     var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f)
@@ -39,7 +40,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)
-            if (!json.isEmpty) {
+            if (!isOverridden.get() && !json.isEmpty) {
                 val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
                 val temp = (json.path("main").get("temp").asText("0")).toFloat()
                 val wind = (json.path("wind").get("speed").asText("0")).toFloat()
@@ -62,7 +63,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
 
         runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
             val sound = it.toFloatOrNull()
-            if (sound != null && weatherInfo.weather != Weather.UNKNOWN) {
+            if (!isOverridden.get() && sound != null && weatherInfo.weather != Weather.UNKNOWN) {
                 envRef = BillboardEnvironment(
                     weather = weatherInfo.weather,
                     tempC = weatherInfo.tempC,
@@ -85,6 +86,10 @@ class EnvironmentListener(private val cmdHandler: CommandHandler) {
         }
 
         runPythonScriptWithBatch("age-gender-pred") {
+
+            if (isOverridden.get())
+                return@runPythonScriptWithBatch
+
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
                 val values = it

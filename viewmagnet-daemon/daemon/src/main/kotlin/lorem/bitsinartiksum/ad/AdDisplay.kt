@@ -1,26 +1,26 @@
 package lorem.bitsinartiksum.ad
 
 import lorem.bitsinartiksum.QRGenerator
-import java.awt.EventQueue
-import java.awt.FlowLayout
-import java.awt.Graphics2D
-import java.awt.Image
+import model.BillboardEnvironment
+import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.awt.event.ItemEvent
 import java.awt.image.BufferedImage
 import java.net.URL
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
-import javax.swing.ImageIcon
-import javax.swing.JFrame
-import javax.swing.JLabel
+import javax.swing.*
 
 class AdDisplay(
     defaultImg: Image,
     width: Int,
-    height: Int
+    height: Int,
+    overrideEnv: (BillboardEnvironment) -> Unit,
+    toggleOverride: (Boolean) -> Unit,
+    var changeToRelatedAd: (Detection) -> Unit
 ) {
     private val frame = JFrame("AdView")
     private var duration: Duration? = null
@@ -28,7 +28,7 @@ class AdDisplay(
     private var poster = JLabel(ImageIcon(defaultImg.getScaledInstance(width, height, Image.SCALE_SMOOTH)))
 
     init {
-        frame.layout = FlowLayout()
+        frame.layout = BorderLayout()
         frame.setSize(width, height)
 
         frame.addComponentListener(object : ComponentAdapter() {
@@ -38,7 +38,53 @@ class AdDisplay(
             }
         })
         overlayQr("/home")
-        frame.add(poster)
+
+        val sidePanel = {
+            val container = JPanel()
+            container.preferredSize = Dimension(280, 300)
+
+            val (envFormPanel, envSupplier) = Form.weather()
+            val overrideCb = JCheckBox("Override Sensors")
+            val setBtn = JButton("SET")
+            setBtn.isEnabled = false
+
+            val cmdPanel = JPanel()
+            cmdPanel.layout = FlowLayout()
+            val detection = JComboBox(Detection.values())
+            val showAdBtn = JButton("Show Related")
+            showAdBtn.isEnabled = false
+
+
+            overrideCb.addItemListener {
+                val isSelected = it.stateChange == ItemEvent.SELECTED
+                toggleOverride(isSelected)
+                setBtn.isEnabled = isSelected
+                showAdBtn.isEnabled = isSelected
+            }
+
+            setBtn.addActionListener {
+                val env = envSupplier()
+                overrideEnv(env)
+            }
+
+            cmdPanel.add(detection)
+            cmdPanel.add(showAdBtn)
+
+
+            container.add(overrideCb, BorderLayout.NORTH)
+            container.add(envFormPanel, BorderLayout.CENTER)
+            container.add(setBtn, BorderLayout.SOUTH)
+            container.add(cmdPanel)
+
+            showAdBtn.addActionListener {
+                changeToRelatedAd(detection.selectedItem as Detection)
+            }
+
+            container
+        }()
+
+        frame.add(sidePanel, BorderLayout.WEST)
+        frame.add(poster, BorderLayout.CENTER)
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
             EventQueue.invokeLater {
