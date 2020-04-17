@@ -59,37 +59,6 @@ class CreateAdvert extends React.Component {
         return (
             <Card className="advert-card2">
                 <Form>
-<<<<<<< Updated upstream
-                    <Form.Item label="Advert Title">
-                        <Input value={this.state.title} onChange={this.onChangeTitle} />
-                    </Form.Item>
-                    <Form.Item label="Target Age Range">
-                        <Checkbox.Group value={this.state.targetAge} options={ageOptions} onChange={this.onChangeAgeRange} />
-                    </Form.Item>
-                    <Form.Item label="Target Gender">
-                        <Checkbox.Group value={this.state.targetGender} options={genderOptions} onChange={this.onChangeGender} />
-                    </Form.Item>
-                    <Form.Item label="Target Weather" >
-                        <Select value={this.state.targetWeather}
-                            filterOption={this.weatherFilterOption} placeholder="Please select target weather" mode="multiple" onChange={this.onChangeWeather}>
-                            {weatherOptionsSelect}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Upload Advert Poster">
-                        <Upload listType="picture" beforeUpload={(f) => { // TODO USE YOUR OWN FILELIST
-                            let reader = new FileReader();
-                            reader.readAsDataURL(f);
-                            reader.onloadend = () => {
-                                axios.post("https://api.imgur.com/3/image", {
-                                    type: 'base64',
-                                    image: reader.result.substring(reader.result.indexOf('64') + 3)
-                                }, { headers: { 'Authorization': 'Client-ID 97e091e65babfb1' } }).then(e => this.setState({ content: e.data.data.link })).catch(e => console.log(e))
-                                return false;
-                            };
-                        }}>
-                            <Button>
-                                <Icon type="upload" />Click to upload
-=======
                     <Row>
                         <Col span={11}>
                             <Form.Item label="Advert Title">
@@ -134,7 +103,6 @@ class CreateAdvert extends React.Component {
                                 }}>
                                     <Button>
                                         <Icon type="upload" />Click to upload
->>>>>>> Stashed changes
                             </Button>
                                 </Upload>
                             </Form.Item>
