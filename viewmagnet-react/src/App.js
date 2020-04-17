@@ -9,6 +9,7 @@ import Profile from './components/Profile'
 import CreateAdvert from './components/Advert/CreateAdvert'
 import Adverts from './components/Advert/Adverts';
 import AdminAuth from './components/Auth/AdminAuth';
+import Metric from './components/Metrics/Metrics';
 
 function App() {
   let routes = (
@@ -18,6 +19,7 @@ function App() {
       <Route path="/admin" component={AdminAuth} />
       <Route path="/profile" component={Profile} />
       <Route path="/map" component={Map} />
+      <Route path="/metrics" component={Metric} />
       <Route path="/create-ad" component={CreateAdvert} />
       <Route path="/adverts" component={Adverts} />
       <Redirect to="/" />
