@@ -1,6 +1,5 @@
 package config
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import domain.Ad.repository.AdRepository
 import domain.Ad.service.AdService
 import domain.Admin.repository.AdminRepository
@@ -11,14 +10,17 @@ import domain.User.service.UserService
 import org.koin.dsl.module.module
 import utils.JwtProvider
 import web.Router
-import web.controllers.*
+import web.controllers.AdController
+import web.controllers.AdminController
+import web.controllers.QrController
+import web.controllers.UserController
 
 object ModulesConfig {
     private val configModule = module {
         single { AppConfig() }
         single { JwtProvider() }
         single { AuthConfig(get()) }
-        single { Router(get(), get(), get(), get(), get()) }
+        single { Router(get(), get(), get(), get()) }
     }
     private val userModule = module {
         single { UserController(get()) }
@@ -36,10 +38,6 @@ object ModulesConfig {
         single { AdminRepository() }
     }
 
-    private val billboardModule = module {
-        single { jacksonObjectMapper() }
-        single { BillboardController(get()) }
-    }
 
     private val QrModule = module {
         single { QrController(get()) }
@@ -50,7 +48,6 @@ object ModulesConfig {
         configModule,
         userModule,
         adModule,
-        billboardModule,
         adminModule,
         QrModule
     )

@@ -5,13 +5,15 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.security.SecurityUtil.roles
 import org.koin.standalone.KoinComponent
-import web.controllers.*
+import web.controllers.AdController
+import web.controllers.AdminController
+import web.controllers.QrController
+import web.controllers.UserController
 
 class Router(
     private val userController: UserController,
     private val adController: AdController,
     private val adminController: AdminController,
-    private val billboardController: BillboardController,
     private val qrController: QrController
 ) : KoinComponent {
 
@@ -49,20 +51,6 @@ class Router(
                 get(adminController::getCurrent, roles(Roles.ADMIN))
                 put(adminController::update, roles(Roles.ADMIN))
                 delete(adminController::delete, roles(Roles.ADMIN))
-                path("manager") {
-                    ws("status") { ws ->
-                        ws.onConnect { billboardController.subscribe(it) }
-                        ws.onClose { session, statusCode, reason -> billboardController.unsubscribe(session) }
-                    }
-                    path("command") {
-                        path("show-ad/:ad_id") {
-                            post(adminController::issueShowAdCommand, roles(Roles.ADMIN))
-                        }
-                        path("shutdown/:billboard_id") {
-                            post(adminController::issueShutDownCommand, roles(Roles.ADMIN))
-                        }
-                    }
-                }
             }
             path("qr") {
                 get(qrController::increaseInteraction, roles(Roles.ANYONE))
