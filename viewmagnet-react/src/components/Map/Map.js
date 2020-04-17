@@ -1,70 +1,116 @@
-import React, { Fragment } from 'react'
-import mapboxgl from 'mapbox-gl';
+import React, { useRef, useState, Fragment } from 'react'
+import { Map as LMap, Marker, Popup, TileLayer, Circle } from "react-leaflet"
 import './Map.css'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import useBillboards from "../Billboard/useBillboards";
+import Billboard from "../Billboard/Billboard";
+import { Modal, Button, Row, Col, InputNumber, Input } from "antd";
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibG9yZW0tYml0c2luYXJ0aWtzdW0iLCJhIjoiY2s3ZDRxdjQ3MGs1djNtcGFsMXdvMXN4biJ9.2VnL0VNmftEOBnYh-x2Gsw';
+const { confirm } = Modal;
 
-class Map extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            lng: 32.7977182,
-            lat: 39.92125,
-            zoom: 5
-        };
-    }
+function Map() {
+    let mapRef = useRef();
+    let { billboards, addBillboard, changeInterest } = useBillboards();
+    const [canAdd, setCanAdd] = useState(false)
 
-    componentDidMount() {
-        const map = new mapboxgl.Map({
-            container: this.mapContainer,
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom
-        });
-
-        map.on('move', () => {
-            this.setState({
-                lng: map.getCenter().lng.toFixed(4),
-                lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
+    let handleClick = (e) => {
+        let features = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5]
+        if (canAdd)
+            confirm({
+                title: 'Add a new billboard?',
+                content: <Fragment>Construct a new billboard on given location with following interest values.
+                    <br />
+                    <br />
+                    <InputNumber placeholder="price" onChange={(str) => features[0] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <Input.Group>
+                        <InputNumber placeholder="baby" onChange={(str) => features[1] = parseFloat(str)} />
+                        <InputNumber placeholder="child" onChange={(str) => features[2] = parseFloat(str)} />
+                        <InputNumber placeholder="young" onChange={(str) => features[3] = parseFloat(str)} />
+                        <InputNumber placeholder="adult" onChange={(str) => features[4] = parseFloat(str)} />
+                        <InputNumber placeholder="elder" onChange={(str) => features[5] = parseFloat(str)} />
+                    </Input.Group>
+                    <br />
+                    <InputNumber placeholder="rainy" onChange={(str) => features[6] = parseFloat(str)} />
+                    <InputNumber placeholder="sunny" onChange={(str) => features[7] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <InputNumber placeholder="cold" onChange={(str) => features[8] = parseFloat(str)} />
+                    <InputNumber placeholder="hot" onChange={(str) => features[9] = parseFloat(str)} />
+                    <br />
+                    <br />
+                    <InputNumber placeholder="wview" onChange={(str) => features[10] = parseFloat(str)} />
+                </Fragment>,
+                onOk() {
+                    return new Promise((resolve, reject) => {
+                        let { lat, lng } = e.latlng;
+                        addBillboard({ pos: [lat, lng], interest: features });
+                        resolve()
+                        setCanAdd(false)
+                    }).catch(() => console.error("Sth went wrong"));
+                },
+                onCancel() {
+                },
             });
-        });
-
-        var geojson = {
-            type: 'FeatureCollection',
-            features: [{
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: [32.4825798, 39.9030394] },
-                properties: { title: 'Ank', description: 'yo' }
-            },
-            {
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: [28.8720968, 41.0054958] },
-                properties: { title: 'İst', description: 'wazzap' }
-            }]
-        };
-
-        geojson.features.forEach(function (marker) {
-            var el = document.createElement('div');
-            el.className = 'marker';
-            new mapboxgl.Marker(el)
-                .setLngLat(marker.geometry.coordinates)
-                .setPopup(new mapboxgl.Popup({ offset: 25 })
-                    .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>'))
-                .addTo(map);
-        });
     }
 
-    render() {
-        return (
-            <div>
-                <div className='sidebarStyle'>
-                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
-                </div>
-                <div ref={el => this.mapContainer = el} className='mapContainer' />
-            </div>
-        )
-    }
+    return (
+        <Fragment>
+            <Row>
+                <Col span={22}>
+                    <LMap ref={mapRef} center={[45.4, -75.7]} zoom={12} onClick={handleClick}>
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        {billboards.map(billboard => (
+                            <Fragment>
+                                <Marker key={billboard.position} position={billboard.position}>
+                                    <Popup maxWidth="400" maxHeight="auto">
+                                        <Billboard {...billboard} />
+                                    </Popup>
+                                </Marker>
+                                <Circle center={billboard.position} radius={5000}
+                                    onClick={() => {
+                                        let features = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5]
+                                        confirm({
+                                            title: "You are about to change the interests of the people nearby.",
+                                            content: <Fragment>
+                                                <br />
+                                                <InputNumber placeholder="price" onChange={(str) => features[0] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <Input.Group>
+                                                    <InputNumber placeholder="baby" onChange={(str) => features[1] = parseFloat(str)} />
+                                                    <InputNumber placeholder="child" onChange={(str) => features[2] = parseFloat(str)} />
+                                                    <InputNumber placeholder="young" onChange={(str) => features[3] = parseFloat(str)} />
+                                                    <InputNumber placeholder="adult" onChange={(str) => features[4] = parseFloat(str)} />
+                                                    <InputNumber placeholder="elder" onChange={(str) => features[5] = parseFloat(str)} />
+                                                </Input.Group>
+                                                <br />
+                                                <InputNumber placeholder="rainy" onChange={(str) => features[6] = parseFloat(str)} />
+                                                <InputNumber placeholder="sunny" onChange={(str) => features[7] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <InputNumber placeholder="cold" onChange={(str) => features[8] = parseFloat(str)} />
+                                                <InputNumber placeholder="hot" onChange={(str) => features[9] = parseFloat(str)} />
+                                                <br />
+                                                <br />
+                                                <InputNumber placeholder="wview" onChange={(str) => features[10] = parseFloat(str)} />
+                                            </Fragment>,
+                                            okType: "danger",
+                                            okText: "Save Changes",
+                                            onOk: () => changeInterest(billboard.id, features)
+
+                                        });
+                                    }} />
+                            </Fragment>))}
+                    </LMap>
+                </Col>
+                <Col span={2}>
+                    <Button onClick={() => setCanAdd(true)}>Add new Bb</Button>
+                </Col>
+            </Row>
+        </Fragment>)
 }
-export default Map;
+
+export default Map
