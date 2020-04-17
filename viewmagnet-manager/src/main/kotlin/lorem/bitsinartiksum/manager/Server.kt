@@ -72,7 +72,7 @@ class ApiServer(
         val hc = HealthChecker()
         hc.subscribe { bbId, status ->
             val info = jack.valueToTree<ObjectNode>(status)
-            info.put("id", bbId)
+            info.put("billboardId", bbId)
             sessions.forEach { it.sendEvent(info.toString()) }
         }
     }
