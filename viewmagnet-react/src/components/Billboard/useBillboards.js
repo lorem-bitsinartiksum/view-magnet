@@ -42,7 +42,6 @@ export default function useBillboards() {
 
         eventSrc.onmessage = e => {
             let status = JSON.parse(e.data);
-            console.log(status)
             let formatted = {
                 id: status.billboardId, position: { lat: status.billboardId.substring(0, status.billboardId.indexOf(":")), lng: status.billboardId.substring(status.billboardId.indexOf(":") + 1) }, status: status.health,
                 adId: status.adId
