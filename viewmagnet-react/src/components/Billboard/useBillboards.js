@@ -33,8 +33,10 @@ export default function useBillboards() {
         []);
 
     let interactWithQR = useCallback((data, freq) => {
-        for (var i = 0; i < freq; i++)
-            fetch(`http://localhost:7000/api/qr?billboard=${data.bid}&ad=${data.adid}&mod=${data.mode}&`, { method: "GET" })
+        for (var i = 0; i < freq; i++) {
+            setTimeout(() =>
+                fetch(`http://localhost:7000/api/qr?billboard=${data.bid}&ad=${data.adid}&mod=${data.mode}&`, { method: "GET" }), 10 * i);
+        }
     }, []);
 
     useEffect(() => {
