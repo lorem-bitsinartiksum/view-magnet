@@ -21,7 +21,7 @@ import kotlin.system.exitProcess
 typealias AdPool = Set<Pair<Ad, Similarity>>
 
 
-class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : CommandHandler {
+class AdManager(private val updateDisplay: (Ad, Boolean) -> Unit, val cfg: Config) : CommandHandler {
     private val logger = FluentLogger.forEnclosingClass()
     private val adChangedTs = TopicService.createFor(AdChanged::class.java, cfg.id, TopicContext(mode = cfg.mode))
     private var rollStartTime = System.currentTimeMillis()
@@ -43,15 +43,15 @@ class AdManager(private val updateDisplay: (Ad) -> Unit, val cfg: Config) : Comm
             adChangedTs.publish(AdChanged(field, durationMs, EnvironmentListener.detectedPersons))
             field = newAd
             EnvironmentListener.detectedPersons.clear()
-            updateDisplay(newAd)
+            updateDisplay(newAd, showingRelatedAd)
         }
 
     override fun showRelatedAd(detection: Detection) {
         rwLock.write {
             // Billboard is already showing a related ad. So we should skip this one.
             if (showingRelatedAd) return@write
-            currentAd = specialAds[detection]?.random() ?: currentAd
             showingRelatedAd = true
+            currentAd = specialAds[detection]?.random() ?: currentAd
             // Stop blocking regular scheduler after showing it for half of the regular period
             CompletableFuture.delayedExecutor(cfg.period.toMillis() / 2, TimeUnit.MILLISECONDS).execute {
                 showingRelatedAd = false

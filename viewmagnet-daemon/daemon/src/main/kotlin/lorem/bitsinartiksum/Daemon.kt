@@ -24,12 +24,12 @@ class Daemon {
             650, 1000
             , { envRef = it }, { isPaused.set(it) }, { })
 
-        val adManager = AdManager({ ad ->
+        val adManager = AdManager({ ad, showingRelatedAd ->
             val img = AdDisplay.loadImg(ad.content) ?: return@AdManager
             val qrUrl =
                 "http://192.168.1.102:7000/api/qr?mod=${cfg.mode.toString()
                     .toLowerCase()}&billboard=${cfg.id}&ad=${ad.id}"
-            adDisplay.changeAd(img, qrUrl)
+            adDisplay.changeAd(img, qrUrl, showingRelatedAd)
         }, cfg)
 
         adDisplay.changeToRelatedAd = {
