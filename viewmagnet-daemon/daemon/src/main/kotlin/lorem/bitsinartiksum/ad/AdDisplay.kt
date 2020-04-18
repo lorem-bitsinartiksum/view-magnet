@@ -39,7 +39,7 @@ class AdDisplay(
                 height = e.component.height
             }
         })
-        overlayQr("/home")
+        overlayQr("/home", true)
 
         val sidePanel = {
             val container = JPanel()
@@ -101,15 +101,15 @@ class AdDisplay(
         frame.isVisible = true
     }
 
-    fun changeAd(newImg: Image, url: String) {
+    fun changeAd(newImg: Image, url: String, showingRelatedAd: Boolean) {
         EventQueue.invokeLater {
             img = newImg.getScaledInstance(width, height, Image.SCALE_SMOOTH)
             duration = Duration.ofMillis(0)
-            overlayQr(url)
+            overlayQr(url, showingRelatedAd)
         }
     }
 
-    private fun overlayQr(url: String) {
+    private fun overlayQr(url: String, showingRelatedAd: Boolean) {
         val (width, height) = Pair(frame.width, frame.height)
         val combinedImage = BufferedImage(
             width,
@@ -117,9 +117,11 @@ class AdDisplay(
             BufferedImage.TYPE_INT_ARGB
         )
         val g: Graphics2D = combinedImage.createGraphics()
-        val QRimg = QRGenerator.generateQRCodeImage(url, 200, 200)
         g.drawImage(img, 0, 0, null)
-        g.drawImage(QRimg, width - 500, height - 250, null)
+        if (!showingRelatedAd) {
+            val qrImg = QRGenerator.generateQRCodeImage(url, 200, 200)
+            g.drawImage(qrImg, width - 500, height - 250, null)
+        }
         g.dispose()
         poster.icon = ImageIcon(combinedImage)
 
