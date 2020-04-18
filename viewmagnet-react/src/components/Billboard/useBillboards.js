@@ -17,7 +17,8 @@ export default function useBillboards() {
     };
 
     let showAd = useCallback((id, ad) => {
-        req(`billboard/${id}/show-ad`, ad, null, "POST")
+        delete ad.feature
+        req(`billboard/${id}/show-ad`, { ad: ad }, null, "POST")
     }, []);
 
     let addBillboard = useCallback((data) => {
@@ -33,7 +34,7 @@ export default function useBillboards() {
 
     let interactWithQR = useCallback((data, freq) => {
         for (var i = 0; i < freq; i++)
-            fetch(`http://localhost:6232/api/qr?billboard=${data.bid}&ad=${data.adid}&mode=${data.mode}&`, { method: "GET" })
+            fetch(`http://localhost:7000/api/qr?billboard=${data.bid}&ad=${data.adid}&mod=${data.mode}&`, { method: "GET" })
     }, []);
 
     useEffect(() => {
@@ -41,9 +42,10 @@ export default function useBillboards() {
 
         eventSrc.onmessage = e => {
             let status = JSON.parse(e.data);
+            console.log(status)
             let formatted = {
-                id: status.billboardId, position: Object.values(status.billboardLocation), status: status.health,
-                interest: status.interest, ad: { id: status.adId, content: [Math.random().toFixed(1), Math.random().toFixed(1), Math.random().toFixed(1)] }//convertToColor(status.adId, "-") }
+                id: status.billboardId, position: { lat: status.billboardId.substring(0, status.billboardId.indexOf(":")), lng: status.billboardId.substring(status.billboardId.indexOf(":") + 1) }, status: status.health,
+                adId: status.adId
             };
             setBillboards(bs => {
                 let i = bs.findIndex(b => b.id === formatted.id);
