@@ -19,8 +19,7 @@ class ApiServer(
     private val logger = FluentLogger.forEnclosingClass()
     private var sessions = setOf<SseClient>()
     private val jack = jacksonObjectMapper()
-    private val showAdTs = TopicService.createFor(ShowAd::class.java, "SIM_MGR", TopicContext(mode = Mode.SIM))
-
+    private val showAdTs = TopicService.createFor(ShowAd::class.java, "SIM_MGR", TopicContext(mode = Mode.REAL))
 
     data class BillboardReq(val pos: List<Float>, val interest: List<Float>)
     data class InterestChangeReq(val interest: List<Float>)
@@ -53,7 +52,7 @@ class ApiServer(
                 }
                 post(":id/show-ad") { ctx ->
                     val newAd = ctx.bodyAsClass(ShowAd::class.java)
-                    showAdTs.publish(newAd)
+                    showAdTs.publish(newAd, TopicContext(individual = ctx.pathParam("id")))
                 }
                 sse("status") { client ->
                     client.onClose {

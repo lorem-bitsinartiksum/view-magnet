@@ -7,9 +7,10 @@ import ButtonGroup from "antd/lib/button/button-group";
 
 const { Option } = Select;
 
-export default function Billboard({ id, position, status, interest, ad }) {
+export default function Billboard({ id, position, status, adId }) {
 
     let [ads, setAds] = useState([]);
+    let [currentAd, setCurrentAd] = useState(null);
     let [selectedAd, setSelectedAd] = useState(null);
     let { shutdownBillboard, interactWithQR, showAd } = useBillboards();
 
@@ -23,13 +24,16 @@ export default function Billboard({ id, position, status, interest, ad }) {
                         <Option key={index} value={index}>{ad.title}</Option>
                     ))
                 });
+                setCurrentAd(res.data.ads.find(ad => ad.id === adId).content)
             })
             .catch((err) => console.log(err))
-    }, []);
+    }, [adId]);
 
     return (
         <div className="billboard">
-            <div className="poster" style={{ background: '#ffffff' }} /> {/* todo update this div with adv's img src */}
+            <div className="poster">
+                <img src={currentAd} width="200px" height="400px" />
+            </div>
             <div>
                 <div>
                     <Row>
@@ -47,14 +51,7 @@ export default function Billboard({ id, position, status, interest, ad }) {
                     </Row>
                     <Row>
                         <br></br>
-                        <ButtonGroup>
-                            <Button>Ad:</Button>
-                            <Button>{ad.id.substring(0, 12)}...</Button>
-                        </ButtonGroup>
-                    </Row>
-                    <Row>
-                        <br></br>
-                        <Input addonBefore="QR/sec:" defaultValue={0} onChange={(e) => interactWithQR({ bid: id, adid: ad.id, mode: "sim" }, e.target.value)} />
+                        <Input addonBefore="QR/sec:" defaultValue={0} onChange={(e) => interactWithQR({ bid: id, adid: adId, mode: "real" }, e.target.value)} />
                     </Row>
                     <Row>
                         <br></br>
