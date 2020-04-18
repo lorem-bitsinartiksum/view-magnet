@@ -4,6 +4,8 @@ typealias Similarity = Float
 
 data class AdPoolChanged(val newPool: Set<Pair<Ad, Similarity>>)
 
+data class AdPoolChangedWithBillboardId(val billboardId: String, val newPool: Set<Pair<Ad, Similarity>>)
+
 data class AdChanged(
     val ad: Ad,
     val durationMs: Long,

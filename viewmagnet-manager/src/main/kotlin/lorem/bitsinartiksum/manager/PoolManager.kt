@@ -31,6 +31,8 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
 
     private val adPoolChangedTs = TopicService.createFor(AdPoolChanged::class.java, "pool-manager", TopicContext())
 
+    private val adPoolChangedWithBillboardIdTs = TopicService.createFor(AdPoolChangedWithBillboardId::class.java, "pool-manager", TopicContext())
+
     private val logger = FluentLogger.forEnclosingClass()
 
     private val repositoryServiceAd = RepositoryService.createFor(AdWithFeature::class.java, cfg.mode)
@@ -88,6 +90,7 @@ class PoolManager(private val cfg: Config, hc: HealthChecker) {
             billboards.forEach {
                 updateBillboardPool(it.value)
                 adPoolChangedTs.publish(AdPoolChanged(it.value.pool), TopicContext(individual = it.key))
+                adPoolChangedWithBillboardIdTs.publish(AdPoolChangedWithBillboardId(it.key, it.value.pool), TopicContext(individual = "metric-service"))
             }
         }, 0, cfg.poolUpdatePeriodSec, TimeUnit.SECONDS)
     }

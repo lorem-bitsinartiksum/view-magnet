@@ -1,12 +1,9 @@
 import metric.MetricService
-import model.BillboardStatus
+import model.*
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import topic.TopicContext
 import topic.TopicService
-import model.AdChanged
-import model.AdPoolChanged
-import model.Mode
 
 
 data class MetricCount(val count: Int = 0)
@@ -19,6 +16,8 @@ val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://localhost:8086"
 private val tsAdChanged = TopicService.createFor(AdChanged::class.java, "metric-service", TopicContext())
 
 private val tsBillboardStatus = TopicService.createFor(BillboardStatus::class.java, "metric-service", TopicContext())
+
+private val tsAdPoolChanged = TopicService.createFor(AdPoolChangedWithBillboardId::class.java, "metric-service", TopicContext())
 
 fun main() {
     val metricService = MetricService(Mode.SIM, influxDB)
@@ -44,9 +43,8 @@ fun subscribeBillboardStatus(metricService: MetricService) {
 }
 
 fun subscribeAdPoolChanged(metricService: MetricService) {
-    val topicService = TopicService.createFor(AdPoolChanged::class.java, "metric-service", TopicContext())
-    topicService.subscribe {
+    tsAdPoolChanged.subscribe {
         println("Received AdPoolChanged from ${it.header.source}")
-        metricService.createAdPool(it.header.source, it.payload.newPool, it.header.createdAt)
+        metricService.createAdPool(it.payload.billboardId, it.payload.newPool, it.header.createdAt)
     }
 }

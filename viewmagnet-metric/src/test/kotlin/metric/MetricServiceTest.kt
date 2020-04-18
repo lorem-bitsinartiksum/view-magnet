@@ -52,8 +52,8 @@ internal class MetricServiceTest {
 
     @Test
     fun `published AdPoolChanged should create AdPool metric on influxdb`() {
-        val topicService = TopicService.createFor(AdPoolChanged::class.java, "metric-service-test", TopicContext())
-        val adPoolChanged = AdPoolChanged(setOf(Ad("0", "asd") to 0.2f,
+        val topicService = TopicService.createFor(AdPoolChangedWithBillboardId::class.java, "metric-service-test", TopicContext())
+        val adPoolChanged = AdPoolChangedWithBillboardId("metric-service-test", setOf(Ad("0", "asd") to 0.2f,
             Ad("1", "qwe") to 0.5f,
             Ad("2", "zxc") to 0.9f))
         println("Published $adPoolChanged")
