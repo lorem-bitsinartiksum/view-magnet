@@ -1,6 +1,11 @@
 package lorem.bitsinartiksum
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.Detection
 import model.*
 import java.io.BufferedReader
@@ -9,7 +14,6 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.ArrayList
 
 
 data class WeatherInfo(
@@ -22,14 +26,38 @@ data class WeatherInfo(
     val country: String
 )
 
-class EnvironmentListener(private val cmdHandler: CommandHandler, private val isOverridden: AtomicBoolean) {
+class EnvironmentListener(
+    private val cmdHandler: CommandHandler,
+    private val isOverridden: AtomicBoolean,
+    fakeEnvChan: Flow<BillboardEnvironment>,
+    fakePplChan: Flow<Person>
+) {
 
     companion object {
-        var detectedPersons = Collections.synchronizedList<Person>(mutableListOf())
+        var detectedPersons: MutableList<Person> = Collections.synchronizedList(mutableListOf())
     }
 
     private val jackson = jacksonObjectMapper()
     var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f)
+
+    init {
+        runBlocking(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
+            launch {
+                fakeEnvChan.collect {
+                    if (isOverridden.get()) {
+                        envRef = it
+                        handleEnvData(it)
+                    }
+                }
+            }
+            launch {
+                fakePplChan.collect {
+                    if (isOverridden.get())
+                        detectedPersons.add(it)
+                }
+            }
+        }
+    }
 
     fun start() {
 
@@ -45,6 +73,7 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
 
         runPythonScript("weather-info\\weather.py") {
             val json = jackson.readTree(it)
+
             if (!isOverridden.get() && !json.isEmpty) {
                 val weather = Weather.valueOf(json.path("weather").path(0).get("main").asText("UNKNOWN").toUpperCase())
                 val temp = (json.path("main").get("temp").asText("0")).toFloat()
@@ -67,8 +96,13 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
         }
 
         runPythonScript("sound-pressure-level-meter\\spl_meter.py") {
+
+            if (isOverridden.get()) {
+                return@runPythonScript
+            }
+
             val sound = it.toFloatOrNull()
-            if (!isOverridden.get() && sound != null && weatherInfo.weather != Weather.UNKNOWN) {
+            if (sound != null && weatherInfo.weather != Weather.UNKNOWN) {
                 envRef = BillboardEnvironment(
                     weather = weatherInfo.weather,
                     tempC = weatherInfo.tempC,
@@ -79,21 +113,14 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
                     country = weatherInfo.country,
                     soundDb = sound
                 )
-
-                when {
-                    envRef.weather == Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
-                    envRef.weather == Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
-                    envRef.soundDb > 80 -> cmdHandler.showRelatedAd(Detection.NOISE)
-                    envRef.tempC > 35 -> cmdHandler.showRelatedAd(Detection.HOT)
-                    envRef.tempC < -5 -> cmdHandler.showRelatedAd(Detection.COLD)
-                }
+                handleEnvData(envRef)
             }
         }
 
         runPythonScriptWithBatch("age-gender-pred") {
 
-            if (isOverridden.get())
-                return@runPythonScriptWithBatch
+            if (isOverridden.get()) return@runPythonScriptWithBatch
+
             val regex = "\\d+,\\d+".toRegex()
             if (it.startsWith("age-gender : ")) {
                 println("READ : $it")
@@ -104,28 +131,16 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
                     .replace("'", "")
                     .replace(" ", "")
 
-                val parts = values.split(",")
-
-                val arrayListAge = ArrayList<Int>()
-                val arrayListGender = ArrayList<String>()
-
                 val passingPpl = regex
                     .findAll(values)
                     .map { it.value.split(",") }
                     .map { (age, gender) -> Person(Gender.valueOf(gender.toUpperCase()), Age.of(age.toInt())) }
                     .toList()
 
+
                 detectedPersons.addAll(passingPpl)
 
-
-                for ((index, i) in parts.withIndex()) {
-                    if (index % 2 == 0) {
-                        arrayListAge.add(i.toInt())
-                    } else {
-                        arrayListGender.add(i)
-                    }
-                }
-                if (arrayListAge.isNotEmpty() && arrayListAge.min()!! < 11) {
+                if (passingPpl.any { it.age == Age.BABY }) {
                     cmdHandler.showRelatedAd(Detection.BABY)
                 }
             } else if (it.startsWith("object : ")) {
@@ -141,6 +156,18 @@ class EnvironmentListener(private val cmdHandler: CommandHandler, private val is
                     }
                 }
             }
+        }
+    }
+
+    private fun handleEnvData(envData: BillboardEnvironment? = null) {
+        val env = envData ?: envRef
+
+        when {
+            env.weather == Weather.TORNADO -> cmdHandler.showRelatedAd(Detection.TORNADO)
+            env.weather == Weather.RAIN -> cmdHandler.showRelatedAd(Detection.RAIN)
+            env.soundDb > 80 -> cmdHandler.showRelatedAd(Detection.NOISE)
+            env.tempC > 35 -> cmdHandler.showRelatedAd(Detection.HOT)
+            env.tempC < -5 -> cmdHandler.showRelatedAd(Detection.COLD)
         }
     }
 }
