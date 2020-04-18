@@ -9,20 +9,20 @@ import kotlin.test.assertEquals
 
 class PoolManagerTest {
 
-    private val config = Config()
+    private val config = Config(similarityThreshold = 0.2f, mode = Mode.SIM)
 
     private val repositoryService = RepositoryService.createFor(AdWithFeature::class.java, config.mode)
 
     @Test
     fun `test1 updateBillboardPool`() {
-        val ad1 = AdWithFeature("1", "qwe", listOf(0.9f, 0.2f, 0.5f))
-        val ad2 = AdWithFeature("2", "asd", listOf(0.1f, 0.9f, 0.1f))
-        val ad3 = AdWithFeature("3", "zxc", listOf(0.8f, 0.1f, 0.4f))
+        val ad1 = AdWithFeature("1", "qwe", listOf(0.9f, 0.2f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f))
+        val ad2 = AdWithFeature("2", "asd", listOf(0.1f, 0.9f, 0.1f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f))
+        val ad3 = AdWithFeature("3", "zxc", listOf(0.8f, 0.1f, 0.4f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f))
         repositoryService.save(ad1)
         repositoryService.save(ad2)
         repositoryService.save(ad3)
         val poolManager = PoolManager(config, HealthChecker())
-        val billboard = Billboard(emptySet(), listOf(0.9f, 0.2f, 0.5f), 1)
+        val billboard = Billboard(emptySet(), listOf(0.9f, 0.2f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f), 1)
         poolManager.updateBillboardPool(billboard)
         assertEquals(billboard.pool.size, 3)
         assertEquals(billboard.pool.first().first, Ad(ad1.id, ad1.content))
@@ -31,9 +31,9 @@ class PoolManagerTest {
 
     @Test
     fun `test2 calcNewInterest`() {
-        repositoryService.save(AdWithFeature("4", "asd", listOf(0.7f, 0.7f, 0.7f)))
+        repositoryService.save(AdWithFeature("4", "asd", listOf(0.7f, 0.7f, 0.7f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f)))
         val poolManager = PoolManager(config, HealthChecker())
-        val newInterest = poolManager.calcNewInterest("4", Billboard(emptySet(), listOf(0.3f, 0.2f, 0.4f), 2), 2, 1)
-        assertEquals(listOf(0.5f, 0.45f, 0.55f), newInterest)
+        val newInterest = poolManager.calcNewInterest("4", Billboard(emptySet(), listOf(0.3f, 0.2f, 0.4f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f), 2), 100, 100)
+        assertEquals(listOf(0.5f, 0.45f, 0.55f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f), newInterest)
     }
 }
