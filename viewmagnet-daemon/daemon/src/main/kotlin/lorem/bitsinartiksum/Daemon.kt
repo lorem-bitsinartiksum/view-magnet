@@ -65,7 +65,7 @@ class Daemon {
     @ExperimentalCoroutinesApi
     fun CoroutineScope.watchCurrentAd(adMgr: AdManager) = produce {
         while (true) {
-            send(adMgr.currentAd.content)
+            send(adMgr.currentAd.id)
             delay(1000)
         }
     }
