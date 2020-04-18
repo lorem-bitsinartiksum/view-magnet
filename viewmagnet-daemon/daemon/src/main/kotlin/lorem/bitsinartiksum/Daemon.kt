@@ -8,11 +8,13 @@ import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
 import model.BillboardEnvironment
+import model.Weather
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 class Daemon {
 
-    private var envRef: BillboardEnvironment? = null
+    private var envRef = AtomicReference(BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f))
     private var isPaused = AtomicBoolean(false)
 
     fun start() = runBlocking {
@@ -22,7 +24,7 @@ class Daemon {
         val adDisplay = AdDisplay(
             AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
             650, 1000
-            , { envRef = it }, { isPaused.set(it) }, { })
+            , { envRef.set(it) }, { isPaused.set(it) }, { })
 
         val adManager = AdManager({ ad, showingRelatedAd ->
             val img = AdDisplay.loadImg(ad.content) ?: return@AdManager
@@ -52,12 +54,7 @@ class Daemon {
     @ExperimentalCoroutinesApi
     fun CoroutineScope.watchEnv(envListener: EnvironmentListener) = produce<BillboardEnvironment> {
         while (true) {
-            val env = if (isPaused.get()) envRef else envListener.envRef
-            if (env == null) {
-                send(envListener.envRef)
-            } else {
-                send(env)
-            }
+            send(envListener.envRef)
             delay(1000)
         }
     }

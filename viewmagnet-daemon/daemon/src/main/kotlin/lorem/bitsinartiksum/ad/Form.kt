@@ -1,5 +1,6 @@
 package lorem.bitsinartiksum.ad
 
+import model.Age
 import model.BillboardEnvironment
 import model.Weather
 import java.awt.BorderLayout
@@ -42,6 +43,21 @@ object Form {
             )
             topic
 
+        }
+    }
+
+    fun probControl(): Pair<JPanel, () -> Pair<Map<Age, Double?>, Map<String, Double?>>> {
+        val ages = Age.values().map { it.toString() }
+        val other = listOf("EnvDataSendPeriod", "PersonProb", "Gender=ManProb")
+        val otherFields = formFields(other)
+        val ageFields = formFields(ages)
+        val view = formView((ageFields + otherFields).values.toMap(), emptyMap())
+        return view to {
+            val ages =
+                ageFields.map { (name, field) -> Age.valueOf(name.toUpperCase()) to field.second.text.toDoubleOrNull() }
+                    .toMap()
+            val others = otherFields.mapValues { it.value.second.text.toDoubleOrNull() }
+            ages to others
         }
     }
 

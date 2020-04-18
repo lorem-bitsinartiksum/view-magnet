@@ -13,6 +13,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import javax.swing.*
+import kotlin.math.roundToLong
 
 class AdDisplay(
     defaultImg: Image,
@@ -47,8 +48,8 @@ class AdDisplay(
 
             val (envFormPanel, envSupplier) = Form.weather()
             val overrideCb = JCheckBox("Override Sensors")
-            val setBtn = JButton("SET")
-            setBtn.isEnabled = false
+            val setEnvBtn = JButton("SET ENV")
+            setEnvBtn.isEnabled = false
 
             val cmdPanel = JPanel()
             cmdPanel.layout = FlowLayout()
@@ -56,17 +57,29 @@ class AdDisplay(
             val showAdBtn = JButton("Show Related")
             showAdBtn.isEnabled = false
 
+            val (probControlPanel, probSupplier) = Form.probControl()
+            val setProbsBtn = JButton("SET SIM PARAMS")
+
 
             overrideCb.addItemListener {
                 val isSelected = it.stateChange == ItemEvent.SELECTED
                 toggleOverride(isSelected)
-                setBtn.isEnabled = isSelected
+                setEnvBtn.isEnabled = isSelected
                 showAdBtn.isEnabled = isSelected
             }
 
-            setBtn.addActionListener {
+            setEnvBtn.addActionListener {
                 val env = envSupplier()
                 overrideEnv(env)
+            }
+
+            setProbsBtn.addActionListener {
+                val (ages, others) = probSupplier()
+                ages.filterValues { it != null }.forEach { SimDataGen.ageProb[it.key] = it.value!! }
+                SimDataGen.period =
+                    Duration.ofMillis(others["EnvDataSendPeriod"]?.roundToLong() ?: SimDataGen.period.toMillis())
+                SimDataGen.genderProb = others["Gender=ManProb"] ?: SimDataGen.genderProb
+                SimDataGen.personProb = others["PersonProb"] ?: SimDataGen.personProb
             }
 
             cmdPanel.add(detection)
@@ -74,9 +87,12 @@ class AdDisplay(
 
 
             container.add(overrideCb, BorderLayout.NORTH)
+            envFormPanel.add(setEnvBtn, BorderLayout.SOUTH)
             container.add(envFormPanel, BorderLayout.CENTER)
-            container.add(setBtn, BorderLayout.SOUTH)
+//            container.add(setEnvBtn, BorderLayout.SOUTH)
             container.add(cmdPanel)
+            probControlPanel.add(setProbsBtn, BorderLayout.SOUTH)
+            container.add(probControlPanel)
 
             showAdBtn.addActionListener {
                 changeToRelatedAd(detection.selectedItem as Detection)
