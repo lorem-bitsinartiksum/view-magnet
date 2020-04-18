@@ -7,7 +7,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
-import lorem.bitsinartiksum.ad.SimDataGen
 import model.BillboardEnvironment
 import model.Weather
 import java.util.concurrent.atomic.AtomicBoolean
@@ -43,7 +42,7 @@ class Daemon {
 
         val statusReporter = StatusReporter(cfg)
 
-        val envListener = EnvironmentListener(adManager, isPaused, SimDataGen.environment(), SimDataGen.people())
+        val envListener = EnvironmentListener(adManager, isPaused)
 
         adDisplay.show()
         adManager.start()

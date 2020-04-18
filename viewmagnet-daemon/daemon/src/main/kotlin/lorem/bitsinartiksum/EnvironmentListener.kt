@@ -2,11 +2,11 @@ package lorem.bitsinartiksum
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.Detection
+import lorem.bitsinartiksum.ad.SimDataGen
 import model.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -28,9 +28,7 @@ data class WeatherInfo(
 
 class EnvironmentListener(
     private val cmdHandler: CommandHandler,
-    private val isOverridden: AtomicBoolean,
-    fakeEnvChan: Flow<BillboardEnvironment>,
-    fakePplChan: Flow<Person>
+    private val isOverridden: AtomicBoolean
 ) {
 
     companion object {
@@ -41,19 +39,21 @@ class EnvironmentListener(
     var envRef: BillboardEnvironment = BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f)
 
     init {
-        runBlocking(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
-            launch {
-                fakeEnvChan.collect {
-                    if (isOverridden.get()) {
-                        envRef = it
-                        handleEnvData(it)
+        Executors.newSingleThreadExecutor().execute {
+            runBlocking(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
+                launch {
+                    SimDataGen.environment().collect {
+                        if (isOverridden.get()) {
+                            envRef = it
+                            handleEnvData(it)
+                        }
                     }
                 }
-            }
-            launch {
-                fakePplChan.collect {
-                    if (isOverridden.get())
-                        detectedPersons.add(it)
+                launch {
+                    SimDataGen.people().collect {
+                        if (isOverridden.get())
+                            detectedPersons.add(it)
+                    }
                 }
             }
         }
