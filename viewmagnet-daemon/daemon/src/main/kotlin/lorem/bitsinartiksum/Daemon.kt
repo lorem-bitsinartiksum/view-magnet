@@ -7,14 +7,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lorem.bitsinartiksum.ad.AdDisplay
 import lorem.bitsinartiksum.ad.AdManager
+import lorem.bitsinartiksum.ad.SimDataGen
 import model.BillboardEnvironment
-import model.Weather
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 class Daemon {
 
-    private var envRef = AtomicReference(BillboardEnvironment(Weather.UNKNOWN, 0f, 0f, 0, 0, 0, "", 0f))
     private var isPaused = AtomicBoolean(false)
 
     fun start() = runBlocking {
@@ -24,7 +22,7 @@ class Daemon {
         val adDisplay = AdDisplay(
             AdDisplay.loadImg("https://files.slack.com/files-pri/TSQ51J4LW-F0121CTCYSZ/image.png?pub_secret=dbea834d73")!!,
             650, 1000
-            , { envRef.set(it) }, { isPaused.set(it) }, { })
+            , { SimDataGen.envRef.set(it) }, { isPaused.set(it) }, { })
 
         val adManager = AdManager({ ad, showingRelatedAd ->
             val img = AdDisplay.loadImg(ad.content) ?: return@AdManager

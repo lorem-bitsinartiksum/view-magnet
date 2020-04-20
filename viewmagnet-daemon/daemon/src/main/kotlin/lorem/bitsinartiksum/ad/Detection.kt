@@ -59,45 +59,5 @@ enum class Detection {
             }()
             return detectionAds
         }
-
-//        fun extractAdsFromFolder(
-//            path: String = System.getProperty(
-//                "detectionAds",
-//                defaultPath
-//            )
-//        ): Map<Detection, Set<BufferedImage>> {
-//
-//            val folders = Files.list(Paths.get(path)).collect(Collectors.toList())
-//            val types = values().map { it.name.toLowerCase() }
-//
-//            // Check if a folder exists for each detection type
-//            val allExists = types.all { name ->
-//                folders.any { Files.isDirectory(it) && it.fileName.toString() == name }
-//            }
-//
-//            if (!allExists) {
-//                Files.createDirectory(Paths.get(defaultPath, "detections"))
-//                types.forEach {
-//                    Files.createDirectory()
-//                }
-//                throw Exception("Create a folder with at least 1 img for each type, given path: $path/detections")
-//            }
-//
-//            val detectionImages = {
-//                folders
-//                    .filter { it.fileName.toString() in types }
-//                    .map { fpath ->
-//                        val detection = valueOf(fpath.fileName.toString().toUpperCase())
-//                        val images = Files.list(fpath).map { ImageIO.read(it.toFile()) } .collect(Collectors.toSet())
-//                        if(images.size > 0) {
-//                            throw Exception("At least 1 image required for each type couldn't find img for ${detection.name}")
-//                        }
-//                        val pair: Pair<Detection, Set<BufferedImage>> = detection to images
-//                        pair
-//                    }.toMap()
-//            }()
-//
-//            return detectionImages
-//        }
     }
 }
