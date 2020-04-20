@@ -89,7 +89,6 @@ class AdDisplay(
             container.add(overrideCb, BorderLayout.NORTH)
             envFormPanel.add(setEnvBtn, BorderLayout.SOUTH)
             container.add(envFormPanel, BorderLayout.CENTER)
-//            container.add(setEnvBtn, BorderLayout.SOUTH)
             container.add(cmdPanel)
             probControlPanel.add(setProbsBtn, BorderLayout.SOUTH)
             container.add(probControlPanel)
