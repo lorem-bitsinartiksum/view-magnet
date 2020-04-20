@@ -1,7 +1,6 @@
 package lorem.bitsinartiksum.manager
 
 import com.google.common.flogger.FluentLogger
-import model.Mode
 import model.Shutdown
 import topic.TopicContext
 import topic.TopicService
@@ -15,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 class BillboardService(private val poolMgr: PoolManager) {
 
     private val logger = FluentLogger.forEnclosingClass()
-    private val shutdownTs = TopicService.createFor(Shutdown::class.java, "SIM_MGR", TopicContext(mode = Mode.SIM))
+    private val shutdownTs = TopicService.createFor(Shutdown::class.java, "SIM_MGR", TopicContext())
     private val spawnedDaemons = ConcurrentHashMap<String, Process>()
 
     init {
