@@ -22,7 +22,7 @@ class Daemon {
         val cfg = Config()
 
         val adDisplay = AdDisplay(
-            AdDisplay.loadImg("https://images.unsplash.com/photo-1582996269871-dad1e4adbbc7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=633&q=80")!!,
+            AdDisplay.loadImg("https://files.slack.com/files-pri/TSQ51J4LW-F0121CTCYSZ/image.png?pub_secret=dbea834d73")!!,
             650, 1000
             , { envRef.set(it) }, { isPaused.set(it) }, { })
 
