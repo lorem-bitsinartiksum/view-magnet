@@ -20,7 +20,7 @@ private val tsBillboardStatus = TopicService.createFor(BillboardStatus::class.ja
 private val tsAdPoolChanged = TopicService.createFor(AdPoolChangedWithBillboardId::class.java, "metric-service", TopicContext())
 
 fun main() {
-    val metricService = MetricService(Mode.SIM, influxDB)
+    val metricService = MetricService(Mode.valueOf(System.getProperty("mode", "sim").toUpperCase()), influxDB)
     subscribeAdChanged(metricService)
     subscribeBillboardStatus(metricService)
     subscribeAdPoolChanged(metricService)
