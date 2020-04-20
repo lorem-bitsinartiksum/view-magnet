@@ -53,7 +53,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1585050865292,
+  "iteration": 1587378203456,
   "links": [],
   "panels": [
     {
@@ -178,7 +178,7 @@
           "measurement": "billboard_status",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT mean(\"timezone\") FROM \"billboard_status\" WHERE ( ('' =~ /^$billboard$/) OR (\"billboard_id\" =~ /^$billboard$/) ) AND ( ('' =~ /^$mode$/) OR (\"mode\" =~ /^$mode$/) ) AND $timeFilter",
+          "query": "SELECT last(\"timezone\") FROM \"billboard_status\" WHERE ( ('' =~ /^$billboard$/) OR (\"billboard_id\" =~ /^$billboard$/) ) AND ( ('' =~ /^$mode$/) OR (\"mode\" =~ /^$mode$/) ) AND $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -935,5 +935,5 @@
   "variables": {
     "list": []
   },
-  "version": 15
+  "version": 16
 }
